@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TreeEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,7 +10,8 @@ public class Board : Singleton<Board> {
 	[SerializeField] private GameObject tilePrefab;
 	[Header("Properties")]
 	[SerializeField, Min(1)] private int tileCount;
-	[SerializeField, Min(1)] private int tileGroupCount;
+	[SerializeField, Min(1)] private int minGroupTileCount;
+	[SerializeField, Min(1)] private int maxGroupTileCount;
 
 	private List<List<Tile>> tiles = new List<List<Tile>>( );
 
@@ -80,6 +82,7 @@ public class Board : Singleton<Board> {
 			}
 		}
 
+		/*
 		// Select random tiles on the board that will be starting points for the tile groups
 		for (int i = 0; i < tileGroupCount; i++) {
 			// Find a random tile on the board
@@ -91,7 +94,28 @@ public class Board : Singleton<Board> {
 			randomTile.TileGroupID = i;
 
 			// TEST: change the color of the tile to a random color to show the different tile groups
-			randomTile.GetComponent<SpriteRenderer>( ).color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+			randomTile.GetComponent<SpriteRenderer>( ).color = Color.HSVToRGB((float) i / tileGroupCount, 1f, 0.5f);
+		}
+		*/
+
+		// The number of groups that have currently been created
+		int groupCount = 0;
+
+		while (createdTiles.Count > 0) {
+			// Generate a random size for the current tile group
+			int groupTileCount = Random.Range(minGroupTileCount, maxGroupTileCount + 1);
+
+			// Find a random tile on the board to start the tile group
+			Tile randomTile = createdTiles[Random.Range(0, createdTiles.Count)];
+			createdTiles.Remove(randomTile);
+
+			for (int i = 0; i < groupTileCount; i++) {
+				// Add the tile to its tile group
+				tiles.Add(new List<Tile>( ) { randomTile });
+				randomTile.TileGroupID = groupCount;
+			}
+
+			groupCount++;
 		}
 	}
 
