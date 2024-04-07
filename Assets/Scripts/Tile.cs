@@ -8,17 +8,9 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private SpriteRenderer spriteRenderer;
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
-	[SerializeField] private TileGroup _tileGroup;
+	[SerializeField] private int _tileGroupID;
 
-	public TileGroup TileGroup {
-		get => _tileGroup;
-		set {
-			_tileGroup = value;
-
-			// Set the parent of this tile to the inputted tile group
-			transform.SetParent(_tileGroup.transform, true);
-		}
-	}
+	public int TileGroupID { get => _tileGroupID; set => _tileGroupID = value; }
 
 	public Vector2Int BoardPosition {
 		get => _boardPosition;

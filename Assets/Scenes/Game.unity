@@ -168,8 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
-  tileGroupPrefab: {fileID: 7366687490080253838, guid: 9315613a498306940aaec0e02122d6c8, type: 3}
-  boardTileCount: 0
+  tileCount: 36
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

@@ -32,42 +32,4 @@ public class TileGroup : MonoBehaviour {
 			return new Vector2(centerX, centerY);
 		}
 	}
-
-	public void Generate ( ) {
-		List<Vector2Int> availablePositions = new List<Vector2Int>( ) { Vector2Int.zero };
-		List<Vector2Int> takenPositions = new List<Vector2Int>( );
-
-		// Generate a random size for the tile group
-		int tileGroupSize = Random.Range(minGroupSize, maxGroupSize + 1);
-
-		for (int i = 0; i < tileGroupSize; i++) {
-			// Get a random available position from the list
-			Vector2Int randomBoardPosition = availablePositions[Random.Range(0, availablePositions.Count)];
-
-			// Create a new tile at that position
-			Board.Instance.CreateTile(this, randomBoardPosition);
-			availablePositions.Remove(randomBoardPosition);
-			takenPositions.Add(randomBoardPosition);
-
-			Vector2Int upPosition = randomBoardPosition + Vector2Int.up;
-			Vector2Int rightPosition = randomBoardPosition + Vector2Int.right;
-			Vector2Int downPosition = randomBoardPosition + Vector2Int.down;
-			Vector2Int leftPosition = randomBoardPosition + Vector2Int.left;
-
-			// Add all surrounding tile positions to the available tile positions
-			// Do not add the position if it has already been taken by a tile though OR if it has already been added
-			if (!takenPositions.Contains(upPosition) && !availablePositions.Contains(upPosition)) {
-				availablePositions.Add(upPosition);
-			}
-			if (!takenPositions.Contains(rightPosition) && !availablePositions.Contains(rightPosition)) {
-				availablePositions.Add(rightPosition);
-			}
-			if (!takenPositions.Contains(downPosition) && !availablePositions.Contains(downPosition)) {
-				availablePositions.Add(downPosition);
-			}
-			if (!takenPositions.Contains(leftPosition) && !availablePositions.Contains(leftPosition)) {
-				availablePositions.Add(leftPosition);
-			}
-		}
-	}
 }
