@@ -51,8 +51,8 @@ public class Board : Singleton<Board> {
 				// The new tile group ID will be the current count of tile groups on the board
 				CreateTile(newBoardPosition, tileGroupID: Tiles.Count);
 			} else {
-				// Select a random cardinal tile group ID
-				CreateTile(newBoardPosition, tileGroupID: cardinalTileGroupIDs[Random.Range(0, cardinalTileGroupIDs.Count)]);
+				// Select the smallest cardinal tile group to add this tile to
+				CreateTile(newBoardPosition, tileGroupID: cardinalTileGroupIDs[0]);
 			}
 
 			// Add all surrounding tile positions to the available tile positions
@@ -127,7 +127,7 @@ public class Board : Singleton<Board> {
 			}
 		}
 
-		return cardinalTileGroupIDs;
+		return cardinalTileGroupIDs.OrderBy(ID => Tiles[ID].Count).ToList( );
 	}
 
 	/// <summary>
@@ -145,7 +145,7 @@ public class Board : Singleton<Board> {
 			for (int j = 0; j < Tiles[i].Count; j++) {
 				// If a tile is currently on one of the possible void positions, then remove the cardinal position
 				if (cardinalVoids.Contains(Tiles[i][j].BoardPosition)) {
-					cardinalVoids.Remove(	Tiles[i][j].BoardPosition);
+					cardinalVoids.Remove(Tiles[i][j].BoardPosition);
 				}
 			}
 		}
