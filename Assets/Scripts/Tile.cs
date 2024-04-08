@@ -13,11 +13,10 @@ public class Tile : MonoBehaviour {
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
-
 	private TileGroup _tileGroup;
 
 	/// <summary>
-	/// The type of this tile
+	/// The type of sprite that is showing on this tile
 	/// </summary>
 	public TileType TileType {
 		get => _tileType;
@@ -39,7 +38,7 @@ public class Tile : MonoBehaviour {
 			if (_tileGroup != null) {
 				_tileGroup.RemoveTile(this);
 			}
-			
+
 			// Add this tile to the new group if it is not null
 			if (value != null) {
 				value.AddTile(this);
@@ -58,10 +57,36 @@ public class Tile : MonoBehaviour {
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
-			transform.position = Board.BoardPositionToWorldPosition(_boardPosition);
+			transform.position = Board.Instance.BoardPositionToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
+
+			// Update this tile's type based on the surrounding tiles
+			UpdateTileType( );
+
+			// Update connecting tiles as well
+			Tile bottomLeftTile = Board.Instance.GetTile(_boardPosition + Vector2Int.down);
+			if (bottomLeftTile != null) {
+				bottomLeftTile.UpdateTileType( );
+			}
+
+			Tile bottomRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.right);
+			if (bottomRightTile != null) {
+				bottomRightTile.UpdateTileType( );
+			}
 		}
+	}
+
+	/// <summary>
+	/// Update the type of this tile based on the surrounding tiles
+	/// </summary>
+	public void UpdateTileType ( ) {
+		// Get whether or not the surrounding tiles are part of the same tile group
+		int topLeftTile = Board.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) == null ? 0 : 1;
+		int topRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) == null ? 0 : 1;
+
+		// Set the type of the tile
+		TileType = (TileType) ((topLeftTile * 2) + (topRightTile * 1));
 	}
 }
