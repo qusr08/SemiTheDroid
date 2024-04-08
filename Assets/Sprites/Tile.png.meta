@@ -134,7 +134,11 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
       tessellationDetail: 0
       bones: []
       spriteID: bc15f1e8e20af554bb033463d60b8d44
@@ -155,7 +159,11 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
       tessellationDetail: 0
       bones: []
       spriteID: 1b5153237182622428a1a28904c0da43
@@ -176,7 +184,11 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
       tessellationDetail: 0
       bones: []
       spriteID: 8c842b8b7b3ebdc4e82b15bc7e0018db
@@ -197,11 +209,115 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
       tessellationDetail: 0
       bones: []
       spriteID: 2192049c353ab1b4f89da9a5375a66ef
       internalID: -1835522799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_4
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 36
+        width: 54
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0ea565ace18bf554fbc491b8437eaa90
+      internalID: 382870924
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_5
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 36
+        width: 54
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56579c7af946e694280a8716bfdbd3ba
+      internalID: -529943889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_6
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 0
+        width: 54
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81be6ba57940f3e4fbd4d45b13585f2a
+      internalID: -530793955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_7
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 0
+        width: 54
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -26, y: 5}
+        - {x: 0, y: -8}
+        - {x: 26, y: 5}
+        - {x: 0, y: 18}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cad7e71a9b14d845965d1493ee12dcb
+      internalID: -1535610512
       vertices: []
       indices: 
       edges: []
@@ -222,6 +338,9 @@ TextureImporter:
       Tile_2: -1877555938
       Tile_3: -1835522799
       Tile_4: 382870924
+      Tile_5: -529943889
+      Tile_6: -530793955
+      Tile_7: -1535610512
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

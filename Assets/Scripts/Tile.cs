@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum TileType {
-	SOLID_SOLID, SOLID_DOTTED, DOTTED_SOLID, DOTTED_DOTTED
+	REG_SOL_SOL, REG_SOL_DOT, REG_DOT_SOL, REG_DOT_DOT,
+	SEL_SOL_SOL, SEL_SOL_DOT, SEL_DOT_SOL, SEL_DOT_DOT
 }
 
 public class Tile : MonoBehaviour {
@@ -13,7 +14,20 @@ public class Tile : MonoBehaviour {
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
+	[SerializeField] private bool _isSelected;
 	private TileGroup _tileGroup;
+
+	/// <summary>
+	/// Whether or not this tile is selected or not
+	/// </summary>
+	public bool IsSelected {
+		get => _isSelected;
+		private set {
+			_isSelected = value;
+
+			UpdateTileType( );
+		}
+	}
 
 	/// <summary>
 	/// The type of sprite that is showing on this tile
@@ -78,6 +92,14 @@ public class Tile : MonoBehaviour {
 		}
 	}
 
+	private void OnMouseEnter ( ) {
+		IsSelected = true;
+	}
+
+	private void OnMouseExit ( ) {
+		IsSelected = false;
+	}
+
 	/// <summary>
 	/// Update the type of this tile based on the surrounding tiles
 	/// </summary>
@@ -87,6 +109,6 @@ public class Tile : MonoBehaviour {
 		int topRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) == null ? 0 : 1;
 
 		// Set the type of the tile
-		TileType = (TileType) ((topLeftTile * 2) + (topRightTile * 1));
+		TileType = (TileType) ((IsSelected ? 4 : 0) + (topLeftTile * 2) + (topRightTile * 1));
 	}
 }
