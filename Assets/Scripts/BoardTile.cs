@@ -1,20 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class Tile : MonoBehaviour {
+public enum BoardTileType {
+	SOLID_SOLID, SOLID_DOTTED, DOTTED_SOLID, DOTTED_DOTTED
+}
+
+public class BoardTile : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private SpriteRenderer spriteRenderer;
+	[SerializeField] private Sprite[ ] sprites;
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
+	[SerializeField] private BoardTileType _boardTileType;
 
-	private TileGroup _tileGroup;
+	private BoardTileGroup _tileGroup;
+
+	/// <summary>
+	/// The type of this tile
+	/// </summary>
+	public BoardTileType BoardTileType {
+		get => _boardTileType;
+		set {
+			_boardTileType = value;
+
+			// Set the sprite of this tile
+			spriteRenderer.sprite = sprites[(int) _boardTileType];
+		}
+	}
 
 	/// <summary>
 	/// The tile group that this tile is part of
 	/// </summary>
-	public TileGroup TileGroup {
+	public BoardTileGroup TileGroup {
 		get => _tileGroup;
 		set {
 			// Remove this tile from the previous group if it was in one

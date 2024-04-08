@@ -98,5 +98,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 5910414079998088175}
+  sprites:
+  - {fileID: -1877555938, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
+  - {fileID: -1770783712, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
+  - {fileID: 1628520499, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
+  - {fileID: -1835522799, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
   _boardPosition: {x: 0, y: 0}
-  _tileGroupID: -1
+  _tileType: 0

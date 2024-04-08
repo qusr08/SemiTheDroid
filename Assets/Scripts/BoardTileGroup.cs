@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class TileGroup {
-	private List<Tile> tiles;
+public class BoardTileGroup {
+	private List<BoardTile> tiles;
 
-	public Tile this[int index] { get => tiles[index]; set => tiles[index] = value; }
+	public BoardTile this[int index] { get => tiles[index]; set => tiles[index] = value; }
 
 	/// <summary>
 	/// The current number of tiles inside this tile group
@@ -16,15 +16,15 @@ public class TileGroup {
 	/// <summary>
 	/// Default constructor for tile groups
 	/// </summary>
-	public TileGroup ( ) {
-		tiles = new List<Tile>( );
+	public BoardTileGroup ( ) {
+		tiles = new List<BoardTile>( );
 	}
 
 	/// <summary>
 	/// Add a tile to this tile group
 	/// </summary>
 	/// <param name="tile">The tile to add</param>
-	public void AddTile (Tile tile) {
+	public void AddTile (BoardTile tile) {
 		// If the tile is already in this group, return
 		if (tile.TileGroup == this) {
 			return;
@@ -38,7 +38,7 @@ public class TileGroup {
 	/// Remove a tile from this tile group
 	/// </summary>
 	/// <param name="tile">The tile to remove</param>
-	public void RemoveTile (Tile tile) {
+	public void RemoveTile (BoardTile tile) {
 		// If the tile is not in this group, return
 		if (tile.TileGroup != this) {
 			return;
