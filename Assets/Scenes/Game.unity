@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
-  tileCount: 36
+  tileCount: 42
   minGroupTileCount: 4
   maxGroupTileCount: 6
 --- !u!1 &519420028

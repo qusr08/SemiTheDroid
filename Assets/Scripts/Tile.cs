@@ -8,29 +8,32 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private SpriteRenderer spriteRenderer;
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
-	[SerializeField] private int _tileGroupID;
 
-	public int TileGroupID {
-		get => _tileGroupID;
+	private TileGroup _tileGroup;
+
+	/// <summary>
+	/// The tile group that this tile is part of
+	/// </summary>
+	public TileGroup TileGroup {
+		get => _tileGroup;
 		set {
 			// Remove this tile from the previous group if it was in one
-			if (_tileGroupID >= 0) {
-				Board.Instance.Tiles[_tileGroupID].Remove(this);
+			if (_tileGroup != null) {
+				_tileGroup.RemoveTile(this);
+			}
+			
+			// Add this tile to the new group if it is not null
+			if (value != null) {
+				value.AddTile(this);
 			}
 
-			// Make sure that the tile group ID never exceeds the size of the main tiles array
-			_tileGroupID = Mathf.Min(value, Board.Instance.Tiles.Count);
-
-			// If the specified tile group is greater than or equal to the current amount of tile groups, then create a new group
-			// If there is already a tile group for the specified ID, then add this tile to that group
-			if (_tileGroupID >= Board.Instance.Tiles.Count) {
-				Board.Instance.Tiles.Add(new List<Tile>( ) { this });
-			} else if (_tileGroupID >= 0) {
-				Board.Instance.Tiles[_tileGroupID].Add(this);
-			}
+			_tileGroup = value;
 		}
 	}
 
+	/// <summary>
+	/// The board position of this tile
+	/// </summary>
 	public Vector2Int BoardPosition {
 		get => _boardPosition;
 		set {
