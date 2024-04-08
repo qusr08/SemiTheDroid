@@ -66,28 +66,20 @@ public class Board : Singleton<Board> {
 
 			Debug.Log("Chosen position: " + newBoardPosition);
 
-			// Create a new tile at that position
-			Tile newTile = CreateTile(newBoardPosition);
-
 			// Get the cardinal tile group IDs surrounding the board position
 			// Need to subtract 1 from max so the method accounts for the fact that the current tile will be added to the tile group
 			List<int> cardinalTileGroupIDs = GetCardinalTileGroupIDs(newBoardPosition, maxGroupSize: maxGroupTileCount - 1);
+
+			Debug.Log("Cardinal tile group count: " + cardinalTileGroupIDs.Count);
 
 			// If there are no valid cardinal tile group IDs, create a new tile group
 			// If there are valid cardinal tile group IDs, then select a random one to set the tile to
 			if (cardinalTileGroupIDs.Count == 0) {
 				// The new tile group ID will be the current count of tile groups on the board
-				// This is because it is an index of the tile group in the main tiles array
-				newTile.TileGroupID = tiles.Count;
-
-				// Add a new tile group list to the main tiles array that contains the newly created tile
-				tiles.Add(new List<Tile>( ) { newTile });
+				CreateTile(newBoardPosition, tileGroupID: tiles.Count);
 			} else {
 				// Select a random cardinal tile group ID
-				newTile.TileGroupID = cardinalTileGroupIDs[Random.Range(0, cardinalTileGroupIDs.Count)];
-
-				// Add the new tile to the tile group
-				tiles[newTile.TileGroupID].Add(newTile);
+				CreateTile(newBoardPosition, tileGroupID: cardinalTileGroupIDs[Random.Range(0, cardinalTileGroupIDs.Count)]);
 			}
 
 			// Add all surrounding tile positions to the available tile positions
@@ -95,7 +87,7 @@ public class Board : Singleton<Board> {
 				// Do not add the position if it has already been added
 				if (!availablePositions.Contains(cardinalPosition)) {
 					availablePositions.Add(cardinalPosition);
-					Debug.Log("Added position: " +  cardinalPosition);
+					Debug.Log("Added position: " + cardinalPosition);
 				}
 			}
 		}
@@ -169,7 +161,7 @@ public class Board : Singleton<Board> {
 	/// <returns>A reference to the tile if there is one at the inputted board position, null otherwise</returns>
 	private Tile GetTile (Vector2Int boardPosition, int tileGroupID = -1) {
 		// Fire a raycast in the direction of the tiles to see if it hits one
-		RaycastHit2D hit = Physics2D.Raycast(BoardPositionToWorldPosition(boardPosition) + Vector3.back, Vector3.forward);
+		RaycastHit2D hit = Physics2D.Raycast((Vector2) BoardPositionToWorldPosition(boardPosition), Vector2.zero);
 
 		// Check to see if the raycast hit something
 		if (hit.collider != null) {
@@ -201,6 +193,8 @@ public class Board : Singleton<Board> {
 			Tile cardinalTile = GetTile(cardinalPosition, tileGroupID: tileGroupID);
 			if (cardinalTile != null) {
 				cardinalTiles.Add(cardinalTile);
+
+				Debug.Log("GetCardinalTiles -> cardinal position: " + cardinalPosition);
 			}
 		}
 
@@ -230,6 +224,8 @@ public class Board : Singleton<Board> {
 			// Get the size of the tile group that the cardinal tile belongs to
 			int tileGroupSize = tiles[cardinalTile.TileGroupID].Count;
 
+			Debug.Log("Tile group size: " + tileGroupSize);
+
 			// If the tile group size is within the specified size range, then it is a valid tile group and should be added to the list
 			if (tileGroupSize >= minGroupSize && tileGroupSize <= maxGroupSize) {
 				cardinalTileGroupIDs.Add(cardinalTile.TileGroupID);
@@ -237,7 +233,6 @@ public class Board : Singleton<Board> {
 		}
 
 		return cardinalTileGroupIDs;
-
 	}
 
 	private List<Vector2Int> GetCardinalVoids (Vector2Int boardPosition) {
@@ -279,8 +274,17 @@ public class Board : Singleton<Board> {
 		// Create the tile object in the scene
 		Tile tile = Instantiate(tilePrefab, Vector3.zero, Quaternion.identity, transform).GetComponent<Tile>( );
 
-		// Set the tile variables
+		// Set the board position of the tile
 		tile.BoardPosition = boardPosition;
+
+		// Set the tile group ID of this tile
+		// If the specified tile group is greater than or equal to the current amount of tile groups, then create a new group
+		// If there is already a tile group for the specified ID, then add this tile to that group
+		if (tileGroupID >= tiles.Count) {
+			tiles.Add(new List<Tile>( ) { tile });
+		} else {
+			tiles[tileGroupID].Add(tile);
+		}
 		tile.TileGroupID = tileGroupID;
 
 		return tile;
