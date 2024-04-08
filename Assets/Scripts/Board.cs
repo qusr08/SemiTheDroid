@@ -153,6 +153,7 @@ public class Board : Singleton<Board> {
 		*/
 	}
 
+	/*
 	/// <summary>
 	/// Get the tile at the specified board position
 	/// </summary>
@@ -161,10 +162,24 @@ public class Board : Singleton<Board> {
 	/// <returns>A reference to the tile if there is one at the inputted board position, null otherwise</returns>
 	private Tile GetTile (Vector2Int boardPosition, int tileGroupID = -1) {
 		// Fire a raycast in the direction of the tiles to see if it hits one
-		RaycastHit2D hit = Physics2D.Raycast((Vector2) BoardPositionToWorldPosition(boardPosition), Vector2.zero);
+		// RaycastHit2D hit = Physics2D.Raycast((Vector2) BoardPositionToWorldPosition(boardPosition) + new Vector2(0f, 0.25f), Vector2.down, 0.25f);
 
 		// Check to see if the raycast hit something
-		if (hit.collider != null) {
+		// if (hit.collider != null) {
+			// Get a reference to the tile that was hit by the raycast
+			// Tile hitTile = hit.transform.GetComponent<Tile>( );
+
+			// Only return the tile if it has a matching tile group ID
+			// if (tileGroupID == -1 || (tileGroupID != -1 && hitTile != null && hitTile.TileGroupID == tileGroupID)) {
+				// return hitTile;
+			// }
+		// }
+
+		// Fire a raycast in the direction of the tiles to see if it hits one
+		Vector3 raycastOrigin = BoardPositionToWorldPosition(boardPosition) + Vector3.back;
+
+		// Check to see if the raycast hit something
+		if (Physics.Raycast(raycastOrigin, Vector3.forward, out RaycastHit hit)) {
 			// Get a reference to the tile that was hit by the raycast
 			Tile hitTile = hit.transform.GetComponent<Tile>( );
 
@@ -176,6 +191,7 @@ public class Board : Singleton<Board> {
 
 		return null;
 	}
+	*/
 
 	/// <summary>
 	/// Get all four cardinal tiles around the specified board position (if they exist)
@@ -187,6 +203,21 @@ public class Board : Singleton<Board> {
 		// Create a list for storing all of the cardinal tiles
 		List<Tile> cardinalTiles = new List<Tile>( );
 
+		// Get a list of all the cardinal positions around the specified board position
+		List<Vector2Int> cardinalPositions = GetCardinalBoardPositions(boardPosition);
+
+		// Loop through all the tiles on the board and check to see if there a tile at one of the cardinal positions
+		// If there is a tile at the cardinal position, add it to the cardinal tile list
+		for (int i = 0; i < tiles.Count; i++) {
+			for (int j = 0; j < tiles[i].Count; j++) {
+				if (cardinalPositions.Contains(tiles[i][j].BoardPosition)) {
+					cardinalTiles.Add(tiles[i][j]);
+					Debug.Log("GetCardinalTiles -> cardinal position: " + tiles[i][j].BoardPosition);
+				}
+			}
+		}
+
+		/*
 		// Loop through all cardinal positions and check to see if a tile exists at the position
 		foreach (Vector2Int cardinalPosition in GetCardinalBoardPositions(boardPosition)) {
 			// If the tile exists, then add it to the cardinal tiles
@@ -197,6 +228,7 @@ public class Board : Singleton<Board> {
 				Debug.Log("GetCardinalTiles -> cardinal position: " + cardinalPosition);
 			}
 		}
+		*/
 
 		Debug.Log("Cardinal tile count: " + cardinalTiles.Count);
 
@@ -237,8 +269,20 @@ public class Board : Singleton<Board> {
 
 	private List<Vector2Int> GetCardinalVoids (Vector2Int boardPosition) {
 		// Create a list for storing all of the cardinal voids
-		List<Vector2Int> cardinalVoids = new List<Vector2Int>( );
+		// To start, have all of the possible cardinal directions be voids
+		List<Vector2Int> cardinalVoids = GetCardinalBoardPositions(boardPosition);
 
+		// Loop through all of the tiles on the board to check for voids
+		for (int i = 0; i < tiles.Count; i++) {
+			for (int j = 0; j < tiles[i].Count; j++) {
+				// If a tile is currently on one of the possible void positions, then remove the cardinal position
+				if (cardinalVoids.Contains(tiles[i][j].BoardPosition)) {
+					cardinalVoids.Remove(tiles[i][j].BoardPosition);
+				}
+			}
+		}
+
+		/*
 		// Loop through all cardinal positions and add them to the void list if a tile does not exist at the board position
 		foreach (Vector2Int cardinalPosition in GetCardinalBoardPositions(boardPosition)) {
 			// Add the position if a tile does not exist there
@@ -246,6 +290,7 @@ public class Board : Singleton<Board> {
 				cardinalVoids.Add(cardinalPosition);
 			}
 		}
+		*/
 
 		return cardinalVoids;
 	}
@@ -280,9 +325,9 @@ public class Board : Singleton<Board> {
 		// Set the tile group ID of this tile
 		// If the specified tile group is greater than or equal to the current amount of tile groups, then create a new group
 		// If there is already a tile group for the specified ID, then add this tile to that group
-		if (tileGroupID >= tiles.Count) {
+		if (tileGroupID == tiles.Count) {
 			tiles.Add(new List<Tile>( ) { tile });
-		} else {
+		} else if (tileGroupID != -1) {
 			tiles[tileGroupID].Add(tile);
 		}
 		tile.TileGroupID = tileGroupID;
