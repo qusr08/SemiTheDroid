@@ -110,7 +110,6 @@ MonoBehaviour:
   - {fileID: -1535610512, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
   _boardPosition: {x: 0, y: 0}
   _tileType: 0
-  _isSelected: 0
 --- !u!60 &4106727579479911093
 PolygonCollider2D:
   m_ObjectHideFlags: 0

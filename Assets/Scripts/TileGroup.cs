@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TileGroup {
 	private List<Tile> tiles;
+	private bool _isSelected;
 
 	public Tile this[int index] { get => tiles[index]; set => tiles[index] = value; }
 
@@ -12,6 +13,26 @@ public class TileGroup {
 	/// The current number of tiles inside this tile group
 	/// </summary>
 	public int Count => tiles.Count;
+
+	/// <summary>
+	/// Whether or not this tile is selected or not
+	/// </summary>
+	public bool IsSelected {
+		get => _isSelected;
+		set {
+			// Do nothing if you are setting the selection to the same value
+			if (_isSelected == value) {
+				return;
+			}
+
+			_isSelected = value;
+
+			// Update all tiles in this tile group
+			foreach (Tile tile in tiles) {
+				tile.UpdateTileType( );
+			}
+		}
+	}
 
 	/// <summary>
 	/// Default constructor for tile groups

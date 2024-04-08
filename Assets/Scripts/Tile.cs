@@ -14,20 +14,7 @@ public class Tile : MonoBehaviour {
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
-	[SerializeField] private bool _isSelected;
 	private TileGroup _tileGroup;
-
-	/// <summary>
-	/// Whether or not this tile is selected or not
-	/// </summary>
-	public bool IsSelected {
-		get => _isSelected;
-		private set {
-			_isSelected = value;
-
-			UpdateTileType( );
-		}
-	}
 
 	/// <summary>
 	/// The type of sprite that is showing on this tile
@@ -93,11 +80,11 @@ public class Tile : MonoBehaviour {
 	}
 
 	private void OnMouseEnter ( ) {
-		IsSelected = true;
+		TileGroup.IsSelected = true;
 	}
 
 	private void OnMouseExit ( ) {
-		IsSelected = false;
+		TileGroup.IsSelected = false;
 	}
 
 	/// <summary>
@@ -109,6 +96,6 @@ public class Tile : MonoBehaviour {
 		int topRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) == null ? 0 : 1;
 
 		// Set the type of the tile
-		TileType = (TileType) ((IsSelected ? 4 : 0) + (topLeftTile * 2) + (topRightTile * 1));
+		TileType = (TileType) ((TileGroup.IsSelected ? 4 : 0) + (topLeftTile * 2) + (topRightTile * 1));
 	}
 }
