@@ -136,7 +136,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -161,7 +163,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -186,7 +190,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -211,7 +217,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -236,7 +244,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -261,7 +271,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -286,7 +298,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0
@@ -311,7 +325,9 @@ TextureImporter:
       outline: []
       physicsShape:
       - - {x: -26, y: 5}
-        - {x: 0, y: -8}
+        - {x: -26, y: -4}
+        - {x: 0, y: -17}
+        - {x: 26, y: -4}
         - {x: 26, y: 5}
         - {x: 0, y: 18}
       tessellationDetail: 0

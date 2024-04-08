@@ -88,11 +88,8 @@ public class Board : Singleton<Board> {
 	/// <param name="tileGroup">The group that the tile must be in order to return a tile object. Having this value be null ignores this feature</param>
 	/// <returns>A reference to the tile object at the specified board position if it exists, null otherwise</returns>
 	public Tile GetTile (Vector2Int boardPosition, TileGroup tileGroup = null) {
-		// The ray origin will be slightly above the tile's collider
-		Vector2 rayOrigin = (Vector2) BoardPositionToWorldPosition(boardPosition) + new Vector2(0f, 0.25f);
-
 		// Fire a raycast in the direction of the tiles to see if it hits one
-		RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 0.25f);
+		RaycastHit2D hit = Physics2D.Raycast(BoardPositionToWorldPosition(boardPosition), Vector2.zero, 0.25f);
 
 		// Check to see if the raycast hit something
 		if (hit.collider != null) {
@@ -169,7 +166,7 @@ public class Board : Singleton<Board> {
 	/// <returns>A distinct list of all cardinal voids surrounding the specified board position</returns>
 	public List<Vector2Int> GetCardinalVoids (Vector2Int boardPosition) {
 		// Create a list for storing all of the cardinal voids
-		List<Vector2Int> cardinalVoids = new List<Vector2Int>();
+		List<Vector2Int> cardinalVoids = new List<Vector2Int>( );
 
 		// Loop through all cardinal positions and add them to the void list if a tile does not exist at the board position
 		foreach (Vector2Int cardinalPosition in GetCardinalBoardPositions(boardPosition)) {
@@ -219,6 +216,10 @@ public class Board : Singleton<Board> {
 	/// <param name="boardPosition">The 2D board position to convert</param>
 	/// <returns>A Vector3 that is the world position equivelant to the inputted board position</returns>
 	public Vector3 BoardPositionToWorldPosition (Vector2Int boardPosition) {
-		return new Vector3((boardPosition.x + boardPosition.y) * 0.5f, (boardPosition.y - boardPosition.x) * 0.25f);
+		return new Vector3(
+			(boardPosition.x + boardPosition.y) * 0.5f,
+			(boardPosition.y - boardPosition.x) * 0.25f,
+			(boardPosition.y - boardPosition.x) * 0.05f
+		);
 	}
 }
