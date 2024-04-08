@@ -100,7 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 5910414079998088175}
   _boardPosition: {x: 0, y: 0}
-  _tileGroupID: 0
+  _tileGroupID: -1
 --- !u!61 &2487886046586043401
 BoxCollider2D:
   m_ObjectHideFlags: 0

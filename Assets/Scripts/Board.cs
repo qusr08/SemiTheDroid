@@ -45,29 +45,66 @@ public class Board : Singleton<Board> {
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
 	private void Generate ( ) {
-		// Lists that store what positions on the board have already been taken or are available to spawn a tile at
+		// A list that stores all of the available positions to expand
 		List<Vector2Int> availablePositions = new List<Vector2Int>( ) { Vector2Int.zero };
+
+		// A list of the already taken positions on the board
 		List<Vector2Int> takenPositions = new List<Vector2Int>( );
 
 		// A list containing all of the tiles that have been created and are unassigned to a tile group
-		List<Tile> unassignedTiles = new List<Tile>( );
+		// List<Tile> unassignedTiles = new List<Tile>( );
+
+		// Tracks the lowest tile generated on the board
+		// This will be used later for the start of generating tile groups
+		// Tile lowestTile = null;
 
 		// Generate all the tiles
 		for (int i = 0; i < tileCount; i++) {
 			// Get a random available position from the list
-			Vector2Int randomBoardPosition = availablePositions[Random.Range(0, availablePositions.Count)];
-			availablePositions.Remove(randomBoardPosition);
+			Vector2Int newBoardPosition = availablePositions[Random.Range(0, availablePositions.Count)];
+			availablePositions.Remove(newBoardPosition);
+
+			Debug.Log("Chosen position: " + newBoardPosition);
 
 			// Create a new tile at that position
-			unassignedTiles.Add(CreateTile(randomBoardPosition));
-			takenPositions.Add(randomBoardPosition);
+			Tile newTile = CreateTile(newBoardPosition);
+
+			// Get the cardinal tile group IDs surrounding the board position
+			// Need to subtract 1 from max so the method accounts for the fact that the current tile will be added to the tile group
+			List<int> cardinalTileGroupIDs = GetCardinalTileGroupIDs(newBoardPosition, maxGroupSize: maxGroupTileCount - 1);
+
+			// If there are no valid cardinal tile group IDs, create a new tile group
+			// If there are valid cardinal tile group IDs, then select a random one to set the tile to
+			if (cardinalTileGroupIDs.Count == 0) {
+				// The new tile group ID will be the current count of tile groups on the board
+				// This is because it is an index of the tile group in the main tiles array
+				newTile.TileGroupID = tiles.Count;
+
+				// Add a new tile group list to the main tiles array that contains the newly created tile
+				tiles.Add(new List<Tile>( ) { newTile });
+			} else {
+				// Select a random cardinal tile group ID
+				newTile.TileGroupID = cardinalTileGroupIDs[Random.Range(0, cardinalTileGroupIDs.Count)];
+
+				// Add the new tile to the tile group
+				tiles[newTile.TileGroupID].Add(newTile);
+			}
 
 			// Add all surrounding tile positions to the available tile positions
-			foreach (Vector2Int cardinalPosition in GetCardinalBoardPositions(randomBoardPosition)) {
-				// Do not add the position if it has already been taken by a tile though OR if it has already been added
-				if (!takenPositions.Contains(cardinalPosition) && !availablePositions.Contains(cardinalPosition)) {
+			foreach (Vector2Int cardinalPosition in GetCardinalVoids(newBoardPosition)) {
+				// Do not add the position if it has already been added
+				if (!availablePositions.Contains(cardinalPosition)) {
 					availablePositions.Add(cardinalPosition);
+					Debug.Log("Added position: " +  cardinalPosition);
 				}
+			}
+		}
+
+		// TEST: Set each tile group to a different color to better visualize them
+		for (int i = 0; i < tiles.Count; i++) {
+			Color color = Color.HSVToRGB((float) i / tiles.Count, 1f, 1f);
+			for (int j = 0; j < tiles[i].Count; j++) {
+				tiles[i][j].GetComponent<SpriteRenderer>( ).color = color;
 			}
 		}
 
@@ -87,14 +124,29 @@ public class Board : Singleton<Board> {
 		}
 		*/
 
+		/*
 		// The number of groups that have currently been created
 		int groupCount = 0;
 
+		// Clear the previous board position lists to use for generating the tile groups
+		availablePositions.Clear( );
+		takenPositions.Clear( );
+
+		// Make sure all tiles are assigned
 		while (unassignedTiles.Count > 0) {
 			// Generate a random size for the current tile group
 			int groupTileCount = Random.Range(minGroupTileCount, maxGroupTileCount + 1);
 
-			// Find a random tile on the board to start the tile group
+			// Get the tile group starting tile
+			Tile groupStartingTile;
+			if (groupCount == 0) {
+				groupStartingTile = lowestTile;
+			} else {
+				groupStartingTile = unassignedTiles[Random.Range(0, unassignedTiles.Count)];
+			}
+
+			unassignedTiles.Remove(groupStartingTile);
+
 			Tile randomTile = unassignedTiles[Random.Range(0, unassignedTiles.Count)];
 			unassignedTiles.Remove(randomTile);
 
@@ -106,6 +158,7 @@ public class Board : Singleton<Board> {
 
 			groupCount++;
 		}
+		*/
 	}
 
 	/// <summary>
@@ -115,16 +168,16 @@ public class Board : Singleton<Board> {
 	/// <param name="tileGroupID">The ID that the tile must be in order for this function to return a tile object. Having this value be -1 ignores this feature</param>
 	/// <returns>A reference to the tile if there is one at the inputted board position, null otherwise</returns>
 	private Tile GetTile (Vector2Int boardPosition, int tileGroupID = -1) {
-		// The raycast origin will be right above the tile on the z axis
-		Vector3 raycastOrigin = BoardPositionToWorldPosition(boardPosition) + Vector3.back;
-
 		// Fire a raycast in the direction of the tiles to see if it hits one
-		if (Physics.Raycast(raycastOrigin, Vector3.forward, out RaycastHit hit)) {
+		RaycastHit2D hit = Physics2D.Raycast(BoardPositionToWorldPosition(boardPosition) + Vector3.back, Vector3.forward);
+
+		// Check to see if the raycast hit something
+		if (hit.collider != null) {
 			// Get a reference to the tile that was hit by the raycast
 			Tile hitTile = hit.transform.GetComponent<Tile>( );
 
 			// Only return the tile if it has a matching tile group ID
-			if ((tileGroupID != -1 && hitTile != null && hitTile.TileGroupID == tileGroupID) || tileGroupID == -1) {
+			if (tileGroupID == -1 || (tileGroupID != -1 && hitTile != null && hitTile.TileGroupID == tileGroupID)) {
 				return hitTile;
 			}
 		}
@@ -139,12 +192,67 @@ public class Board : Singleton<Board> {
 	/// <param name="tileGroupID">The ID that the tile must be in order for this function to return a tile object. Having this value be -1 ignores this feature</param>
 	/// <returns>A list of all cardinal tiles around the specified board position. If an element is null, then that tile either doesn't exist or does not match the specified tile group ID</returns>
 	private List<Tile> GetCardinalTiles (Vector2Int boardPosition, int tileGroupID = -1) {
-		return new List<Tile>( ) {
-			GetTile(boardPosition + Vector2Int.up, tileGroupID: tileGroupID),
-			GetTile(boardPosition + Vector2Int.right, tileGroupID: tileGroupID),
-			GetTile(boardPosition + Vector2Int.down, tileGroupID: tileGroupID),
-			GetTile(boardPosition + Vector2Int.left, tileGroupID: tileGroupID)
-		};
+		// Create a list for storing all of the cardinal tiles
+		List<Tile> cardinalTiles = new List<Tile>( );
+
+		// Loop through all cardinal positions and check to see if a tile exists at the position
+		foreach (Vector2Int cardinalPosition in GetCardinalBoardPositions(boardPosition)) {
+			// If the tile exists, then add it to the cardinal tiles
+			Tile cardinalTile = GetTile(cardinalPosition, tileGroupID: tileGroupID);
+			if (cardinalTile != null) {
+				cardinalTiles.Add(cardinalTile);
+			}
+		}
+
+		Debug.Log("Cardinal tile count: " + cardinalTiles.Count);
+
+		return cardinalTiles;
+	}
+
+	/// <summary>
+	/// Get all cardinal tile group IDs surrounding the specified board position
+	/// </summary>
+	/// <param name="boardPosition">The board position to check around</param>
+	/// <param name="minGroupSize">The minimum size for the tile group to be valid</param>
+	/// <param name="maxGroupSize">The maximum size for the tile group to be valid</param>
+	/// <returns>A distinct list of all cardinal tile group IDs surrounding the specified board position</returns>
+	private List<int> GetCardinalTileGroupIDs (Vector2Int boardPosition, int minGroupSize = 0, int maxGroupSize = 9999999) {
+		// Create a list for storing all of the cardinal tile group IDs
+		List<int> cardinalTileGroupIDs = new List<int>( );
+
+		// Loop through all cardinal tiles and save all valid tile group IDs
+		foreach (Tile cardinalTile in GetCardinalTiles(boardPosition)) {
+			// If the cardinal tile does not have a tile group or the tile group ID has already been added, then continue to the next tile
+			if (cardinalTile.TileGroupID == -1 || cardinalTileGroupIDs.Contains(cardinalTile.TileGroupID)) {
+				continue;
+			}
+
+			// Get the size of the tile group that the cardinal tile belongs to
+			int tileGroupSize = tiles[cardinalTile.TileGroupID].Count;
+
+			// If the tile group size is within the specified size range, then it is a valid tile group and should be added to the list
+			if (tileGroupSize >= minGroupSize && tileGroupSize <= maxGroupSize) {
+				cardinalTileGroupIDs.Add(cardinalTile.TileGroupID);
+			}
+		}
+
+		return cardinalTileGroupIDs;
+
+	}
+
+	private List<Vector2Int> GetCardinalVoids (Vector2Int boardPosition) {
+		// Create a list for storing all of the cardinal voids
+		List<Vector2Int> cardinalVoids = new List<Vector2Int>( );
+
+		// Loop through all cardinal positions and add them to the void list if a tile does not exist at the board position
+		foreach (Vector2Int cardinalPosition in GetCardinalBoardPositions(boardPosition)) {
+			// Add the position if a tile does not exist there
+			if (GetTile(cardinalPosition) == null) {
+				cardinalVoids.Add(cardinalPosition);
+			}
+		}
+
+		return cardinalVoids;
 	}
 
 	/// <summary>
