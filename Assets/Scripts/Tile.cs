@@ -19,6 +19,7 @@ public class Tile : MonoBehaviour {
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
+	[SerializeField] private TileType _hoveredTileType;
 
 	private TileGroup _tileGroup;
 	private bool topLeftTileValue;
@@ -37,6 +38,23 @@ public class Tile : MonoBehaviour {
 				spriteRenderer.sprite = sprites[(int) _tileType];
 			} else {
 				spriteRenderer.sprite = null;
+			}
+		}
+	}
+
+	/// <summary>
+	/// The type of sprite that is showing on the hovered tile
+	/// </summary>
+	public TileType HoveredTileType {
+		get => _hoveredTileType;
+		set {
+			_hoveredTileType = value;
+
+			// Set the sprite of the hovered tile
+			if (_hoveredTileType != TileType.NONE) {
+				hoverTileSpriteRenderer.sprite = sprites[(int) _hoveredTileType];
+			} else {
+				hoverTileSpriteRenderer.sprite = null;
 			}
 		}
 	}
@@ -123,15 +141,19 @@ public class Tile : MonoBehaviour {
 			topRightTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
 		}
 
+		TileType normalType = (TileType) (
+			(TileGroup.IsSelected ? 4 : 0) +
+			((topLeftTileValue ? 1 : 0) * 2) +
+			((topRightTileValue ? 1 : 0) * 1)
+		);
+
 		// Set the type of the tile
 		if (TileGroup.IsHovered) {
 			TileType = TileType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+			HoveredTileType = normalType;
 		} else {
-			TileType = (TileType) (
-				(TileGroup.IsSelected ? 4 : 0) +
-				((topLeftTileValue ? 1 : 0) * 2) +
-				((topRightTileValue ? 1 : 0) * 1)
-			);
+			TileType = normalType;
+			HoveredTileType = TileType.NONE;
 		}
 	}
 }
