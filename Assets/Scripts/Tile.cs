@@ -22,21 +22,24 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private TileType _tileType;
 	[SerializeField] private TileType _hoveredTileType;
 	[SerializeField] private TileType _overlayTileType;
-	[SerializeField] private bool _isHazard;
+	[SerializeField] private bool _isShowingOverlay;
 
 	private TileGroup _tileGroup;
 	private bool topLeftTileValue;
 	private bool topRightTileValue;
 
-	public bool IsHazard {
-		get => _isHazard;
+	/// <summary>
+	/// Whether or not this tile is currently showing an overlay sprite
+	/// </summary>
+	public bool IsShowingOverlay {
+		get => _isShowingOverlay;
 		set {
 			// Do nothing if you are setting the selection to the same value
-			if (_isHazard == value) {
+			if (_isShowingOverlay == value) {
 				return;
 			}
 
-			_isHazard = value;
+			_isShowingOverlay = value;
 
 			// Update the tile sprite
 			UpdateTileType( );
@@ -171,8 +174,13 @@ public class Tile : MonoBehaviour {
 
 	private void Start ( ) {
 		Board.OnAnimationFrame += ( ) => {
-			// If this tile's tile group is not hovered AND this block is not being shown as a hazard, then do not update the animation
-			if (TileGroup.TileGroupState != TileGroupState.SELECTED && !IsHazard) {
+			// If this tile's tile group is not hovered, then do not update the animation
+			if (TileGroup.TileGroupState != TileGroupState.SELECTED) {
+				return;
+			}
+
+			// If this tile is not showing an overlay, then do not update the animation
+			if (!IsShowingOverlay) {
 				return;
 			}
 
@@ -208,7 +216,7 @@ public class Tile : MonoBehaviour {
 		}
 
 		// If the board is currently showing a hazard, then update the overlay tile
-		if (IsHazard) {
+		if (IsShowingOverlay) {
 			OverlayTileType = TileType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
 		} else {
 			OverlayTileType = TileType.NONE;

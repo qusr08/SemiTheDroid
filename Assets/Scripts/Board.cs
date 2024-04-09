@@ -12,6 +12,8 @@ public class Board : Singleton<Board> {
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
 	[SerializeField, Min(0.01f)] private float animationSpeed;
+	[SerializeField] private Tile _selectedTile;
+	[Space]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	private List<TileGroup> tileGroups;
@@ -24,7 +26,10 @@ public class Board : Singleton<Board> {
 	/// The current animation frame for all board elements
 	/// </summary>
 	public int CurrentAnimationFrame { get => _currentAnimationFrame; private set => _currentAnimationFrame = value; }
-
+	
+	/// <summary>
+	/// The currently selected tile group that is being moved around by the player
+	/// </summary>
 	public TileGroup SelectedTileGroup {
 		get => _selectedTileGroup;
 		set {
@@ -44,6 +49,16 @@ public class Board : Singleton<Board> {
 			if (_selectedTileGroup != null) {
 				_selectedTileGroup.TileGroupState = TileGroupState.SELECTED;
 			}
+		}
+	}
+
+	/// <summary>
+	/// The currently selected tile that will be used for selected tile group placement
+	/// </summary>
+	public Tile SelectedTile {
+		get => _selectedTile;
+		set {
+			_selectedTile = value;
 		}
 	}
 
@@ -126,6 +141,27 @@ public class Board : Singleton<Board> {
 		}
 
 		return;
+
+		// 36 - (     ) (     ) 0
+		// 35 - (     ) (     ) 1
+		// 34 - (     ) (2    ) 2
+		// 33 - (     ) (  3  ) 3
+		// 32 - (4    ) (2   4) 4
+		// 31 - (  5  ) (2 3  ) 5
+		// 30 - (    6) (2 3 4) 6
+		// 29 - (     ) (2 3 4) 7
+		// 28 - (4    ) (2 3 4) 8
+		// 27 - (4 5  ) (2 3 4) 9
+		// 26 - (4 5 6) (2 3 4) 10
+		// 25 - (  5 6) (2 3 4) 11
+		// 24 - (4   6) (2 3 4) 12
+		// 23 - (4 5  ) (2 3 4) 13
+		// 22 - (4 5 6) (2 3 4) 14
+		// 21 - (4 5 6) (2 3 4) 15
+		// 20 - (4 5 6) (2 3 4) 16
+		// ...
+
+		// > total tiles 
 
 		// Remove all tile groups that have not met the minimum size
 		for (int i = tileGroups.Count - 1; i >= 0; i--) {
