@@ -19,7 +19,10 @@ public class Tile : MonoBehaviour {
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
+	
 	private TileGroup _tileGroup;
+	private bool topLeftTileValue;
+	private bool topRightTileValue;
 
 	/// <summary>
 	/// The type of sprite that is showing on this tile
@@ -95,6 +98,14 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseExit ( ) {
 		TileGroup.IsSelected = false;
+	}
+
+	private void Start ( ) {
+		Board.OnAnimationFrame += ( ) => {
+			if (!TileGroup.IsSelected) {
+				return;
+			}
+		};
 	}
 
 	/// <summary>

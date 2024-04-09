@@ -11,18 +11,45 @@ public class Board : Singleton<Board> {
 	[SerializeField, Min(1)] private int tileCount;
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
-
+	[SerializeField, Min(0.01f)] private float animationSpeed;
+	[SerializeField] private float animationTimer;
+	[SerializeField] private int currentAnimationFrame;
 	private List<TileGroup> tileGroups;
+
+	public delegate void OnAnimationFrameEvent ( );
+	public static event OnAnimationFrameEvent OnAnimationFrame;
 
 	protected override void Awake ( ) {
 		base.Awake( );
 
 		// Declare the list of tile groups
 		tileGroups = new List<TileGroup>( );
+
+		animationTimer = 0;
+		currentAnimationFrame = 0;
 	}
 
 	private void Start ( ) {
 		Generate( );
+	}
+
+	private void Update ( ) {
+		// Increment the animation timer by the time that has passed since the last update call
+		// Once the timer has reached the animation speed, update the sprites
+		animationTimer += Time.deltaTime;
+		if (animationTimer >= animationSpeed) {
+			// Subtract the animation time from the animation timer
+			// This makes it slightly more exact in when the animation changes sprites
+			animationTimer -= animationSpeed;
+
+			// Increment the current animation frame
+			// All animations should use this so they are all synced
+			// All animations will be 4 looped frames
+			currentAnimationFrame = (currentAnimationFrame + 1) % 4;
+
+			// Call the event that will update all objects that have subscribed to it
+			OnAnimationFrame( );
+		}
 	}
 
 	/// <summary>
