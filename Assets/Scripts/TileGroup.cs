@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum TileGroupState {
+	REGULAR, HOVERED, SELECTED
+}
+
 public class TileGroup {
 	private List<Tile> tiles;
-	private bool _isSelected;
-	private bool _isHovered;
+	private TileGroupState _tileGroupState;
 
 	public Tile this[int index] { get => tiles[index]; set => tiles[index] = value; }
 
@@ -16,37 +19,17 @@ public class TileGroup {
 	public int Count => tiles.Count;
 
 	/// <summary>
-	/// Whether or not this tile is selected or not
+	/// The state of this tile group
 	/// </summary>
-	public bool IsSelected {
-		get => _isSelected;
+	public TileGroupState TileGroupState {
+		get => _tileGroupState;
 		set {
-			// Do nothing if you are setting the selection to the same value
-			if (_isSelected == value) {
+			// Do nothing if you are setting the type to the same value
+			if (_tileGroupState == value) {
 				return;
 			}
 
-			_isSelected = value;
-
-			// Update all tiles in this tile group
-			foreach (Tile tile in tiles) {
-				tile.UpdateTileType( );
-			}
-		}
-	}
-
-	/// <summary>
-	/// Whether or not this tile group is hovered
-	/// </summary>
-	public bool IsHovered {
-		get => _isHovered;
-		set {
-			// Do nothing if you are setting the selection to the same value
-			if (_isHovered == value) {
-				return;
-			}
-
-			_isHovered = value;
+			_tileGroupState = value;
 
 			// Update all tiles in this tile group
 			foreach (Tile tile in tiles) {

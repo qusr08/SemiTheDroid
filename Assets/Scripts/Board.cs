@@ -15,6 +15,7 @@ public class Board : Singleton<Board> {
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	private List<TileGroup> tileGroups;
+	private TileGroup _selectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
 	public static event OnAnimationFrameEvent OnAnimationFrame;
@@ -23,6 +24,28 @@ public class Board : Singleton<Board> {
 	/// The current animation frame for all board elements
 	/// </summary>
 	public int CurrentAnimationFrame { get => _currentAnimationFrame; private set => _currentAnimationFrame = value; }
+
+	public TileGroup SelectedTileGroup {
+		get => _selectedTileGroup;
+		set {
+			// If the selected tile group is trying to be set to the same value, then return and do nothing
+			if (_selectedTileGroup == value) {
+				return;
+			}
+
+			// Set the current selected tile group to not be selected anymore
+			if (_selectedTileGroup != null) {
+				_selectedTileGroup.TileGroupState = TileGroupState.REGULAR;
+			}
+	
+			_selectedTileGroup = value;
+
+			// Set the new tile group to be selected
+			if (_selectedTileGroup != null) {
+				_selectedTileGroup.TileGroupState = TileGroupState.SELECTED;
+			}
+		}
+	}
 
 	protected override void Awake ( ) {
 		base.Awake( );
@@ -54,6 +77,11 @@ public class Board : Singleton<Board> {
 
 			// Call the event that will update all objects that have subscribed to it
 			OnAnimationFrame( );
+		}
+
+		// If there is a selected tile group and the right mouse button is pressed, deselect the tile group
+		if (SelectedTileGroup != null && Input.GetMouseButtonDown(1)) {
+			SelectedTileGroup = null;
 		}
 	}
 
@@ -97,7 +125,7 @@ public class Board : Singleton<Board> {
 			}
 		}
 
-		// return;
+		return;
 
 		// Remove all tile groups that have not met the minimum size
 		for (int i = tileGroups.Count - 1; i >= 0; i--) {

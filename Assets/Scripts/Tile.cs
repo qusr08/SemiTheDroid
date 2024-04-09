@@ -147,22 +147,32 @@ public class Tile : MonoBehaviour {
 	}
 
 	private void OnMouseEnter ( ) {
-		// TileGroup.IsSelected = true;
-		TileGroup.IsHovered = true;
-		// IsHazard = true;
+		// If a tile group is selected, do not update tile states
+		if (Board.Instance.SelectedTileGroup != null) {
+			return;
+		}
+
+		TileGroup.TileGroupState = TileGroupState.HOVERED;
 	}
 
 	private void OnMouseExit ( ) {
-		// TileGroup.IsSelected = false;
-		TileGroup.IsHovered = false;
-		// IsHazard = false;
+		// If this tile's tile group is selected, then do not change its state
+		if (Board.Instance.SelectedTileGroup != null) {
+			return;
+		}
+
+		TileGroup.TileGroupState = TileGroupState.REGULAR;
+	}
+
+	private void OnMouseDown ( ) {
+		// When this tile is pressed, select its tile group
+		Board.Instance.SelectedTileGroup = TileGroup;
 	}
 
 	private void Start ( ) {
-		UpdateTileType( );
-
 		Board.OnAnimationFrame += ( ) => {
-			if (!TileGroup.IsHovered && !IsHazard) {
+			// If this tile's tile group is not hovered AND this block is not being shown as a hazard, then do not update the animation
+			if (TileGroup.TileGroupState != TileGroupState.SELECTED && !IsHazard) {
 				return;
 			}
 
@@ -183,13 +193,13 @@ public class Tile : MonoBehaviour {
 
 		// The type of the tile normally
 		TileType normalType = (TileType) (
-			(TileGroup.IsSelected ? 4 : 0) +
+			(TileGroup.TileGroupState == TileGroupState.HOVERED ? 4 : 0) +
 			((topLeftTileValue ? 1 : 0) * 2) +
 			((topRightTileValue ? 1 : 0) * 1)
 		);
 
 		// Set the type of the tile
-		if (TileGroup.IsHovered) {
+		if (TileGroup.TileGroupState == TileGroupState.SELECTED) {
 			TileType = TileType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
 			HoveredTileType = normalType;
 		} else {
