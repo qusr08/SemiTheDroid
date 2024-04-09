@@ -13,11 +13,16 @@ public class Board : Singleton<Board> {
 	[SerializeField, Min(1)] private int maxTileGroupSize;
 	[SerializeField, Min(0.01f)] private float animationSpeed;
 	[SerializeField] private float animationTimer;
-	[SerializeField] private int currentAnimationFrame;
+	[SerializeField] private int _currentAnimationFrame;
 	private List<TileGroup> tileGroups;
 
 	public delegate void OnAnimationFrameEvent ( );
 	public static event OnAnimationFrameEvent OnAnimationFrame;
+
+	/// <summary>
+	/// The current animation frame for all board elements
+	/// </summary>
+	public int CurrentAnimationFrame { get => _currentAnimationFrame; private set => _currentAnimationFrame = value; }
 
 	protected override void Awake ( ) {
 		base.Awake( );
@@ -26,7 +31,7 @@ public class Board : Singleton<Board> {
 		tileGroups = new List<TileGroup>( );
 
 		animationTimer = 0;
-		currentAnimationFrame = 0;
+		CurrentAnimationFrame = 0;
 	}
 
 	private void Start ( ) {
@@ -45,7 +50,7 @@ public class Board : Singleton<Board> {
 			// Increment the current animation frame
 			// All animations should use this so they are all synced
 			// All animations will be 4 looped frames
-			currentAnimationFrame = (currentAnimationFrame + 1) % 4;
+			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
 
 			// Call the event that will update all objects that have subscribed to it
 			OnAnimationFrame( );

@@ -47,6 +47,11 @@ public class TileGroup {
 			}
 
 			_isHovered = value;
+
+			// Update all tiles in this tile group
+			foreach (Tile tile in tiles) {
+				tile.UpdateTileType( );
+			}
 		}
 	}
 

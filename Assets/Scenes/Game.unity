@@ -171,6 +171,9 @@ MonoBehaviour:
   tileCount: 36
   minTileGroupSize: 4
   maxTileGroupSize: 6
+  animationSpeed: 0.25
+  animationTimer: 0
+  _currentAnimationFrame: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,7 +19,7 @@ public class Tile : MonoBehaviour {
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
-	
+
 	private TileGroup _tileGroup;
 	private bool topLeftTileValue;
 	private bool topRightTileValue;
@@ -77,46 +77,61 @@ public class Tile : MonoBehaviour {
 			hoverTileSpriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
 
 			// Update this tile's type based on the surrounding tiles
-			UpdateTileType( );
+			UpdateTileType(updateTileValues: true);
 
 			// Update connecting tiles as well
 			Tile bottomLeftTile = Board.Instance.GetTile(_boardPosition + Vector2Int.down);
 			if (bottomLeftTile != null) {
-				bottomLeftTile.UpdateTileType( );
+				bottomLeftTile.UpdateTileType(updateTileValues: true);
 			}
 
 			Tile bottomRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.right);
 			if (bottomRightTile != null) {
-				bottomRightTile.UpdateTileType( );
+				bottomRightTile.UpdateTileType(updateTileValues: true);
 			}
 		}
 	}
 
 	private void OnMouseEnter ( ) {
-		TileGroup.IsSelected = true;
+		// TileGroup.IsSelected = true;
+		TileGroup.IsHovered = true;
 	}
 
 	private void OnMouseExit ( ) {
-		TileGroup.IsSelected = false;
+		// TileGroup.IsSelected = false;
+		TileGroup.IsHovered = false;
 	}
 
 	private void Start ( ) {
 		Board.OnAnimationFrame += ( ) => {
-			if (!TileGroup.IsSelected) {
+			if (!TileGroup.IsHovered) {
 				return;
 			}
+
+			UpdateTileType( );
 		};
 	}
 
 	/// <summary>
 	/// Update the type of this tile based on the surrounding tiles
 	/// </summary>
-	public void UpdateTileType ( ) {
+	/// <param name="updateTileValues">Whether or not to update the type of tile based on the surrounding tiles. Automatically set to false</param>
+	public void UpdateTileType (bool updateTileValues = false) {
 		// Get whether or not the surrounding tiles are part of the same tile group
-		int topLeftTile = Board.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) == null ? 0 : 1;
-		int topRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) == null ? 0 : 1;
+		if (updateTileValues) {
+			topLeftTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) != null;
+			topRightTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
+		}
 
 		// Set the type of the tile
-		TileType = (TileType) ((TileGroup.IsSelected ? 4 : 0) + (topLeftTile * 2) + (topRightTile * 1));
+		if (TileGroup.IsHovered) {
+			TileType = TileType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+		} else {
+			TileType = (TileType) (
+				(TileGroup.IsSelected ? 4 : 0) +
+				((topLeftTileValue ? 1 : 0) * 2) +
+				((topRightTileValue ? 1 : 0) * 1)
+			);
+		}
 	}
 }
