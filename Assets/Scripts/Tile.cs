@@ -15,15 +15,33 @@ public class Tile : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private SpriteRenderer spriteRenderer;
 	[SerializeField] private SpriteRenderer hoverTileSpriteRenderer;
+	[SerializeField] private SpriteRenderer overlayTileSpriteRenderer;
 	[SerializeField] private Sprite[ ] sprites;
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private TileType _tileType;
 	[SerializeField] private TileType _hoveredTileType;
+	[SerializeField] private TileType _overlayTileType;
+	[SerializeField] private bool _isHazard;
 
 	private TileGroup _tileGroup;
 	private bool topLeftTileValue;
 	private bool topRightTileValue;
+
+	public bool IsHazard {
+		get => _isHazard;
+		set {
+			// Do nothing if you are setting the selection to the same value
+			if (_isHazard == value) {
+				return;
+			}
+
+			_isHazard = value;
+
+			// Update the tile sprite
+			UpdateTileType( );
+		}
+	}
 
 	/// <summary>
 	/// The type of sprite that is showing on this tile
@@ -55,6 +73,23 @@ public class Tile : MonoBehaviour {
 				hoverTileSpriteRenderer.sprite = sprites[(int) _hoveredTileType];
 			} else {
 				hoverTileSpriteRenderer.sprite = null;
+			}
+		}
+	}
+
+	/// <summary>
+	/// The type of sprite that is showing on the hovered tile
+	/// </summary>
+	public TileType OverlayTileType {
+		get => _overlayTileType;
+		set {
+			_overlayTileType = value;
+
+			// Set the sprite of the overlay tile
+			if (_overlayTileType != TileType.NONE) {
+				overlayTileSpriteRenderer.sprite = sprites[(int) _overlayTileType];
+			} else {
+				overlayTileSpriteRenderer.sprite = null;
 			}
 		}
 	}
@@ -93,6 +128,7 @@ public class Tile : MonoBehaviour {
 			// Make sure tiles that have a lower y position appear in front of others
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
 			hoverTileSpriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
+			overlayTileSpriteRenderer.sortingOrder = (_boardPosition.x - _boardPosition.y) + 1;
 
 			// Update this tile's type based on the surrounding tiles
 			UpdateTileType(updateTileValues: true);
@@ -113,16 +149,20 @@ public class Tile : MonoBehaviour {
 	private void OnMouseEnter ( ) {
 		// TileGroup.IsSelected = true;
 		TileGroup.IsHovered = true;
+		// IsHazard = true;
 	}
 
 	private void OnMouseExit ( ) {
 		// TileGroup.IsSelected = false;
 		TileGroup.IsHovered = false;
+		// IsHazard = false;
 	}
 
 	private void Start ( ) {
+		UpdateTileType( );
+
 		Board.OnAnimationFrame += ( ) => {
-			if (!TileGroup.IsHovered) {
+			if (!TileGroup.IsHovered && !IsHazard) {
 				return;
 			}
 
@@ -141,6 +181,7 @@ public class Tile : MonoBehaviour {
 			topRightTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
 		}
 
+		// The type of the tile normally
 		TileType normalType = (TileType) (
 			(TileGroup.IsSelected ? 4 : 0) +
 			((topLeftTileValue ? 1 : 0) * 2) +
@@ -154,6 +195,13 @@ public class Tile : MonoBehaviour {
 		} else {
 			TileType = normalType;
 			HoveredTileType = TileType.NONE;
+		}
+
+		// If the board is currently showing a hazard, then update the overlay tile
+		if (IsHazard) {
+			OverlayTileType = TileType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+		} else {
+			OverlayTileType = TileType.NONE;
 		}
 	}
 }
