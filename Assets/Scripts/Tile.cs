@@ -2,14 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// The order of the sprites inside the "sprites" list should match up to the order of these enum values
 public enum TileType {
+	NONE = -1,
 	REG_SOL_SOL, REG_SOL_DOT, REG_DOT_SOL, REG_DOT_DOT,
-	SEL_SOL_SOL, SEL_SOL_DOT, SEL_DOT_SOL, SEL_DOT_DOT
+	SEL_SOL_SOL, SEL_SOL_DOT, SEL_DOT_SOL, SEL_DOT_DOT,
+	HAZ_F1, HAZ_F2, HAZ_F3, HAZ_F4,
+	OUT_F1, OUT_F2, OUT_F3, OUT_F4
 }
 
 public class Tile : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private SpriteRenderer spriteRenderer;
+	[SerializeField] private SpriteRenderer hoverTileSpriteRenderer;
 	[SerializeField] private Sprite[ ] sprites;
 	[Header("Properties")]
 	[SerializeField] private Vector2Int _boardPosition;
@@ -25,7 +30,11 @@ public class Tile : MonoBehaviour {
 			_tileType = value;
 
 			// Set the sprite of this tile
-			spriteRenderer.sprite = sprites[(int) _tileType];
+			if (_tileType != TileType.NONE) {
+				spriteRenderer.sprite = sprites[(int) _tileType];
+			} else {
+				spriteRenderer.sprite = null;
+			}
 		}
 	}
 
@@ -62,6 +71,7 @@ public class Tile : MonoBehaviour {
 
 			// Make sure tiles that have a lower y position appear in front of others
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
+			hoverTileSpriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
 
 			// Update this tile's type based on the surrounding tiles
 			UpdateTileType( );
