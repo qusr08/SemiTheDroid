@@ -33,7 +33,7 @@ public class TileGroup {
 
 			// Update all tiles in this tile group
 			foreach (Tile tile in tiles) {
-				tile.UpdateTileType( );
+				tile.UpdateTile( );
 			}
 		}
 	}
