@@ -11,10 +11,6 @@ public enum TileSpriteType {
 	OUT_F1, OUT_F2, OUT_F3, OUT_F4
 }
 
-public enum OverlayTileState {
-	NONE, HAZARD
-}
-
 public enum TileState {
 	REGULAR, HAZARD, SELECTED, HOVERED
 }

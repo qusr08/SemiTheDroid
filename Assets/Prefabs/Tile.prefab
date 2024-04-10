@@ -256,10 +256,10 @@ MonoBehaviour:
   - {fileID: 1755960405, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
   - {fileID: -756453873, guid: 0b3fd1ddc9611aa4789a35ee53b37765, type: 3}
   _boardPosition: {x: 0, y: 0}
-  _tileType: 0
-  _hoveredTileType: 0
-  _overlayTileType: 0
-  _isHazard: 0
+  _tileSpriteType: 0
+  _hoveredTileSpriteType: 0
+  _overlayTileSpriteType: 0
+  _tileState: 0
 --- !u!1 &6841939357239236945
 GameObject:
   m_ObjectHideFlags: 0

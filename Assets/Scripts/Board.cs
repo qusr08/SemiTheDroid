@@ -17,7 +17,6 @@ public class Board : Singleton<Board> {
 	[SerializeField] private int _currentAnimationFrame;
 
 	private List<TileGroup> tileGroups;
-	private Tile _selectedTile;
 	private TileGroup _selectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
@@ -50,16 +49,6 @@ public class Board : Singleton<Board> {
 			if (_selectedTileGroup != null) {
 				_selectedTileGroup.TileGroupState = TileState.SELECTED;
 			}
-		}
-	}
-
-	/// <summary>
-	/// The currently selected tile that will be used for selected tile group placement
-	/// </summary>
-	public Tile SelectedTile {
-		get => _selectedTile;
-		set {
-			_selectedTile = value;
 		}
 	}
 
@@ -111,6 +100,8 @@ public class Board : Singleton<Board> {
 
 			Generate( );
 		}
+
+		Debug.Log(WorldPositionToBoardPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
 	}
 
 	/// <summary>
@@ -172,6 +163,7 @@ public class Board : Singleton<Board> {
 					if (tileGroupAvailableTiles.Count == 0) {
 						i = -1;
 						tileGroupTilePositions.Clear( );
+
 						continue;
 					}
 
@@ -260,7 +252,7 @@ public class Board : Singleton<Board> {
 
 		return cardinalTiles;
 	}
-
+	
 	/// <summary>
 	/// Get all cardinal tile groups surrounding the specified board position
 	/// </summary>
@@ -352,6 +344,22 @@ public class Board : Singleton<Board> {
 			(boardPosition.x + boardPosition.y) * 0.5f,
 			(boardPosition.y - boardPosition.x) * 0.25f,
 			(boardPosition.y - boardPosition.x) * 0.05f
+		);
+	}
+	
+	/// <summary>
+	/// Covert a world position to the nearest board position
+	/// </summary>
+	/// <param name="worldPosition">The world position to convert</param>
+	/// <returns>A Vector2Int that is the nearest board position to the inputted world position</returns>
+	public Vector2Int WorldPositionToBoardPosition (Vector3 worldPosition) {
+		// The exact middle of the tiles is slightly lower than the center of the top face of the tile
+		// The y value of the inputted world position needs to be adjusted in order for it to be more accurate
+		worldPosition.y -= 0.085f;
+
+		return new Vector2Int(
+			Mathf.RoundToInt(worldPosition.x - (worldPosition.y * 2)),
+			Mathf.RoundToInt((worldPosition.y * 2) + worldPosition.x)
 		);
 	}
 }
