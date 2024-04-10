@@ -211,6 +211,8 @@ public class Tile : MonoBehaviour {
 		// If the board is currently showing a hazard, then update the overlay tile
 		if (OverlayTileState == OverlayTileState.HAZARD) {
 			OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+		} else {
+			OverlayTileSpriteType = TileSpriteType.NONE;
 		}
 	}
 }
