@@ -172,22 +172,6 @@ public class Tile : MonoBehaviour {
 		Board.Instance.SelectedTileGroup = TileGroup;
 	}
 
-	private void Start ( ) {
-		Board.OnAnimationFrame += ( ) => {
-			// If this tile's tile group is not hovered, then do not update the animation
-			if (TileGroup.TileGroupState != TileGroupState.SELECTED) {
-				return;
-			}
-
-			// If this tile is not showing an overlay, then do not update the animation
-			if (!IsShowingOverlay) {
-				return;
-			}
-
-			UpdateTileType( );
-		};
-	}
-
 	/// <summary>
 	/// Update the type of this tile based on the surrounding tiles
 	/// </summary>

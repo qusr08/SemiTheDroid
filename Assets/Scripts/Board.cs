@@ -8,15 +8,16 @@ public class Board : Singleton<Board> {
 	[Header("References")]
 	[SerializeField] private GameObject tilePrefab;
 	[Header("Properties")]
-	[SerializeField, Min(1)] private int tileCount;
+	[SerializeField, Min(1)] private int totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
 	[SerializeField, Min(0.01f)] private float animationSpeed;
-	[SerializeField] private Tile _selectedTile;
 	[Space]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
+
 	private List<TileGroup> tileGroups;
+	private Tile _selectedTile;
 	private TileGroup _selectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
@@ -74,68 +75,6 @@ public class Board : Singleton<Board> {
 
 	private void Start ( ) {
 		Generate( );
-
-		// 36 (     ) (       ) (     ) (     )  0 [0 0] [0 0]
-		// 35 (     ) (       ) (     ) (     )  1 [0 1] [0 1]
-		// 34 (     ) (       ) (2    ) (     )  2 [0 2] [0 2]
-		// 33 (     ) (       ) (  3  ) (     )  3 [0 3] [0 3]
-		// 32 (4    ) (4      ) (2   4) (     )  4 [0 4] [0 4]
-		// 31 (  5  ) (  5    ) (2 3  ) (     )  5 [0 5] [0 5]
-		// 30 (    6) (    6  ) (2 3 4) (     )  6 [0 6] [0 6]
-		// 29 (     ) (      7) (2 3 4) (7    )  7 [1 0] [0 7]
-		// 28 (4    ) (4      ) (2 3 4) (  8  )  8 [1 1] [1 0]
-		// 27 (4 5  ) (4 5    ) (2 3 4) (    9)  9 [1 2] [1 1]
-		// 26 (4 5 6) (4 5 6  ) (2 3 4) (     ) 10 [1 3] [1 2]
-		// 25 (  5 6) (4 5 6 7) (2 3 4) (     ) 11 [1 4] [1 3]
-		// 24 (4   6) (4 5 6 7) (2 3 4) (     ) 12 [1 5] [1 4]
-		// 23 (4 5  ) (4 5 6 7) (2 3 4) (     ) 13 [1 6] [1 5]
-		// 22 (4 5 6) (4 5 6 7) (2 3 4) (7    ) 14 [2 0] [1 6]
-		// 21 (4 5 6) (4 5 6 7) (2 3 4) (7 8  ) 15 [2 1] [1 7]
-		// 20 (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 16 [2 2] [2 0]
-		// 19 (4 5 6) (4 5 6 7) (2 3 4) (  8 9) 17 [2 3] [2 1]
-		// 18 (4 5 6) (4 5 6 7) (2 3 4) (    9) 18 [2 4] [2 2]
-		// 17 (4 5 6) (4 5 6 7) (2 3 4) (     ) 19 [2 5] [2 3]
-		// 16 (4 5 6) (4 5 6 7) (2 3 4) (     ) 20 [2 6] [2 4]
-		// 15 (4 5 6) (4 5 6 7) (2 3 4) (7    ) 21 [3 0] [2 5]
-		// 14 (4 5 6) (4 5 6 7) (2 3 4) (7 8  ) 22 [3 1] [2 6]
-		// 13 (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 23 [3 2] [2 7]
-		// 12 (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 24 [3 3] [3 0]
-		// 11 (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 25 [3 4] [3 1]
-		// 10 (4 5 6) (4 5 6 7) (2 3 4) (  8 9) 26 [3 5] [3 2]
-		// 9  (4 5 6) (4 5 6 7) (2 3 4) (    9) 27 [3 6] [3 3]
-		// 8  (4 5 6) (4 5 6 7) (2 3 4) (7    ) 28 [4 0] [3 4]
-		// 7  (4 5 6) (4 5 6 7) (2 3 4) (7 8  ) 29 [4 1] [3 5]
-		// 6  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 30 [4 2] [3 6]
-		// 5  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 31 [4 3] [3 7]
-		// 4  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 32 [4 4] [4 0]
-		// 3  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 33 [4 5] [4 1]
-		// 2  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 34 [4 6] [4 2]
-		// 1  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 35 [5 0] [4 3]
-		// 0  (4 5 6) (4 5 6 7) (2 3 4) (7 8 9) 36 [5 1] [4 4]
-
-		int minGroupSize = 4;
-		int maxGroupSize = 6;
-		int totalTileCount = 36;
-
-		int groupCount = maxGroupSize - minGroupSize + 1;
-
-		for (int currentTiles = 0; currentTiles <= totalTileCount; currentTiles++) {
-			int remainingTiles = totalTileCount - currentTiles;
-			string validSizes = remainingTiles + " | ";
-
-			for (int i = 0; i < groupCount; i++) {
-				int quotient = Mathf.Max(0, currentTiles - i) / minGroupSize;
-				int remainder = Mathf.Max(0, currentTiles - i) % minGroupSize;
-
-				if (remainder < ((quotient - 1) * 2) + 1) {
-					validSizes += (minGroupSize + i) + " ";
-				} else {
-					validSizes += ". ";
-				}
-			}
-
-			Debug.Log(validSizes);
-		}
 	}
 
 	private void Update ( ) {
@@ -152,8 +91,22 @@ public class Board : Singleton<Board> {
 			// All animations will be 4 looped frames
 			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
 
-			// Call the event that will update all objects that have subscribed to it
-			OnAnimationFrame( );
+			// Update all of the tiles if they need to be animated
+			for (int i = 0; i < tileGroups.Count; i++) {
+				// If this tile's tile group is not hovered, then do not update the animation
+				if (tileGroups[i].TileGroupState != TileGroupState.SELECTED) {
+					continue;
+				}
+
+				for (int j = 0; j < tileGroups[i].Count; j++) {
+					// If this tile is not showing an overlay, then do not update the animation
+					if (!tileGroups[i][j].IsShowingOverlay) {
+						continue;
+					}
+
+					tileGroups[i][j].UpdateTileType( );
+				}
+			}
 		}
 
 		// If there is a selected tile group and the right mouse button is pressed, deselect the tile group
@@ -166,54 +119,77 @@ public class Board : Singleton<Board> {
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
 	private void Generate ( ) {
-		// A list that stores all of the available positions to expand
-		List<Vector2Int> availablePositions = new List<Vector2Int>( ) { Vector2Int.zero };
+		// All available tiles across the entire board, regardless of what tile group it is next to
+		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 
-		// Generate all the tiles
-		for (int i = 0; i < tileCount; i++) {
-			// Get a random available position from the list
-			Vector2Int newBoardPosition = availablePositions[Random.Range(0, availablePositions.Count)];
-			availablePositions.Remove(newBoardPosition);
+		// All available tiles that are adjacent to the the current tile group
+		List<Vector2Int> tileGroupAvailableTiles = new List<Vector2Int>( ) { };
 
-			// Get the cardinal tile groups surrounding the board position
-			// Need to subtract 1 from max so the method accounts for the fact that the current tile will be added to the tile group
-			List<TileGroup> cardinalTileGroups = GetCardinalTileGroups(newBoardPosition, maxTileGroupSize: maxTileGroupSize - 1);
+		// The current tiles generated on the board
+		int currentTiles = 0;
 
-			// If there are no valid cardinal tile groups, create a new tile group
-			// If there are valid cardinal tile groups, then select a random one to set the tile to
-			if (cardinalTileGroups.Count == 0) {
-				// Create a new tile group
-				TileGroup tileGroup = new TileGroup( );
-				tileGroups.Add(tileGroup);
+		// The total number of tile groups on the board
+		int totalTileGroups = maxTileGroupSize - minTileGroupSize + 1;
 
-				// The new tile group will be the current count of tile groups on the board
-				CreateTile(newBoardPosition, tileGroup);
-			} else {
-				// Select the smallest cardinal tile group to add this tile to
-				CreateTile(newBoardPosition, cardinalTileGroups[0]);
-			}
+		// Keep generating tiles until it has reached the total number of board tiles
+		while (currentTiles < totalTiles) {
+			// A list of available tile group sizes for the current number of tiles generated
+			List<int> validTileGroupSizes = new List<int>( );
 
-			// Add all surrounding tile positions to the available tile positions
-			foreach (Vector2Int cardinalPosition in GetCardinalVoids(newBoardPosition)) {
-				// Do not add the position if it has already been added
-				if (!availablePositions.Contains(cardinalPosition)) {
-					availablePositions.Add(cardinalPosition);
+			// Loop through all of the possible group sizes to see if they are able to be generated
+			for (int i = 0; i < totalTileGroups; i++) {
+				// Do some math to check and see if this tile group size is valid
+				int quotient = Mathf.Max(0, totalTiles - i) / minTileGroupSize;
+				int remainder = Mathf.Max(0, totalTiles - i) % minTileGroupSize;
+
+				if (remainder < ((quotient - 1) * 2) + 1) {
+					validTileGroupSizes.Add(minTileGroupSize + i);
 				}
 			}
-		}
 
-		return;
+			// Find a random group size from the valid group size list
+			int randomTileGroupSize = validTileGroupSizes[Random.Range(0, validTileGroupSizes.Count)];
 
-		// Remove all tile groups that have not met the minimum size
-		for (int i = tileGroups.Count - 1; i >= 0; i--) {
-			// If the tile group is too small, remove all of its tiles and clear it
-			// Do not remove the array index though as that will mess up 
-			if (tileGroups[i].Count < minTileGroupSize) {
-				for (int j = 0; j < tileGroups[i].Count; j++) {
-					Destroy(tileGroups[i][j].gameObject);
+			// Clear all previous tile group available tiles
+			tileGroupAvailableTiles.Clear( );
+
+			// Create a new tile group
+			TileGroup tileGroup = new TileGroup( );
+			tileGroups.Add(tileGroup);
+
+			// Generate all of the tiles in the current tile group
+			for (int i = 0; i < randomTileGroupSize; i++) {
+				// Get an available tile position to generate a tile at
+				Vector2Int tilePosition;
+				if (i == 0) {
+					// If this is the first tile of this tile group, get any available tile on the board
+					tilePosition = globalAvailableTiles[Random.Range(0, globalAvailableTiles.Count)];
+				} else {
+					// If this tile is not the first tile of this tile group, make sure it is connected to the other tiles in this group
+					tilePosition = tileGroupAvailableTiles[Random.Range(0, tileGroupAvailableTiles.Count)];
+					tileGroupAvailableTiles.Remove(tilePosition);
 				}
 
-				tileGroups.RemoveAt(i);
+				// All positions inside the tile group available tiles list are inside the global tile positions list
+				// No matter what, the position needs to be remove from the global list
+				globalAvailableTiles.Remove(tilePosition);
+
+				// Create a new tile at the new tile position
+				CreateTile(tilePosition, tileGroup);
+				currentTiles++;
+
+				// Add all surrounding tile positions to the available tile position list
+				foreach (Vector2Int cardinalPosition in GetCardinalVoids(tilePosition)) {
+					// Do not add the position if it has already been added
+					if (!globalAvailableTiles.Contains(cardinalPosition)) {
+						globalAvailableTiles.Add(cardinalPosition);
+					}
+
+					// Do not add the position if it has already been added
+					if (!tileGroupAvailableTiles.Contains(cardinalPosition)) {
+						tileGroupAvailableTiles.Add(cardinalPosition);
+					}
+				}
 			}
 		}
 	}
