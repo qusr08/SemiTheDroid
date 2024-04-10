@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum TileGroupState {
-	REGULAR, HOVERED, SELECTED
-}
-
 public class TileGroup {
 	private List<Tile> tiles;
-	private TileGroupState _tileGroupState;
+	private TileState _tileGroupState;
 
 	public Tile this[int index] { get => tiles[index]; set => tiles[index] = value; }
 
@@ -21,19 +17,14 @@ public class TileGroup {
 	/// <summary>
 	/// The state of this tile group
 	/// </summary>
-	public TileGroupState TileGroupState {
+	public TileState TileGroupState {
 		get => _tileGroupState;
 		set {
-			// Do nothing if you are setting the type to the same value
-			if (_tileGroupState == value) {
-				return;
-			}
-
 			_tileGroupState = value;
 
 			// Update all tiles in this tile group
 			foreach (Tile tile in tiles) {
-				tile.UpdateTile( );
+				tile.TileState = _tileGroupState;
 			}
 		}
 	}

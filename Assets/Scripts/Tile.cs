@@ -15,6 +15,10 @@ public enum OverlayTileState {
 	NONE, HAZARD
 }
 
+public enum TileState {
+	REGULAR, HAZARD, SELECTED, HOVERED
+}
+
 public class Tile : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private SpriteRenderer spriteRenderer;
@@ -26,27 +30,27 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private TileSpriteType _tileSpriteType;
 	[SerializeField] private TileSpriteType _hoveredTileSpriteType;
 	[SerializeField] private TileSpriteType _overlayTileSpriteType;
-	[SerializeField] private OverlayTileState _overlayTileState;
+	[SerializeField] private TileState _tileState;
 
 	private TileGroup _tileGroup;
 	private bool topLeftTileValue;
 	private bool topRightTileValue;
+	private TileSpriteType currentTileSpriteType;
 
 	/// <summary>
-	/// Whether or not this tile is currently showing an overlay sprite
+	/// The current state of this tile
 	/// </summary>
-	public OverlayTileState OverlayTileState {
-		get => _overlayTileState;
+	public TileState TileState {
+		get => _tileState;
 		set {
-			// Do nothing if you are setting the selection to the same value
-			if (_overlayTileState == value) {
+			// If the tile state is being set to the same value, return and do nothing
+			if (_tileState == value) {
 				return;
 			}
 
-			_overlayTileState = value;
-
-			// Update the tile sprite
-			UpdateTile( );
+			_tileState = value;
+			
+			UpdateTileSprite( );
 		}
 	}
 
@@ -85,7 +89,7 @@ public class Tile : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// The type of sprite that is showing on the hovered tile
+	/// The type of sprite that is showing on the overlay tile
 	/// </summary>
 	public TileSpriteType OverlayTileSpriteType {
 		get => _overlayTileSpriteType;
@@ -138,41 +142,41 @@ public class Tile : MonoBehaviour {
 			overlayTileSpriteRenderer.sortingOrder = (_boardPosition.x - _boardPosition.y) + 1;
 
 			// Update this tile's type based on the surrounding tiles
-			UpdateTile(updateTileValues: true);
+			RecalculateTileSprite( );
 
 			// Update connecting tiles as well
 			Tile bottomLeftTile = Board.Instance.GetTile(_boardPosition + Vector2Int.down);
 			if (bottomLeftTile != null) {
-				bottomLeftTile.UpdateTile(updateTileValues: true);
+				bottomLeftTile.RecalculateTileSprite( );
 			}
 
 			Tile bottomRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.right);
 			if (bottomRightTile != null) {
-				bottomRightTile.UpdateTile(updateTileValues: true);
+				bottomRightTile.RecalculateTileSprite( );
 			}
 		}
 	}
 
 	private void OnMouseEnter ( ) {
-		// If a tile group is selected, do not update tile states
+		// Do not update the hover state while there is a selected tile group
 		if (Board.Instance.SelectedTileGroup != null) {
 			return;
 		}
 
-		TileGroup.TileGroupState = TileGroupState.HOVERED;
+		TileGroup.TileGroupState = TileState.HOVERED;
 	}
 
 	private void OnMouseExit ( ) {
-		// If this tile's tile group is selected, then do not change its state
+		// Do not update the hover state while there is a selected tile group
 		if (Board.Instance.SelectedTileGroup != null) {
 			return;
 		}
 
-		TileGroup.TileGroupState = TileGroupState.REGULAR;
+		TileGroup.TileGroupState = TileState.REGULAR;
 	}
 
 	private void OnMouseDown ( ) {
-		// If this tile's tile group is selected, then do not change its state
+		// If there is already a selected tile group, then do not select another tile group
 		if (Board.Instance.SelectedTileGroup != null) {
 			return;
 		}
@@ -181,38 +185,69 @@ public class Tile : MonoBehaviour {
 		Board.Instance.SelectedTileGroup = TileGroup;
 	}
 
+	private void Start ( ) {
+		Board.Instance.OnAnimationFrame += () => {
+			// Only update the necessary sprites during necessary states
+			// Updating all tiles multiple tiles a second each with three sprites causes a lot of lag
+			switch (_tileState) {
+				case TileState.HAZARD:
+					OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+
+					break;
+				case TileState.SELECTED:
+					TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+
+					break;
+			}
+		};
+	}
+
 	/// <summary>
-	/// Update this tile based on the surrounding tiles
+	/// Update the main sprite of the tile based on surrounding tiles
 	/// </summary>
-	/// <param name="updateTileValues">Whether or not to update the tile sprite based on the surrounding tiles. Automatically set to false</param>
-	public void UpdateTile (bool updateTileValues = false) {
-		// Get whether or not the surrounding tiles are part of the same tile group
-		if (updateTileValues) {
-			topLeftTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) != null;
-			topRightTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
-		}
+	public void RecalculateTileSprite ( ) {
+		// Get the values of the tiles around this tile
+		// Only the top left and right tiles matter because the top row of pixels of each tile cover the one above it
+		topLeftTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) != null;
+		topRightTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
 
 		// The type of the tile normally
-		TileSpriteType normalType = (TileSpriteType) (
-			(TileGroup.TileGroupState == TileGroupState.HOVERED ? 4 : 0) +
-			((topLeftTileValue ? 1 : 0) * 2) +
-			((topRightTileValue ? 1 : 0) * 1)
-		);
+		currentTileSpriteType = (TileSpriteType) (((topLeftTileValue ? 1 : 0) * 2) + ((topRightTileValue ? 1 : 0) * 1));
 
-		// Set the type of the tile
-		if (TileGroup.TileGroupState == TileGroupState.SELECTED) {
-			TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
-			HoveredTileSpriteType = normalType;
-		} else {
-			TileSpriteType = normalType;
-			HoveredTileSpriteType = TileSpriteType.NONE;
-		}
+		// Update the tile sprite
+		UpdateTileSprite( );
+	}
 
-		// If the board is currently showing a hazard, then update the overlay tile
-		if (OverlayTileState == OverlayTileState.HAZARD) {
-			OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
-		} else {
-			OverlayTileSpriteType = TileSpriteType.NONE;
+	/// <summary>
+	/// Update the sprite of the tile based on the current tile state
+	/// </summary>
+	private void UpdateTileSprite ( ) {
+		// Update the sprite renderers based on the new tile state
+		switch (_tileState) {
+			case TileState.REGULAR:
+				TileSpriteType = currentTileSpriteType;
+				HoveredTileSpriteType = TileSpriteType.NONE;
+				OverlayTileSpriteType = TileSpriteType.NONE;
+
+				break;
+			case TileState.HAZARD:
+				TileSpriteType = currentTileSpriteType;
+				HoveredTileSpriteType = TileSpriteType.NONE;
+				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+
+				break;
+			case TileState.SELECTED:
+				TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+				HoveredTileSpriteType = currentTileSpriteType;
+				OverlayTileSpriteType = TileSpriteType.NONE;
+
+				break;
+			case TileState.HOVERED:
+				TileSpriteType = currentTileSpriteType + 4;
+				HoveredTileSpriteType = TileSpriteType.NONE;
+				OverlayTileSpriteType = TileSpriteType.NONE;
+
+				break;
 		}
 	}
 }

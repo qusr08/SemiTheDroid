@@ -20,6 +20,9 @@ public class Board : Singleton<Board> {
 	private Tile _selectedTile;
 	private TileGroup _selectedTileGroup;
 
+	public delegate void OnAnimationFrameEvent ( );
+	public event OnAnimationFrameEvent OnAnimationFrame;
+
 	/// <summary>
 	/// The current animation frame for all board elements
 	/// </summary>
@@ -36,16 +39,16 @@ public class Board : Singleton<Board> {
 				return;
 			}
 
-			// Set the current selected tile group to not be selected anymore
+			// Set the previous selected tile group to not be selected anymore
 			if (_selectedTileGroup != null) {
-				_selectedTileGroup.TileGroupState = TileGroupState.REGULAR;
+				_selectedTileGroup.TileGroupState = TileState.REGULAR;
 			}
-	
+
 			_selectedTileGroup = value;
 
 			// Set the new tile group to be selected
 			if (_selectedTileGroup != null) {
-				_selectedTileGroup.TileGroupState = TileGroupState.SELECTED;
+				_selectedTileGroup.TileGroupState = TileState.SELECTED;
 			}
 		}
 	}
@@ -89,22 +92,11 @@ public class Board : Singleton<Board> {
 			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
 
 			// Update all of the tiles if they need to be animated
-			for (int i = 0; i < tileGroups.Count; i++) {
-				// Get whether or not the current tile group is the selected one
-				bool isSelectedTileGroup = tileGroups[i] == SelectedTileGroup;
-
-				// Update all the tiles in the tile group
-				for (int j = 0; j < tileGroups[i].Count; j++) {
-					// If this tile group is selected OR the tile is currently showing a hazard overlay, then update the tile
-					if (isSelectedTileGroup || tileGroups[i][j].OverlayTileState == OverlayTileState.HAZARD) {
-						tileGroups[i][j].UpdateTile( );
-					}
-				}
-			}
+			OnAnimationFrame( );
 		}
 
-		// If there is a selected tile group and the right mouse button is pressed, deselect the tile group
-		if (SelectedTileGroup != null && Input.GetMouseButtonDown(1)) {
+		// If the right mouse button is pressed, deselect the tile group
+		if (Input.GetMouseButtonDown(1)) {
 			SelectedTileGroup = null;
 		}
 	}
