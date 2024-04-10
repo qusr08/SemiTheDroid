@@ -7,6 +7,7 @@ using UnityEngine;
 public class Board : Singleton<Board> {
 	[Header("References")]
 	[SerializeField] private GameObject tilePrefab;
+	[SerializeField] private Camera gameCamera;
 	[Header("Properties")]
 	[SerializeField, Min(1)] private int totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
@@ -335,10 +336,7 @@ public class Board : Singleton<Board> {
 
 		// Set the camera position if the flag is set to true
 		if (setCameraPosition) {
-			float x = CenterPosition.x;
-			float y = CenterPosition.y;
-			float z = Camera.main.transform.position.z;
-			Camera.main.transform.position = new Vector3(x, y, z);
+			CameraController.SetTransformPositionWithoutZ(gameCamera.transform, CenterPosition);
 		}
 	}
 

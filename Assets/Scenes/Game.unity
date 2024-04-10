@@ -168,12 +168,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
+  gameCamera: {fileID: 519420031}
   totalTiles: 30
   minTileGroupSize: 4
   maxTileGroupSize: 6
   animationSpeed: 0.25
   animationTimer: 0
   _currentAnimationFrame: 0
+  _centerPosition: {x: 0, y: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,8 +281,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e7db990d503a74f86f374ec3b2db57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameCamera: {fileID: 519420031}
   minCameraZoom: 0
   maxCameraZoom: 0
+  cameraBorder: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
