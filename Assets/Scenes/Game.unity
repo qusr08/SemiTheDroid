@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420033}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: Game Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -282,11 +282,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameCamera: {fileID: 519420031}
-  minCameraZoom: 1.5
+  minCameraZoom: 1
   maxCameraZoom: 5
   cameraZoomStep: 0.2
-  cameraBorder: 0
+  cameraBorder: 1
   panOrigin: {x: 0, y: 0, z: 0}
+  screenBounds: {x: 0, y: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

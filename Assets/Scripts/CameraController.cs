@@ -23,9 +23,22 @@ public class CameraController : MonoBehaviour {
 		if (Input.GetMouseButton(2)) {
 			// Calculate the movement of the mouse since the last frame
 			Vector3 panMotion = panOrigin - gameCamera.ScreenToWorldPoint(Input.mousePosition);
+			Vector3 newCameraPosition = transform.position + panMotion;
+
+			// Calculate the bounds of the screen
+			Vector2 screenBounds = new Vector2(
+				(gameCamera.orthographicSize * gameCamera.aspect) - cameraBorder,
+				gameCamera.orthographicSize - cameraBorder
+			);
+
+			// Clamp how far the camera position can get from the center of the board
+			Vector3 boardCenterDifference = (Vector3) Board.Instance.CenterPosition - newCameraPosition;
+			boardCenterDifference.x = Mathf.Clamp(boardCenterDifference.x, -screenBounds.x, screenBounds.x);
+			boardCenterDifference.y = Mathf.Clamp(boardCenterDifference.y, -screenBounds.y, screenBounds.y);
+			newCameraPosition = (Vector3) Board.Instance.CenterPosition - boardCenterDifference;
 
 			// Set the position of the camera
-			SetTransformPositionWithoutZ(transform, transform.position + panMotion);
+			SetTransformPositionWithoutZ(transform, newCameraPosition);
 		}
 
 		// Zoom the camera in and out based on the scroll wheel value
