@@ -99,6 +99,18 @@ public class Board : Singleton<Board> {
 		if (Input.GetMouseButtonDown(1)) {
 			SelectedTileGroup = null;
 		}
+
+		if (Input.GetMouseButtonDown(2)) {
+			for (int i = tileGroups.Count - 1; i >= 0; i--) {
+				for (int j = 0; j < tileGroups[i].Count; j++) {
+					Destroy(tileGroups[i][j].gameObject);
+				}
+
+				tileGroups.RemoveAt(i);
+			}
+
+			Generate( );
+		}
 	}
 
 	/// <summary>
@@ -109,7 +121,10 @@ public class Board : Singleton<Board> {
 		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 
 		// All available tiles that are adjacent to the the current tile group
-		List<Vector2Int> tileGroupAvailableTiles = new List<Vector2Int>( ) { };
+		List<Vector2Int> tileGroupAvailableTiles = new List<Vector2Int>( );
+
+		// A list to store all of the future tiles that will be created from the current tile group
+		List<Vector2Int> tileGroupTilePositions = new List<Vector2Int>( );
 
 		// The current tiles generated on the board
 		int currentTiles = 0;
@@ -135,11 +150,13 @@ public class Board : Singleton<Board> {
 
 			// Find a random group size from the valid group size list
 			int randomTileGroupSize = validTileGroupSizes[Random.Range(0, validTileGroupSizes.Count)];
+			currentTiles += randomTileGroupSize;
 
 			// Clear all previous tile group available tiles
 			tileGroupAvailableTiles.Clear( );
+			tileGroupTilePositions.Clear( );
 
-			// Create a new tile group
+			// Create a new tile group object
 			TileGroup tileGroup = new TileGroup( );
 			tileGroups.Add(tileGroup);
 
@@ -151,6 +168,13 @@ public class Board : Singleton<Board> {
 					// If this is the first tile of this tile group, get any available tile on the board
 					tilePosition = globalAvailableTiles[Random.Range(0, globalAvailableTiles.Count)];
 				} else {
+					// If there are no available tiles for this tile group to generate with, then restart the generation of the tile group
+					if (tileGroupAvailableTiles.Count == 0) {
+						i = -1;
+						tileGroupTilePositions.Clear( );
+						continue;
+					}
+
 					// If this tile is not the first tile of this tile group, make sure it is connected to the other tiles in this group
 					tilePosition = tileGroupAvailableTiles[Random.Range(0, tileGroupAvailableTiles.Count)];
 					tileGroupAvailableTiles.Remove(tilePosition);
@@ -160,12 +184,16 @@ public class Board : Singleton<Board> {
 				// No matter what, the position needs to be remove from the global list
 				globalAvailableTiles.Remove(tilePosition);
 
-				// Create a new tile at the new tile position
-				CreateTile(tilePosition, tileGroup);
-				currentTiles++;
+				// Save the new tile position in the tile position array for this tile group
+				tileGroupTilePositions.Add(tilePosition);
 
 				// Add all surrounding tile positions to the available tile position list
 				foreach (Vector2Int cardinalPosition in GetCardinalVoids(tilePosition)) {
+					// If the current cardinal position has a tile that will be generated there in the future, skip it
+					if (tileGroupTilePositions.Contains(cardinalPosition)) {
+						continue;
+					}
+
 					// Do not add the position if it has already been added
 					if (!globalAvailableTiles.Contains(cardinalPosition)) {
 						globalAvailableTiles.Add(cardinalPosition);
@@ -176,6 +204,11 @@ public class Board : Singleton<Board> {
 						tileGroupAvailableTiles.Add(cardinalPosition);
 					}
 				}
+			}
+
+			// Create all of the tile objects at once
+			foreach (Vector2Int tilePosition in tileGroupTilePositions) {
+				CreateTile(tilePosition, tileGroup);
 			}
 		}
 	}

@@ -186,20 +186,19 @@ public class Tile : MonoBehaviour {
 	}
 
 	private void Start ( ) {
-		Board.Instance.OnAnimationFrame += () => {
-			// Only update the necessary sprites during necessary states
-			// Updating all tiles multiple tiles a second each with three sprites causes a lot of lag
-			switch (_tileState) {
-				case TileState.HAZARD:
-					OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+		Board.Instance.OnAnimationFrame += UpdateAnimationFrame;
+	}
 
-					break;
-				case TileState.SELECTED:
-					TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+	private void OnEnable ( ) {
+		Board.Instance.OnAnimationFrame += UpdateAnimationFrame;
+	}
 
-					break;
-			}
-		};
+	private void OnDisable ( ) {
+		Board.Instance.OnAnimationFrame -= UpdateAnimationFrame;
+	}
+
+	private void OnDestroy ( ) {
+		Board.Instance.OnAnimationFrame -= UpdateAnimationFrame;
 	}
 
 	/// <summary>
@@ -246,6 +245,24 @@ public class Tile : MonoBehaviour {
 				TileSpriteType = currentTileSpriteType + 4;
 				HoveredTileSpriteType = TileSpriteType.NONE;
 				OverlayTileSpriteType = TileSpriteType.NONE;
+
+				break;
+		}
+	}
+
+	/// <summary>
+	/// Updates only the sprites necessary for animation
+	/// </summary>
+	private void UpdateAnimationFrame () {
+		// Only update the necessary sprites during necessary states
+		// Updating all tiles multiple tiles a second each with three sprites causes a lot of lag
+		switch (_tileState) {
+			case TileState.HAZARD:
+				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+
+				break;
+			case TileState.SELECTED:
+				TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
 
 				break;
 		}
