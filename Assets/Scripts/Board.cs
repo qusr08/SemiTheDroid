@@ -15,6 +15,7 @@ public class Board : Singleton<Board> {
 	[Space]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
+	[SerializeField] private Vector2 _centerPosition;
 
 	private List<TileGroup> tileGroups;
 	private TileGroup _selectedTileGroup;
@@ -26,7 +27,7 @@ public class Board : Singleton<Board> {
 	/// The current animation frame for all board elements
 	/// </summary>
 	public int CurrentAnimationFrame { get => _currentAnimationFrame; private set => _currentAnimationFrame = value; }
-	
+
 	/// <summary>
 	/// The currently selected tile group that is being moved around by the player
 	/// </summary>
@@ -51,6 +52,11 @@ public class Board : Singleton<Board> {
 			}
 		}
 	}
+
+	/// <summary>
+	/// The center position of all the tiles on the board
+	/// </summary>
+	public Vector2 CenterPosition { get => _centerPosition; private set => _centerPosition = value; }
 
 	protected override void Awake ( ) {
 		base.Awake( );
@@ -89,7 +95,8 @@ public class Board : Singleton<Board> {
 			SelectedTileGroup = null;
 		}
 
-		if (Input.GetMouseButtonDown(2)) {
+		// TEST: When you press the spacebar, the board is regenerated
+		if (Input.GetKeyDown(KeyCode.Space)) {
 			for (int i = tileGroups.Count - 1; i >= 0; i--) {
 				for (int j = 0; j < tileGroups[i].Count; j++) {
 					Destroy(tileGroups[i][j].gameObject);
@@ -100,8 +107,6 @@ public class Board : Singleton<Board> {
 
 			Generate( );
 		}
-
-		Debug.Log(WorldPositionToBoardPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
 	}
 
 	/// <summary>
@@ -117,22 +122,23 @@ public class Board : Singleton<Board> {
 		// A list to store all of the future tiles that will be created from the current tile group
 		List<Vector2Int> tileGroupTilePositions = new List<Vector2Int>( );
 
-		// The current tiles generated on the board
-		int currentTiles = 0;
+		// The current tiles that are left to be generated on the board
+		int remaingingTiles = totalTiles;
 
 		// The total number of tile groups on the board
+		// Adding 1 because the max tile group size is inclusive in the range of tile group sizes
 		int totalTileGroups = maxTileGroupSize - minTileGroupSize + 1;
 
 		// Keep generating tiles until it has reached the total number of board tiles
-		while (currentTiles < totalTiles) {
+		while (remaingingTiles > 0) {
 			// A list of available tile group sizes for the current number of tiles generated
 			List<int> validTileGroupSizes = new List<int>( );
 
 			// Loop through all of the possible group sizes to see if they are able to be generated
 			for (int i = 0; i < totalTileGroups; i++) {
 				// Do some math to check and see if this tile group size is valid
-				int quotient = Mathf.Max(0, totalTiles - i) / minTileGroupSize;
-				int remainder = Mathf.Max(0, totalTiles - i) % minTileGroupSize;
+				int quotient = Mathf.Max(0, remaingingTiles - i) / minTileGroupSize;
+				int remainder = Mathf.Max(0, remaingingTiles - i) % minTileGroupSize;
 
 				if (remainder < ((quotient - 1) * 2) + 1) {
 					validTileGroupSizes.Add(minTileGroupSize + i);
@@ -141,7 +147,7 @@ public class Board : Singleton<Board> {
 
 			// Find a random group size from the valid group size list
 			int randomTileGroupSize = validTileGroupSizes[Random.Range(0, validTileGroupSizes.Count)];
-			currentTiles += randomTileGroupSize;
+			remaingingTiles -= randomTileGroupSize;
 
 			// Clear all previous tile group available tiles
 			tileGroupAvailableTiles.Clear( );
@@ -203,6 +209,9 @@ public class Board : Singleton<Board> {
 				CreateTile(tilePosition, tileGroup);
 			}
 		}
+
+		// After all the tiles have been generated, recalculate the center position of the board
+		RecalculateCenterPosition(setCameraPosition: true);
 	}
 
 	/// <summary>
@@ -251,36 +260,6 @@ public class Board : Singleton<Board> {
 		}
 
 		return cardinalTiles;
-	}
-	
-	/// <summary>
-	/// Get all cardinal tile groups surrounding the specified board position
-	/// </summary>
-	/// <param name="boardPosition">The board position to check around</param>
-	/// <param name="minTileGroupSize">The minimum size for the tile group to be valid</param>
-	/// <param name="maxTileGroupSize">The maximum size for the tile group to be valid</param>
-	/// <returns>A distinct list of all cardinal tile groups surrounding the specified board position</returns>
-	public List<TileGroup> GetCardinalTileGroups (Vector2Int boardPosition, int minTileGroupSize = 0, int maxTileGroupSize = 9999999) {
-		// Create a list for storing all of the cardinal tile groups
-		List<TileGroup> cardinalTileGroups = new List<TileGroup>( );
-
-		// Loop through all cardinal tiles and save all valid tile groups
-		foreach (Tile cardinalTile in GetCardinalTiles(boardPosition)) {
-			// If the cardinal tile does not have a tile group or the tile group has already been added, then continue to the next tile
-			if (cardinalTile.TileGroup == null || cardinalTileGroups.Contains(cardinalTile.TileGroup)) {
-				continue;
-			}
-
-			// Get the size of the tile group that the cardinal tile belongs to
-			int tileGroupSize = cardinalTile.TileGroup.Count;
-
-			// If the tile group size is within the specified size range, then it is a valid tile group and should be added to the list
-			if (tileGroupSize >= minTileGroupSize && tileGroupSize <= maxTileGroupSize) {
-				cardinalTileGroups.Add(cardinalTile.TileGroup);
-			}
-		}
-
-		return cardinalTileGroups.OrderBy(tileGroup => tileGroup.Count).ToList( );
 	}
 
 	/// <summary>
@@ -335,6 +314,35 @@ public class Board : Singleton<Board> {
 	}
 
 	/// <summary>
+	/// Recalculate the center position of the tiles on the board
+	/// </summary>
+	/// <param name="setCameraPosition">Whether or not to set the camera position when the center position is recalculated</param>
+	public void RecalculateCenterPosition (bool setCameraPosition = false) {
+		// Variables to track totals
+		Vector2 sumPosition = Vector2.zero;
+		int tileCount = 0;
+
+		// Add up the total number of tiles on the board and their positions
+		for (int i = 0; i < tileGroups.Count; i++) {
+			for (int j = 0; j < tileGroups[i].Count; j++) {
+				sumPosition += (Vector2) tileGroups[i][j].transform.position;
+				tileCount++;
+			}
+		}
+
+		// The average of all the positions will be the center position of the board
+		CenterPosition = sumPosition / tileCount;
+
+		// Set the camera position if the flag is set to true
+		if (setCameraPosition) {
+			float x = CenterPosition.x;
+			float y = CenterPosition.y;
+			float z = Camera.main.transform.position.z;
+			Camera.main.transform.position = new Vector3(x, y, z);
+		}
+	}
+
+	/// <summary>
 	/// Convert a board position to a world position
 	/// </summary>
 	/// <param name="boardPosition">The 2D board position to convert</param>
@@ -346,7 +354,7 @@ public class Board : Singleton<Board> {
 			(boardPosition.y - boardPosition.x) * 0.05f
 		);
 	}
-	
+
 	/// <summary>
 	/// Covert a world position to the nearest board position
 	/// </summary>
