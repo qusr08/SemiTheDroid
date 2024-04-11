@@ -172,7 +172,6 @@ MonoBehaviour:
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedTilePosition: {x: 0, y: 0}
-  originSelectedTilePosition: {x: 0, y: 0}
 --- !u!1 &325865078
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,7 +331,7 @@ MonoBehaviour:
   minCameraZoom: 1
   maxCameraZoom: 5
   cameraZoomStep: 0.2
-  cameraBorder: 0
+  extensionPerZoomLevel: 0.5
   panOrigin: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
