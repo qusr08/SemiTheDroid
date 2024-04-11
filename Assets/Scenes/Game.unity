@@ -167,9 +167,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eed754c500a1a8f4bb8cee7c849fa6e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameCamera: {fileID: 519420031}
   animationSpeed: 0.25
   animationTimer: 0
   _currentAnimationFrame: 0
+  lastSelectedTilePosition: {x: 0, y: 0}
+  originSelectedTilePosition: {x: 0, y: 0}
 --- !u!1 &325865078
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,32 +16,6 @@ public class BoardManager : Singleton<BoardManager> {
 	[SerializeField] private Vector2 _centerPosition;
 
 	private List<TileGroup> tileGroups;
-	private TileGroup _selectedTileGroup;
-
-	/// <summary>
-	/// The currently selected tile group that is being moved around by the player
-	/// </summary>
-	public TileGroup SelectedTileGroup {
-		get => _selectedTileGroup;
-		set {
-			// If the selected tile group is trying to be set to the same value, then return and do nothing
-			if (_selectedTileGroup == value) {
-				return;
-			}
-
-			// Set the previous selected tile group to not be selected anymore
-			if (_selectedTileGroup != null) {
-				_selectedTileGroup.TileGroupState = TileState.REGULAR;
-			}
-
-			_selectedTileGroup = value;
-
-			// Set the new tile group to be selected
-			if (_selectedTileGroup != null) {
-				_selectedTileGroup.TileGroupState = TileState.SELECTED;
-			}
-		}
-	}
 
 	/// <summary>
 	/// The center position of all the tiles on the board
@@ -60,11 +34,6 @@ public class BoardManager : Singleton<BoardManager> {
 	}
 
 	private void Update ( ) {
-		// If the right mouse button is pressed, deselect the tile group
-		if (Input.GetMouseButtonDown(1)) {
-			SelectedTileGroup = null;
-		}
-
 		// TEST: When you press the spacebar, the board is regenerated
 		if (Input.GetKeyDown(KeyCode.Space)) {
 			for (int i = tileGroups.Count - 1; i >= 0; i--) {
@@ -192,7 +161,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <returns>A reference to the tile object at the specified board position if it exists, null otherwise</returns>
 	public Tile GetTile (Vector2Int boardPosition, TileGroup tileGroup = null) {
 		// Fire a raycast in the direction of the tiles to see if it hits one
-		RaycastHit2D hit = Physics2D.Raycast(BoardPositionToWorldPosition(boardPosition), Vector2.zero, 0.25f);
+		RaycastHit2D hit = Physics2D.Raycast(BoardToWorldPosition(boardPosition), Vector2.zero, 0.25f);
 
 		// Check to see if the raycast hit something
 		if (hit.collider != null) {
@@ -274,7 +243,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <returns>A reference to the newly created tile</returns>
 	private Tile CreateTile (Vector2Int boardPosition, TileGroup tileGroup) {
 		// Create the tile object in the scene
-		Tile tile = Instantiate(tilePrefab, BoardPositionToWorldPosition(boardPosition), Quaternion.identity, transform).GetComponent<Tile>( );
+		Tile tile = Instantiate(tilePrefab, BoardToWorldPosition(boardPosition), Quaternion.identity, transform).GetComponent<Tile>( );
 
 		// Set the variables of the tile
 		tile.TileGroup = tileGroup;
@@ -314,7 +283,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// </summary>
 	/// <param name="boardPosition">The 2D board position to convert</param>
 	/// <returns>A Vector3 that is the world position equivelant to the inputted board position</returns>
-	public Vector3 BoardPositionToWorldPosition (Vector2Int boardPosition) {
+	public Vector3 BoardToWorldPosition (Vector2Int boardPosition) {
 		return new Vector3(
 			(boardPosition.x + boardPosition.y) * 0.5f,
 			(boardPosition.y - boardPosition.x) * 0.25f,
@@ -327,7 +296,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// </summary>
 	/// <param name="worldPosition">The world position to convert</param>
 	/// <returns>A Vector2Int that is the nearest board position to the inputted world position</returns>
-	public Vector2Int WorldPositionToBoardPosition (Vector3 worldPosition) {
+	public Vector2Int WorldToBoardPosition (Vector3 worldPosition) {
 		// The exact middle of the tiles is slightly lower than the center of the top face of the tile
 		// The y value of the inputted world position needs to be adjusted in order for it to be more accurate
 		worldPosition.y -= 0.085f;

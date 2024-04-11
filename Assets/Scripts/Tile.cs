@@ -130,7 +130,7 @@ public class Tile : MonoBehaviour {
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
-			transform.position = BoardManager.Instance.BoardPositionToWorldPosition(_boardPosition);
+			transform.position = BoardManager.Instance.BoardToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
@@ -155,7 +155,7 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseEnter ( ) {
 		// Do not update the hover state while there is a selected tile group
-		if (BoardManager.Instance.SelectedTileGroup != null) {
+		if (GameManager.Instance.IsTileGroupSelected) {
 			return;
 		}
 
@@ -164,7 +164,7 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseExit ( ) {
 		// Do not update the hover state while there is a selected tile group
-		if (BoardManager.Instance.SelectedTileGroup != null) {
+		if (GameManager.Instance.IsTileGroupSelected) {
 			return;
 		}
 
@@ -173,12 +173,12 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseDown ( ) {
 		// If there is already a selected tile group, then do not select another tile group
-		if (BoardManager.Instance.SelectedTileGroup != null) {
+		if (GameManager.Instance.IsTileGroupSelected) {
 			return;
 		}
 
 		// When this tile is pressed, select its tile group
-		BoardManager.Instance.SelectedTileGroup = TileGroup;
+		GameManager.Instance.SelectTileGroup(TileGroup, originTile: this);
 	}
 
 	private void Start ( ) {
