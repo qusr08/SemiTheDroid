@@ -70,21 +70,17 @@ public class TileGroup {
 	/// <returns>A TileGroup list with all of the adjacent tile groups in it</returns>
 	public List<TileGroup> GetAdjacentTileGroups ( ) {
 		// A list to store all of the adjacent tile groups
-		List<TileGroup> adjacentTileGroups = new List<TileGroup>( );
+		// Start with this board group inside of the list so it gets excluded when searching for surrounding ones
+		List<TileGroup> adjacentTileGroups = new List<TileGroup>( ) { this};
 
 		// Loop through each tile in this tile group to check for surrounding tile groups
 		foreach (Tile tile in tiles) {
-			// Loop through each of the tile groups around the current tile to try and add them to the adjacent tile groups array
-			foreach (TileGroup tileGroup in BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition)) {
-				// If the tile group has already been added or the tile group is equal to this tile group, continue to the next group
-				if (adjacentTileGroups.Contains(tileGroup) || tileGroup == this) {
-					continue;
-				}
-
-				adjacentTileGroups.Add(tileGroup);
-			}
+			// Get all of the cardinal tile groups around the current tile, excluding all of the adjacent tile groups already found
+			adjacentTileGroups.AddRange(BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition, excludedTileGroups: adjacentTileGroups));
 		}
 
+		// Remove this tile group from the adjacent tile groups to finalize the list results
+		adjacentTileGroups.Remove(this);
 		return adjacentTileGroups;
 	}
 

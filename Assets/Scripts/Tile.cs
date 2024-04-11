@@ -29,8 +29,6 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private TileState _tileState;
 
 	private TileGroup _tileGroup;
-	private bool topLeftTileValue;
-	private bool topRightTileValue;
 	private TileSpriteType currentTileSpriteType;
 
 	/// <summary>
@@ -185,11 +183,13 @@ public class Tile : MonoBehaviour {
 	public void RecalculateTileSprite ( ) {
 		// Get the values of the tiles around this tile
 		// Only the top left and right tiles matter because the top row of pixels of each tile cover the one above it
-		topLeftTileValue = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) != null;
-		topRightTileValue = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
+		List<Tile> likeTiles = BoardManager.Instance.SearchForTilesAt(
+			new List<Vector2Int>( ) { BoardPosition + Vector2Int.left, BoardPosition + Vector2Int.up },
+			exclusiveTileGroups: new List<TileGroup>( ) { TileGroup }
+		);
 
 		// The type of the tile normally
-		currentTileSpriteType = (TileSpriteType) (((topLeftTileValue ? 1 : 0) * 2) + ((topRightTileValue ? 1 : 0) * 1));
+		currentTileSpriteType = (TileSpriteType) (((likeTiles[0] != null ? 1 : 0) * 2) + ((likeTiles[1] != null ? 1 : 0) * 1));
 
 		// Update the tile sprite
 		UpdateTileSprite( );
