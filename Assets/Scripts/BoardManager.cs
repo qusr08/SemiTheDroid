@@ -57,6 +57,11 @@ public class BoardManager : Singleton<BoardManager> {
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
 	private void Generate ( ) {
+		// Make sure at least one tile group can be generated
+		if (minTileGroupSize > totalTiles) {
+			return;
+		}
+
 		// All available tiles across the entire board, regardless of what tile group it is next to
 		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 
