@@ -32,10 +32,10 @@ public class CameraController : MonoBehaviour {
 			);
 
 			// Clamp how far the camera position can get from the center of the board
-			Vector3 boardCenterDifference = (Vector3) Board.Instance.CenterPosition - newCameraPosition;
+			Vector3 boardCenterDifference = (Vector3) BoardManager.Instance.CenterPosition - newCameraPosition;
 			boardCenterDifference.x = Mathf.Clamp(boardCenterDifference.x, -screenBounds.x, screenBounds.x);
 			boardCenterDifference.y = Mathf.Clamp(boardCenterDifference.y, -screenBounds.y, screenBounds.y);
-			newCameraPosition = (Vector3) Board.Instance.CenterPosition - boardCenterDifference;
+			newCameraPosition = (Vector3) BoardManager.Instance.CenterPosition - boardCenterDifference;
 
 			// Set the position of the camera
 			SetTransformPositionWithoutZ(transform, newCameraPosition);

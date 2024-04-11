@@ -130,7 +130,7 @@ public class Tile : MonoBehaviour {
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
-			transform.position = Board.Instance.BoardPositionToWorldPosition(_boardPosition);
+			transform.position = BoardManager.Instance.BoardPositionToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
@@ -141,12 +141,12 @@ public class Tile : MonoBehaviour {
 			RecalculateTileSprite( );
 
 			// Update connecting tiles as well
-			Tile bottomLeftTile = Board.Instance.GetTile(_boardPosition + Vector2Int.down);
+			Tile bottomLeftTile = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.down);
 			if (bottomLeftTile != null) {
 				bottomLeftTile.RecalculateTileSprite( );
 			}
 
-			Tile bottomRightTile = Board.Instance.GetTile(_boardPosition + Vector2Int.right);
+			Tile bottomRightTile = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.right);
 			if (bottomRightTile != null) {
 				bottomRightTile.RecalculateTileSprite( );
 			}
@@ -155,7 +155,7 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseEnter ( ) {
 		// Do not update the hover state while there is a selected tile group
-		if (Board.Instance.SelectedTileGroup != null) {
+		if (BoardManager.Instance.SelectedTileGroup != null) {
 			return;
 		}
 
@@ -164,7 +164,7 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseExit ( ) {
 		// Do not update the hover state while there is a selected tile group
-		if (Board.Instance.SelectedTileGroup != null) {
+		if (BoardManager.Instance.SelectedTileGroup != null) {
 			return;
 		}
 
@@ -173,28 +173,28 @@ public class Tile : MonoBehaviour {
 
 	private void OnMouseDown ( ) {
 		// If there is already a selected tile group, then do not select another tile group
-		if (Board.Instance.SelectedTileGroup != null) {
+		if (BoardManager.Instance.SelectedTileGroup != null) {
 			return;
 		}
 
 		// When this tile is pressed, select its tile group
-		Board.Instance.SelectedTileGroup = TileGroup;
+		BoardManager.Instance.SelectedTileGroup = TileGroup;
 	}
 
 	private void Start ( ) {
-		Board.Instance.OnAnimationFrame += UpdateAnimationFrame;
+		GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
 	}
 
 	private void OnEnable ( ) {
-		Board.Instance.OnAnimationFrame += UpdateAnimationFrame;
+		GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
 	}
 
 	private void OnDisable ( ) {
-		Board.Instance.OnAnimationFrame -= UpdateAnimationFrame;
+		GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
 	}
 
 	private void OnDestroy ( ) {
-		Board.Instance.OnAnimationFrame -= UpdateAnimationFrame;
+		GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
 	}
 
 	/// <summary>
@@ -203,8 +203,8 @@ public class Tile : MonoBehaviour {
 	public void RecalculateTileSprite ( ) {
 		// Get the values of the tiles around this tile
 		// Only the top left and right tiles matter because the top row of pixels of each tile cover the one above it
-		topLeftTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) != null;
-		topRightTileValue = Board.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
+		topLeftTileValue = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.left, tileGroup: TileGroup) != null;
+		topRightTileValue = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.up, tileGroup: TileGroup) != null;
 
 		// The type of the tile normally
 		currentTileSpriteType = (TileSpriteType) (((topLeftTileValue ? 1 : 0) * 2) + ((topRightTileValue ? 1 : 0) * 1));
@@ -228,11 +228,11 @@ public class Tile : MonoBehaviour {
 			case TileState.HAZARD:
 				TileSpriteType = currentTileSpriteType;
 				HoveredTileSpriteType = TileSpriteType.NONE;
-				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 			case TileState.SELECTED:
-				TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+				TileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
 				HoveredTileSpriteType = currentTileSpriteType;
 				OverlayTileSpriteType = TileSpriteType.NONE;
 
@@ -254,11 +254,11 @@ public class Tile : MonoBehaviour {
 		// Updating all tiles multiple tiles a second each with three sprites causes a lot of lag
 		switch (_tileState) {
 			case TileState.HAZARD:
-				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + Board.Instance.CurrentAnimationFrame;
+				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 			case TileState.SELECTED:
-				TileSpriteType = TileSpriteType.OUT_F1 + Board.Instance.CurrentAnimationFrame;
+				TileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 		}

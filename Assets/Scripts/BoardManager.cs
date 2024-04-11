@@ -4,7 +4,7 @@ using System.Linq;
 using TreeEditor;
 using UnityEngine;
 
-public class Board : Singleton<Board> {
+public class BoardManager : Singleton<BoardManager> {
 	[Header("References")]
 	[SerializeField] private GameObject tilePrefab;
 	[SerializeField] private Camera gameCamera;
@@ -12,22 +12,11 @@ public class Board : Singleton<Board> {
 	[SerializeField, Min(1)] private int totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
-	[SerializeField, Min(0.01f)] private float animationSpeed;
 	[Space]
-	[SerializeField] private float animationTimer;
-	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2 _centerPosition;
 
 	private List<TileGroup> tileGroups;
 	private TileGroup _selectedTileGroup;
-
-	public delegate void OnAnimationFrameEvent ( );
-	public event OnAnimationFrameEvent OnAnimationFrame;
-
-	/// <summary>
-	/// The current animation frame for all board elements
-	/// </summary>
-	public int CurrentAnimationFrame { get => _currentAnimationFrame; private set => _currentAnimationFrame = value; }
 
 	/// <summary>
 	/// The currently selected tile group that is being moved around by the player
@@ -64,9 +53,6 @@ public class Board : Singleton<Board> {
 
 		// Declare the list of tile groups
 		tileGroups = new List<TileGroup>( );
-
-		animationTimer = 0;
-		CurrentAnimationFrame = 0;
 	}
 
 	private void Start ( ) {
@@ -74,23 +60,6 @@ public class Board : Singleton<Board> {
 	}
 
 	private void Update ( ) {
-		// Increment the animation timer by the time that has passed since the last update call
-		// Once the timer has reached the animation speed, update the sprites
-		animationTimer += Time.deltaTime;
-		if (animationTimer >= animationSpeed) {
-			// Subtract the animation time from the animation timer
-			// This makes it slightly more exact in when the animation changes sprites
-			animationTimer -= animationSpeed;
-
-			// Increment the current animation frame
-			// All animations should use this so they are all synced
-			// All animations will be 4 looped frames
-			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
-
-			// Update all of the tiles if they need to be animated
-			OnAnimationFrame( );
-		}
-
 		// If the right mouse button is pressed, deselect the tile group
 		if (Input.GetMouseButtonDown(1)) {
 			SelectedTileGroup = null;
