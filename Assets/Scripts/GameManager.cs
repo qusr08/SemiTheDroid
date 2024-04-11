@@ -11,7 +11,9 @@ public class GameManager : Singleton<GameManager> {
 	[Space]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
-	[SerializeField] private Vector2Int lastSelectedTilePosition;
+	[SerializeField] private Vector2Int lastSelectedPosition;
+	[SerializeField] private Vector2Int selectedOrigin;
+	[SerializeField] private bool canPlaceSelectedTileGroup;
 
 	private Tile selectedOriginTile;
 	private TileGroup selectedTileGroup;
@@ -54,19 +56,35 @@ public class GameManager : Singleton<GameManager> {
 			OnAnimationFrame( );
 		}
 
-		// If the right mouse button is pressed, deselect the tile group
+		// If the right mouse button is pressed, deselect the tile group and reset its position
 		if (Input.GetMouseButtonDown(1)) {
+			// Reset all of the tiles back to where they originally were
+			Vector2Int lastOriginPosition = selectedOriginTile.BoardPosition;
+			for (int i = 0; i < selectedTileGroup.Count; i++) {
+				selectedTileGroup[i].BoardPosition = selectedTileGroup[i].BoardPosition - lastOriginPosition + selectedOrigin;
+			}
+
 			SelectTileGroup(null);
 		}
 
 		// Update the selected tile group's position if there is one selected
 		if (IsTileGroupSelected) {
+			// Since selecting and placing the tile groups are done with the same mouse button, we need to wait for the mouse to be lifted in order for the tile group to be placed
+			if (Input.GetMouseButtonUp(0)) {
+				canPlaceSelectedTileGroup = true;
+			}
+
+			// If the left mouse button is pressed, then deselect the tile group and place it where it currently is positioned
+			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0)) {
+				SelectTileGroup(null);
+			}
+
 			// Get the closest board tile to the mouse position
 			Vector2Int closestBoardPosition = BoardManager.Instance.WorldToBoardPosition(gameCamera.ScreenToWorldPoint(Input.mousePosition));
 
 			// If the closest board position is not equal to the last tile position, then update the position of the selected tile group
-			if (closestBoardPosition != lastSelectedTilePosition) {
-				lastSelectedTilePosition = closestBoardPosition;
+			if (closestBoardPosition != lastSelectedPosition) {
+				lastSelectedPosition = closestBoardPosition;
 
 				// Calculate the offset of the closest board position and the origin position
 				Vector2Int originTileOffset = closestBoardPosition - selectedOriginTile.BoardPosition;
@@ -186,7 +204,7 @@ public class GameManager : Singleton<GameManager> {
 		// This will be used for position the tile group and returning it back to its original location if needed
 		if (originTile != null) {
 			selectedOriginTile = originTile;
-			lastSelectedTilePosition = originTile.BoardPosition;
+			selectedOrigin = lastSelectedPosition = originTile.BoardPosition;
 		}
 
 		// Set the previous selected tile group to not be selected anymore
@@ -200,5 +218,7 @@ public class GameManager : Singleton<GameManager> {
 		if (selectedTileGroup != null) {
 			selectedTileGroup.TileGroupState = TileState.SELECTED;
 		}
+
+		canPlaceSelectedTileGroup = false;
 	}
 }
