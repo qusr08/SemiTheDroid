@@ -68,7 +68,57 @@ public class GameManager : Singleton<GameManager> {
 			if (closestBoardPosition != lastSelectedTilePosition) {
 				lastSelectedTilePosition = closestBoardPosition;
 
-				Debug.Log("UPDATE POSITION");
+				// Calculate the offset of the closest board position and the origin position
+				Vector2Int originTileOffset = closestBoardPosition - selectedOriginTile.BoardPosition;
+
+				// Whether or not the currently selected board group can be placed on the new board position
+				// Set to true by default, and if at least one tile cannot be placed, then it is set to false
+				bool canMoveTileGroup = true;
+
+				// All adjacent tile groups to the blocks of the currently selected tile group
+				List<TileGroup> adjacentTileGroups = new List<TileGroup>( );
+
+				for (int i = 0; i < selectedTileGroup.Count; i++) {
+					// Get the board position of this tile around the origin tile position
+					Vector2Int localTilePosition = selectedTileGroup[i].BoardPosition + originTileOffset;
+
+					// Get the tile at the local board position
+					Tile localTile = BoardManager.Instance.GetTile(localTilePosition);
+
+					// If there is a tile at the location and it is not part of the currently selected tile group, then the selected tile group cannot move here
+					if (localTile != null && localTile.TileGroup != selectedTileGroup) {
+						canMoveTileGroup = false;
+
+						break;
+					}
+
+					// Keep track of all the adjacent tile groups around each tile in the selected tile group
+					foreach(TileGroup tileGroup in BoardManager.Instance.GetCardinalTileGroups(localTilePosition)) {
+						// If the tile group is equal to the selected one, ignore it
+						if (tileGroup == selectedTileGroup) {
+							continue;
+						}
+
+						// If the tile group has already been added as an adjacent tile group, ignore it
+						if (adjacentTileGroups.Contains(tileGroup)) {
+							continue;
+						}
+
+						adjacentTileGroups.Add(tileGroup);
+					}
+				}
+
+				// If there are no adjacent tile groups around the new locations for the blocks, then the selected tile group cannot move
+				if (adjacentTileGroups.Count == 0) {
+					canMoveTileGroup = false;
+				}
+
+				// If all of the tiles in the selected tile group have been checked, then move all of the tiles to the new position
+				if (canMoveTileGroup) {
+					for (int i = 0; i < selectedTileGroup.Count; i++) {
+						selectedTileGroup[i].BoardPosition += originTileOffset;
+					}
+				}
 			}
 		}
 	}
