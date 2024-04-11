@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TreeEditor;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
@@ -63,6 +64,9 @@ public class GameManager : Singleton<GameManager> {
 			for (int i = 0; i < selectedTileGroup.Count; i++) {
 				selectedTileGroup[i].BoardPosition = selectedTileGroup[i].BoardPosition - lastOriginPosition + selectedOrigin;
 			}
+
+			// Since all of the tiles were moved, recalculate all of the tile sprites
+			selectedTileGroup.RecalculateTileSprites( );
 
 			SelectTileGroup(null);
 		}
@@ -136,6 +140,9 @@ public class GameManager : Singleton<GameManager> {
 					for (int i = 0; i < selectedTileGroup.Count; i++) {
 						selectedTileGroup[i].BoardPosition += originTileOffset;
 					}
+
+					// Since all of the tiles were moved, recalculate all of the tile sprites
+					selectedTileGroup.RecalculateTileSprites( );
 				}
 			}
 		}

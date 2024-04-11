@@ -157,6 +157,8 @@ public class BoardManager : Singleton<BoardManager> {
 			foreach (Vector2Int tilePosition in tileGroupTilePositions) {
 				CreateTile(tilePosition, tileGroup);
 			}
+
+			tileGroup.RecalculateTileSprites( );
 		}
 
 		// After all the tiles have been generated, recalculate the center position of the board

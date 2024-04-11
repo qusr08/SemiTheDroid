@@ -45,7 +45,7 @@ public class Tile : MonoBehaviour {
 			}
 
 			_tileState = value;
-			
+
 			UpdateTileSprite( );
 		}
 	}
@@ -136,20 +136,6 @@ public class Tile : MonoBehaviour {
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
 			hoverTileSpriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
 			overlayTileSpriteRenderer.sortingOrder = (_boardPosition.x - _boardPosition.y) + 1;
-
-			// Update this tile's type based on the surrounding tiles
-			RecalculateTileSprite( );
-
-			// Update connecting tiles as well
-			Tile bottomLeftTile = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.down);
-			if (bottomLeftTile != null) {
-				bottomLeftTile.RecalculateTileSprite( );
-			}
-
-			Tile bottomRightTile = BoardManager.Instance.GetTile(_boardPosition + Vector2Int.right);
-			if (bottomRightTile != null) {
-				bottomRightTile.RecalculateTileSprite( );
-			}
 		}
 	}
 
@@ -245,7 +231,7 @@ public class Tile : MonoBehaviour {
 	/// <summary>
 	/// Updates only the sprites necessary for animation
 	/// </summary>
-	private void UpdateAnimationFrame () {
+	private void UpdateAnimationFrame ( ) {
 		// Only update the necessary sprites during necessary states
 		// Updating all tiles multiple tiles a second each with three sprites causes a lot of lag
 		switch (_tileState) {

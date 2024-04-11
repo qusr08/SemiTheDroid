@@ -75,7 +75,7 @@ public class TileGroup {
 		// Loop through each tile in this tile group to check for surrounding tile groups
 		foreach (Tile tile in tiles) {
 			// Loop through each of the tile groups around the current tile to try and add them to the adjacent tile groups array
-			foreach(TileGroup tileGroup in BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition)) {
+			foreach (TileGroup tileGroup in BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition)) {
 				// If the tile group has already been added or the tile group is equal to this tile group, continue to the next group
 				if (adjacentTileGroups.Contains(tileGroup) || tileGroup == this) {
 					continue;
@@ -86,5 +86,14 @@ public class TileGroup {
 		}
 
 		return adjacentTileGroups;
+	}
+
+	/// <summary>
+	/// Recalculate all of the tile sprites inside of this tile group
+	/// </summary>
+	public void RecalculateTileSprites ( ) {
+		for (int i = 0; i < tiles.Count; i++) {
+			tiles[i].RecalculateTileSprite( );
+		}
 	}
 }
