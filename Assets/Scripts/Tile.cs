@@ -185,16 +185,12 @@ public class Tile : MonoBehaviour {
 		GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
 	}
 
-	private void OnEnable ( ) {
-		GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
-	}
-
-	private void OnDisable ( ) {
-		GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
-	}
-
 	private void OnDestroy ( ) {
-		GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
+		// Check to make sure the game manager instance is not null before trying to reference it
+		// This was throwing a lot of errors when closing out the editor play mode, this seems to fix it
+		if (GameManager.Instance != null) {
+			GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
+		}
 	}
 
 	/// <summary>

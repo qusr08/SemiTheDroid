@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
@@ -11,8 +12,8 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedTilePosition;
-	[SerializeField] private Vector2Int originSelectedTilePosition;
 
+	private Tile selectedOriginTile;
 	private TileGroup selectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
@@ -52,7 +53,7 @@ public class GameManager : Singleton<GameManager> {
 			// Update all of the tiles if they need to be animated
 			OnAnimationFrame( );
 		}
-		
+
 		// If the right mouse button is pressed, deselect the tile group
 		if (Input.GetMouseButtonDown(1)) {
 			SelectTileGroup(null);
@@ -83,6 +84,61 @@ public class GameManager : Singleton<GameManager> {
 			return;
 		}
 
+		// Check to see if the tile group can be moved
+		if (tileGroup != null) {
+			// The tile groups that will be searched next
+			List<TileGroup> nextTileGroups = new List<TileGroup>( ) { tileGroup.GetAdjacentTileGroups( )[0] };
+
+			// The already searched tile groups on the board
+			List<TileGroup> searchedTileGroups = new List<TileGroup>( );
+
+			// Keep going until there are no more tile groups to search
+			while (nextTileGroups.Count > 0) {
+				// Loop through all of the searchable tile groups
+				for (int i = nextTileGroups.Count - 1; i >= 0; i--) {
+					// Get all of the adjacent tile groups to the current tile group
+					List<TileGroup> adjacentTileGroups = nextTileGroups[i].GetAdjacentTileGroups( );
+					for (int j = 0; j < adjacentTileGroups.Count; j++) {
+						// If the adjacent tile group is equal to the selected tile group, ignore it
+						if (adjacentTileGroups[j] == tileGroup) {
+							continue;
+						}
+
+						// If the new adjacent tile group has already been searched, continue to the next group
+						if (searchedTileGroups.Contains(adjacentTileGroups[j])) {
+							continue;
+						}
+
+						// If the new adjacent tile group has already been staged to be searched next, continue to the next group
+						if (nextTileGroups.Contains(adjacentTileGroups[j])) {
+							continue;
+						}
+
+						// Since this is a new tile group, add it to be searched next
+						nextTileGroups.Add(adjacentTileGroups[j]);
+					}
+
+					// Now that all of the adjacent tile groups have been added, this tile group has been fully searched
+					// Remove it from the next tile groups list and add it to the already searched list
+					searchedTileGroups.Add(nextTileGroups[i]);
+					nextTileGroups.RemoveAt(i);
+				}
+			}
+
+			// If the searched tile groups count is less than 1 less than all of the tile groups, then this tile group cannot be removed
+			// This means that when the current tile group is removed, all of the remaining tile groups will not connect together
+			if (searchedTileGroups.Count < BoardManager.Instance.TileGroupCount - 1) {
+				return;
+			}
+		}
+
+		// Set the origin of the selected tile group to be the tile that was clicked on to select it
+		// This will be used for position the tile group and returning it back to its original location if needed
+		if (originTile != null) {
+			selectedOriginTile = originTile;
+			lastSelectedTilePosition = originTile.BoardPosition;
+		}
+
 		// Set the previous selected tile group to not be selected anymore
 		if (selectedTileGroup != null) {
 			selectedTileGroup.TileGroupState = TileState.REGULAR;
@@ -93,12 +149,6 @@ public class GameManager : Singleton<GameManager> {
 		// Set the new tile group to be selected
 		if (selectedTileGroup != null) {
 			selectedTileGroup.TileGroupState = TileState.SELECTED;
-		}
-
-		// Set the origin of the selected tile group to be the tile that was clicked on to select it
-		// This will be used for position the tile group and returning it back to its original location if needed
-		if (originTile != null) {
-			originSelectedTilePosition = lastSelectedTilePosition = originTile.BoardPosition;
 		}
 	}
 }

@@ -63,4 +63,28 @@ public class TileGroup {
 		// Add the tile to this group
 		tiles.Remove(tile);
 	}
+
+	/// <summary>
+	/// Get a list of all the tile groups that are adjacent (touching) this tile group on the board
+	/// </summary>
+	/// <returns>A TileGroup list with all of the adjacent tile groups in it</returns>
+	public List<TileGroup> GetAdjacentTileGroups ( ) {
+		// A list to store all of the adjacent tile groups
+		List<TileGroup> adjacentTileGroups = new List<TileGroup>( );
+
+		// Loop through each tile in this tile group to check for surrounding tile groups
+		foreach (Tile tile in tiles) {
+			// Loop through each of the tile groups around the current tile to try and add them to the adjacent tile groups array
+			foreach(TileGroup tileGroup in BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition)) {
+				// If the tile group has already been added or the tile group is equal to this tile group, continue to the next group
+				if (adjacentTileGroups.Contains(tileGroup) || tileGroup == this) {
+					continue;
+				}
+
+				adjacentTileGroups.Add(tileGroup);
+			}
+		}
+
+		return adjacentTileGroups;
+	}
 }

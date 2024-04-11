@@ -22,6 +22,11 @@ public class BoardManager : Singleton<BoardManager> {
 	/// </summary>
 	public Vector2 CenterPosition { get => _centerPosition; private set => _centerPosition = value; }
 
+	/// <summary>
+	/// The number of tile groups on the board
+	/// </summary>
+	public int TileGroupCount => tileGroups.Count;
+
 	protected override void Awake ( ) {
 		base.Awake( );
 
@@ -233,6 +238,29 @@ public class BoardManager : Singleton<BoardManager> {
 			boardPosition + Vector2Int.down,
 			boardPosition + Vector2Int.left
 		};
+	}
+
+	/// <summary>
+	/// Get all cardinal tile groups surrounding the specified board position
+	/// </summary>
+	/// <param name="boardPosition">The board position to check around</param>
+	/// <returns>A distinct list of all cardinal tile groups surrounding the specified board position</returns>
+	public List<TileGroup> GetCardinalTileGroups (Vector2Int boardPosition) {
+		// Create a list for storing all of the cardinal tile groups
+		List<TileGroup> cardinalTileGroups = new List<TileGroup>( );
+
+		// Loop through all cardinal tiles and save all valid tile groups
+		foreach (Tile cardinalTile in GetCardinalTiles(boardPosition)) {
+			// If the cardinal tile does not have a tile group or the tile group has already been added, then continue to the next tile
+			if (cardinalTile.TileGroup == null || cardinalTileGroups.Contains(cardinalTile.TileGroup)) {
+				continue;
+			}
+			
+			cardinalTileGroups.Add(cardinalTile.TileGroup);
+		}
+
+		// return cardinalTileGroups.OrderBy(tileGroup => tileGroup.Count).ToList( );
+		return cardinalTileGroups;
 	}
 
 	/// <summary>
