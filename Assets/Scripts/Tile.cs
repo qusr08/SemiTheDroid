@@ -21,16 +21,16 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private SpriteRenderer hoverTileSpriteRenderer;
 	[SerializeField] private SpriteRenderer overlayTileSpriteRenderer;
 	[SerializeField] private Sprite[ ] sprites;
-	[Header("Properties")]
+	[Header("Information")]
 	[SerializeField] private Vector2Int _boardPosition;
+	[SerializeField] private Vector2Int _resetPosition;
+	[SerializeField] private TileState _tileState;
+	[SerializeField] private TileSpriteType currentTileSpriteType;
 	[SerializeField] private TileSpriteType _tileSpriteType;
 	[SerializeField] private TileSpriteType _hoveredTileSpriteType;
 	[SerializeField] private TileSpriteType _overlayTileSpriteType;
-	[SerializeField] private TileState _tileState;
-	[SerializeField] private Vector2Int _resetPosition;
 
 	private TileGroup _tileGroup;
-	private TileSpriteType currentTileSpriteType;
 
 	/// <summary>
 	/// The current state of this tile

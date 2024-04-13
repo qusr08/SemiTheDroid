@@ -12,7 +12,7 @@ public class Board : Singleton<Board> {
 	[SerializeField, Min(1)] private int totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
-	[Space]
+	[Header("Information")]
 	[SerializeField] private Vector2 _centerPosition;
 
 	private List<TileGroup> tileGroups;
@@ -154,7 +154,8 @@ public class Board : Singleton<Board> {
 		}
 
 		// After all the tiles have been generated, recalculate the center position of the board
-		RecalculateCenterPosition(setCameraPosition: true);
+		RecalculateCenterPosition( );
+		CameraController.SetTransformPositionWithoutZ(gameCamera.transform, CenterPosition);
 	}
 
 	/// <summary>
@@ -293,8 +294,7 @@ public class Board : Singleton<Board> {
 	/// <summary>
 	/// Recalculate the center position of the tiles on the board
 	/// </summary>
-	/// <param name="setCameraPosition">Whether or not to set the camera position when the center position is recalculated</param>
-	public void RecalculateCenterPosition (bool setCameraPosition = false) {
+	public void RecalculateCenterPosition ( ) {
 		// Variables to track totals
 		Vector2 sumPosition = Vector2.zero;
 		int tileCount = 0;
@@ -309,11 +309,6 @@ public class Board : Singleton<Board> {
 
 		// The average of all the positions will be the center position of the board
 		CenterPosition = sumPosition / tileCount;
-
-		// Set the camera position if the flag is set to true
-		if (setCameraPosition) {
-			CameraController.SetTransformPositionWithoutZ(gameCamera.transform, CenterPosition);
-		}
 	}
 
 	/// <summary>

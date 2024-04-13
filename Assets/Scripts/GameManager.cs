@@ -9,13 +9,13 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private Camera gameCamera;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
-	[Space]
+	[Header("Information")]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedPosition;
-	[SerializeField] private bool canPlaceSelectedTileGroup;
-
+	
 	private TileGroup selectedTileGroup;
+	private bool canPlaceSelectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
 	public event OnAnimationFrameEvent OnAnimationFrame;
@@ -76,6 +76,9 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the left mouse button is pressed, then deselect the tile group and place it where it currently is positioned
 			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0)) {
+				// Update the center of the board because tiles were moved
+				Board.Instance.RecalculateCenterPosition( );
+
 				SelectTileGroup(null);
 			}
 
