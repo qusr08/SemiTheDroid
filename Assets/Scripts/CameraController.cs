@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// - Make it so that when the mouse is scrolled, it also updates the position of the camera
-
 public class CameraController : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private Camera gameCamera;

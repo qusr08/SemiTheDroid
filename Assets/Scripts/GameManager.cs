@@ -13,10 +13,8 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedPosition;
-	[SerializeField] private Vector2Int selectedOrigin;
 	[SerializeField] private bool canPlaceSelectedTileGroup;
 
-	private Tile selectedOriginTile;
 	private TileGroup selectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
@@ -57,20 +55,6 @@ public class GameManager : Singleton<GameManager> {
 			OnAnimationFrame( );
 		}
 
-		// If the right mouse button is pressed, deselect the tile group and reset its position
-		if (Input.GetMouseButtonDown(1)) {
-			// Reset all of the tiles back to where they originally were
-			Vector2Int lastOriginPosition = selectedOriginTile.BoardPosition;
-			for (int i = 0; i < selectedTileGroup.Count; i++) {
-				selectedTileGroup[i].BoardPosition += selectedOrigin - lastOriginPosition;
-			}
-
-			// Since all of the tiles were moved, recalculate all of the tile sprites
-			selectedTileGroup.RecalculateTileSprites( );
-
-			SelectTileGroup(null);
-		}
-
 		// Update the selected tile group's position if there is one selected
 		if (IsTileGroupSelected) {
 			// Get the closest board tile to the mouse position
@@ -78,41 +62,8 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the closest board position is not equal to the last tile position, then update the position of the selected tile group
 			if (closestBoardPosition != lastSelectedPosition) {
-				// Calculate the offset of the closest board position and the origin position
-				Vector2Int originTileOffset = closestBoardPosition - selectedOriginTile.BoardPosition;
-
-				// A list to store all of the adjacent tile groups around the new board positions
-				// Starting with the selected tile group inside the array so it is excluded while searching for adjacent tile groups
-				List<TileGroup> adjacentTileGroups = new List<TileGroup>( ) { selectedTileGroup };
-
-				// A list of all the new positions that all the blocks will move to
-				List<Vector2Int> newPositions = new List<Vector2Int>( );
-
-				// Add all of the new board positions and adjacent tile groups to their arrays
-				for (int i = 0; i < selectedTileGroup.Count; i++) {
-					Vector2Int newPosition = selectedTileGroup[i].BoardPosition + originTileOffset;
-					newPositions.Add(newPosition);
-
-					// Add all cardinal tile groups to the adjacent tile group list
-					adjacentTileGroups.AddRange(BoardManager.Instance.GetCardinalTileGroups(newPosition, excludedTileGroups: adjacentTileGroups));
-				}
-
-				// Get all of the tiles that are in the new positions
-				List<Tile> tilesAtNewPositions = BoardManager.Instance.SearchForTilesAt(newPositions, excludedTileGroup: selectedTileGroup);
-				tilesAtNewPositions.RemoveAll(tile => tile == null);
-
-				// If the selected tile group is moving to a spot where there is only 1 tile group, it is floating away from the board
-				// The only tile group remaining in the list would be the selected tile group itself
-				// Also, if there is at least one tile at one of the new positions, then the selected tile group cannot move
-				if (adjacentTileGroups.Count > 1 && tilesAtNewPositions.Count == 0) {
-					// Move the selected tiles
-					for (int i = 0; i < selectedTileGroup.Count; i++) {
-						selectedTileGroup[i].BoardPosition += originTileOffset;
-					}
-
-					// Since all of the tiles were moved, recalculate all of the tile sprites
-					selectedTileGroup.RecalculateTileSprites( );
-
+				// Try to move the selected tile group to the new board position
+				if (selectedTileGroup.TryMove(closestBoardPosition)) {
 					// Update the last selected position that the selected tile group moved to
 					lastSelectedPosition = closestBoardPosition;
 				}
@@ -125,6 +76,19 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the left mouse button is pressed, then deselect the tile group and place it where it currently is positioned
 			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0)) {
+				SelectTileGroup(null);
+			}
+
+			// If the right mouse button is pressed, deselect the tile group and reset its position
+			if (Input.GetMouseButtonDown(1)) {
+				// Reset all of the tiles back to where they originally were
+				for (int i = 0; i < selectedTileGroup.Count; i++) {
+					selectedTileGroup[i].BoardPosition = selectedTileGroup[i].ResetPosition;
+				}
+
+				// Since all of the tiles were moved, recalculate all of the tile sprites
+				// selectedTileGroup.RecalculateTileSprites( );
+
 				SelectTileGroup(null);
 			}
 		}
@@ -155,6 +119,8 @@ public class GameManager : Singleton<GameManager> {
 				for (int i = nextTileGroups.Count - 1; i >= 0; i--) {
 					// Get all of the adjacent tile groups to the current tile group
 					List<TileGroup> adjacentTileGroups = nextTileGroups[i].GetAdjacentTileGroups( );
+
+					// Loop through all of the adjacent tile groups
 					for (int j = 0; j < adjacentTileGroups.Count; j++) {
 						// If the adjacent tile group is equal to the selected tile group, ignore it
 						if (adjacentTileGroups[j] == tileGroup) {
@@ -189,13 +155,6 @@ public class GameManager : Singleton<GameManager> {
 			}
 		}
 
-		// Set the origin of the selected tile group to be the tile that was clicked on to select it
-		// This will be used for position the tile group and returning it back to its original location if needed
-		if (originTile != null) {
-			selectedOriginTile = originTile;
-			selectedOrigin = lastSelectedPosition = originTile.BoardPosition;
-		}
-
 		// Set the previous selected tile group to not be selected anymore
 		if (selectedTileGroup != null) {
 			selectedTileGroup.TileGroupState = TileState.REGULAR;
@@ -206,6 +165,10 @@ public class GameManager : Singleton<GameManager> {
 		// Set the new tile group to be selected
 		if (selectedTileGroup != null) {
 			selectedTileGroup.TileGroupState = TileState.SELECTED;
+
+			// Select the origin tile
+			selectedTileGroup.OriginTile = originTile;
+			lastSelectedPosition = originTile.BoardPosition;
 		}
 
 		canPlaceSelectedTileGroup = false;

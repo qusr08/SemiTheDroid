@@ -172,7 +172,6 @@ MonoBehaviour:
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
-  selectedOrigin: {x: 0, y: 0}
   canPlaceSelectedTileGroup: 0
 --- !u!1 &325865078
 GameObject:
@@ -215,7 +214,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 325865078}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a8c85af7d38bde48b57bf0a67d8225c, type: 3}
+  m_Script: {fileID: 11500000, guid: 9e214b1188d83b64a831c7c56507e9b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}

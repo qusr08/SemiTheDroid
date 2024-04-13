@@ -191,7 +191,7 @@ public class BoardManager : Singleton<BoardManager> {
 		List<Vector2Int> cardinalPositions = GetCardinalBoardPositions(boardPosition, excludedBoardPositions: excludedBoardPositions);
 
 		// Get all of the cardinal tiles around the board position
-		List<Tile> cardinalTiles = SearchForTilesAt(cardinalPositions);
+		List<Tile> cardinalTiles = SearchForTilesAt(cardinalPositions, exclusiveTileGroups: null);
 
 		for (int i = cardinalPositions.Count - 1; i >= 0; i--) {
 			// If a tile was found at the current position, then remove the cardinal position as it clearly was not a void
@@ -220,6 +220,14 @@ public class BoardManager : Singleton<BoardManager> {
 		return cardinalTiles;
 	}
 
+	public List<Tile> GetCardinalTiles (Vector2Int boardPosition, TileGroup exclusiveTileGroup = null, TileGroup excludedTileGroup = null) {
+		return GetCardinalTiles(
+			boardPosition,
+			exclusiveTileGroups: exclusiveTileGroup == null ? null : new List<TileGroup>( ) { exclusiveTileGroup },
+			excludedTileGroups: excludedTileGroup == null ? null : new List<TileGroup>( ) { excludedTileGroup }
+		);
+	}
+
 	/// <summary>
 	/// Get all cardinal tile groups surrounding the specified board position
 	/// </summary>
@@ -233,11 +241,24 @@ public class BoardManager : Singleton<BoardManager> {
 
 		// Loop through all cardinal tiles and save all valid tile groups
 		foreach (Tile cardinalTile in GetCardinalTiles(boardPosition, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups)) {
+			// If the current tile group was already found as a cardinal tile group, ignore it and go to the next one
+			if (cardinalTileGroups.Contains(cardinalTile.TileGroup)) {
+				continue;
+			}
+
 			cardinalTileGroups.Add(cardinalTile.TileGroup);
 		}
 
 		// return cardinalTileGroups.OrderBy(tileGroup => tileGroup.Count).ToList( );
-		return cardinalTileGroups.Distinct( ).ToList( );
+		return cardinalTileGroups;
+	}
+
+	public List<TileGroup> GetCardinalTileGroups (Vector2Int boardPosition, TileGroup exclusiveTileGroup = null, TileGroup excludedTileGroup = null) {
+		return GetCardinalTileGroups(
+			boardPosition,
+			exclusiveTileGroups: exclusiveTileGroup == null ? null : new List<TileGroup>( ) { exclusiveTileGroup },
+			excludedTileGroups: excludedTileGroup == null ? null : new List<TileGroup>( ) { excludedTileGroup }
+		);
 	}
 
 	/// <summary>
@@ -296,8 +317,26 @@ public class BoardManager : Singleton<BoardManager> {
 		);
 	}
 
-	public List<Tile> SearchForTilesAt (List<Vector2Int> boardPositions) {
-		return SearchForTilesAt(boardPositions, exclusiveTileGroups: null, excludedTileGroups: null);
+	/// <summary>
+	/// Checks to see if there are any tiles at the specified board positions
+	/// </summary>
+	/// <param name="boardPositions">The list of positions to search at</param>
+	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
+	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
+	/// <returns>true if there is at least one tile at one of the board positions, false otherwise</returns>
+	public bool HasTilesAt (List<Vector2Int> boardPositions, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		List<Tile> tiles = SearchForTilesAt(boardPositions, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups);
+		tiles.RemoveAll(tile => tile == null);
+
+		return tiles.Count > 0;
+	}
+
+	public bool HasTilesAt (List<Vector2Int> boardPositions, TileGroup exclusiveTileGroup = null, TileGroup excludedTileGroup = null) {
+		return HasTilesAt(
+			boardPositions,
+			exclusiveTileGroups: exclusiveTileGroup == null ? null : new List<TileGroup>( ) { exclusiveTileGroup },
+			excludedTileGroups: excludedTileGroup == null ? null : new List<TileGroup>( ) { excludedTileGroup }
+		);
 	}
 
 	/// <summary>

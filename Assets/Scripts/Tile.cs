@@ -27,6 +27,7 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private TileSpriteType _hoveredTileSpriteType;
 	[SerializeField] private TileSpriteType _overlayTileSpriteType;
 	[SerializeField] private TileState _tileState;
+	[SerializeField] private Vector2Int _resetPosition;
 
 	private TileGroup _tileGroup;
 	private TileSpriteType currentTileSpriteType;
@@ -43,6 +44,14 @@ public class Tile : MonoBehaviour {
 			}
 
 			_tileState = value;
+
+			switch (_tileState) {
+				case TileState.SELECTED:
+					// If the tile is just now selected, save its reset position
+					ResetPosition = BoardPosition;
+
+					break;
+			}
 
 			UpdateTileSprite( );
 		}
@@ -136,6 +145,11 @@ public class Tile : MonoBehaviour {
 			overlayTileSpriteRenderer.sortingOrder = (_boardPosition.x - _boardPosition.y) + 1;
 		}
 	}
+
+	/// <summary>
+	/// Used to track the position that this tile will reset back to if a tile group selection is cancelled
+	/// </summary>
+	public Vector2Int ResetPosition { get => _resetPosition; set => _resetPosition = value; }
 
 	private void OnMouseEnter ( ) {
 		// Do not update the hover state while there is a selected tile group
