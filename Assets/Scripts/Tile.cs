@@ -185,7 +185,7 @@ public class Tile : MonoBehaviour {
 		// Only the top left and right tiles matter because the top row of pixels of each tile cover the one above it
 		List<Tile> likeTiles = BoardManager.Instance.SearchForTilesAt(
 			new List<Vector2Int>( ) { BoardPosition + Vector2Int.left, BoardPosition + Vector2Int.up },
-			exclusiveTileGroups: new List<TileGroup>( ) { TileGroup }
+			exclusiveTileGroup: TileGroup
 		);
 
 		// The type of the tile normally

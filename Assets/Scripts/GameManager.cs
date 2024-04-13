@@ -54,7 +54,7 @@ public class GameManager : Singleton<GameManager> {
 			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
 
 			// Update all of the tiles if they need to be animated
-			// OnAnimationFrame( );
+			OnAnimationFrame( );
 		}
 
 		// If the right mouse button is pressed, deselect the tile group and reset its position
@@ -81,10 +81,6 @@ public class GameManager : Singleton<GameManager> {
 				// Calculate the offset of the closest board position and the origin position
 				Vector2Int originTileOffset = closestBoardPosition - selectedOriginTile.BoardPosition;
 
-				// Whether or not the currently selected board group can be placed on the new board position
-				// Set to true by default, and if at least one tile cannot be placed, then it is set to false
-				bool canMoveTileGroup = true;
-
 				// A list to store all of the adjacent tile groups around the new board positions
 				// Starting with the selected tile group inside the array so it is excluded while searching for adjacent tile groups
 				List<TileGroup> adjacentTileGroups = new List<TileGroup>( ) { selectedTileGroup };
@@ -97,24 +93,18 @@ public class GameManager : Singleton<GameManager> {
 					Vector2Int newPosition = selectedTileGroup[i].BoardPosition + originTileOffset;
 					newPositions.Add(newPosition);
 
+					// Add all cardinal tile groups to the adjacent tile group list
 					adjacentTileGroups.AddRange(BoardManager.Instance.GetCardinalTileGroups(newPosition, excludedTileGroups: adjacentTileGroups));
 				}
 
-				// Remove the selected tile group from the adjacent groups
-				adjacentTileGroups.Remove(selectedTileGroup);
+				// Get all of the tiles that are in the new positions
+				List<Tile> tilesAtNewPositions = BoardManager.Instance.SearchForTilesAt(newPositions, excludedTileGroup: selectedTileGroup);
+				tilesAtNewPositions.RemoveAll(tile => tile == null);
 
-				// If there is at least one tile at one of the new positions, then the selected tile group cannot move
-				if (BoardManager.Instance.SearchForTilesAt(newPositions, excludedTileGroups: new List<TileGroup>( ) { selectedTileGroup }).Count > 0) {
-					canMoveTileGroup = false;
-				}
-
-				// If there are no adjacent tile groups to the new board positions, then the selected tile group would be floating away from the rest of the board and should not be moved
-				if (selectedTileGroup.GetAdjacentTileGroups( ).Count == 0) {
-					canMoveTileGroup = false;
-				}
-
-				// If all of the tiles in the selected tile group have been checked, then move all of the tiles to the new position
-				if (canMoveTileGroup) {
+				// If the selected tile group is moving to a spot where there is only 1 tile group, it is floating away from the board
+				// The only tile group remaining in the list would be the selected tile group itself
+				// Also, if there is at least one tile at one of the new positions, then the selected tile group cannot move
+				if (adjacentTileGroups.Count > 1 && tilesAtNewPositions.Count == 0) {
 					// Move the selected tiles
 					for (int i = 0; i < selectedTileGroup.Count; i++) {
 						selectedTileGroup[i].BoardPosition += originTileOffset;

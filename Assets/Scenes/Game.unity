@@ -220,9 +220,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
   gameCamera: {fileID: 519420031}
-  totalTiles: 6
-  minTileGroupSize: 3
-  maxTileGroupSize: 4
+  totalTiles: 24
+  minTileGroupSize: 4
+  maxTileGroupSize: 6
   _centerPosition: {x: 0, y: 0}
 --- !u!1 &519420028
 GameObject:
