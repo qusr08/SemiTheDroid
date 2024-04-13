@@ -116,12 +116,12 @@ public class Tile : MonoBehaviour {
 		set {
 			// Remove this tile from the previous group if it was in one
 			if (_tileGroup != null) {
-				_tileGroup.RemoveTile(this);
+				_tileGroup.Tiles.Remove(this);
 			}
 
 			// Add this tile to the new group if it is not null
 			if (value != null) {
-				value.AddTile(this);
+				value.Tiles.Add(this);
 			}
 
 			_tileGroup = value;
@@ -137,7 +137,7 @@ public class Tile : MonoBehaviour {
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
-			transform.position = BoardManager.Instance.BoardToWorldPosition(_boardPosition);
+			transform.position = Board.Instance.BoardToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
 			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
@@ -197,13 +197,33 @@ public class Tile : MonoBehaviour {
 	public void RecalculateTileSprite ( ) {
 		// Get the values of the tiles around this tile
 		// Only the top left and right tiles matter because the top row of pixels of each tile cover the one above it
-		List<Tile> likeTiles = BoardManager.Instance.SearchForTilesAt(
+		List<Tile> tiles = Board.Instance.SearchForTilesAt(
 			new List<Vector2Int>( ) { BoardPosition + Vector2Int.left, BoardPosition + Vector2Int.up },
-			exclusiveTileGroup: TileGroup
+			exclusiveTileGroups: new List<TileGroup>( ) { TileGroup }
 		);
 
-		// The type of the tile normally
-		currentTileSpriteType = (TileSpriteType) (((likeTiles[0] != null ? 1 : 0) * 2) + ((likeTiles[1] != null ? 1 : 0) * 1));
+		// Set the regular sprite of this tile based on the above tiles
+		switch (tiles.Count) {
+			case 0:
+				// This means there are no tiles above this tile in the tile group
+				currentTileSpriteType = TileSpriteType.REG_SOL_SOL;
+
+				break;
+			case 1:
+				// This means one of tiles above this tile are in the tile group, we just need to know which one specifically
+				if (tiles[0].BoardPosition == BoardPosition + Vector2Int.left) {
+					currentTileSpriteType = TileSpriteType.REG_DOT_SOL;
+				} else {
+					currentTileSpriteType = TileSpriteType.REG_SOL_DOT;
+				}
+
+				break;
+			case 2:
+				// This means both tiles above this tile are in the tile group
+				currentTileSpriteType = TileSpriteType.REG_DOT_DOT;
+
+				break;
+		}
 
 		// Update the tile sprite
 		UpdateTileSprite( );

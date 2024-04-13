@@ -58,7 +58,7 @@ public class GameManager : Singleton<GameManager> {
 		// Update the selected tile group's position if there is one selected
 		if (IsTileGroupSelected) {
 			// Get the closest board tile to the mouse position
-			Vector2Int closestBoardPosition = BoardManager.Instance.WorldToBoardPosition(gameCamera.ScreenToWorldPoint(Input.mousePosition));
+			Vector2Int closestBoardPosition = Board.Instance.WorldToBoardPosition(gameCamera.ScreenToWorldPoint(Input.mousePosition));
 
 			// If the closest board position is not equal to the last tile position, then update the position of the selected tile group
 			if (closestBoardPosition != lastSelectedPosition) {
@@ -82,8 +82,8 @@ public class GameManager : Singleton<GameManager> {
 			// If the right mouse button is pressed, deselect the tile group and reset its position
 			if (Input.GetMouseButtonDown(1)) {
 				// Reset all of the tiles back to where they originally were
-				for (int i = 0; i < selectedTileGroup.Count; i++) {
-					selectedTileGroup[i].BoardPosition = selectedTileGroup[i].ResetPosition;
+				foreach (Tile tile in selectedTileGroup.Tiles) {
+					tile.BoardPosition = tile.ResetPosition;
 				}
 
 				// Since all of the tiles were moved, recalculate all of the tile sprites
@@ -117,28 +117,25 @@ public class GameManager : Singleton<GameManager> {
 			while (nextTileGroups.Count > 0) {
 				// Loop through all of the searchable tile groups
 				for (int i = nextTileGroups.Count - 1; i >= 0; i--) {
-					// Get all of the adjacent tile groups to the current tile group
-					List<TileGroup> adjacentTileGroups = nextTileGroups[i].GetAdjacentTileGroups( );
-
-					// Loop through all of the adjacent tile groups
-					for (int j = 0; j < adjacentTileGroups.Count; j++) {
+					// Loop through all of the adjacent tile groups of the current tile group being searched
+					foreach (TileGroup adjacentTileGroup in nextTileGroups[i].GetAdjacentTileGroups( )) {
 						// If the adjacent tile group is equal to the selected tile group, ignore it
-						if (adjacentTileGroups[j] == tileGroup) {
+						if (adjacentTileGroup == tileGroup) {
 							continue;
 						}
 
 						// If the new adjacent tile group has already been searched, continue to the next group
-						if (searchedTileGroups.Contains(adjacentTileGroups[j])) {
+						if (searchedTileGroups.Contains(adjacentTileGroup)) {
 							continue;
 						}
 
 						// If the new adjacent tile group has already been staged to be searched next, continue to the next group
-						if (nextTileGroups.Contains(adjacentTileGroups[j])) {
+						if (nextTileGroups.Contains(adjacentTileGroup)) {
 							continue;
 						}
 
 						// Since this is a new tile group, add it to be searched next
-						nextTileGroups.Add(adjacentTileGroups[j]);
+						nextTileGroups.Add(adjacentTileGroup);
 					}
 
 					// Now that all of the adjacent tile groups have been added, this tile group has been fully searched
@@ -150,7 +147,7 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the searched tile groups count is less than 1 less than all of the tile groups, then this tile group cannot be removed
 			// This means that when the current tile group is removed, all of the remaining tile groups will not connect together
-			if (searchedTileGroups.Count < BoardManager.Instance.TileGroupCount - 1) {
+			if (searchedTileGroups.Count < Board.Instance.TileGroupCount - 1) {
 				return;
 			}
 		}
