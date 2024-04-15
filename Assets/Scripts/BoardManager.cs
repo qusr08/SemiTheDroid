@@ -148,8 +148,16 @@ public class BoardManager : Singleton<BoardManager> {
 			tileGroup.RecalculateTileSprites( );
 		}
 
+		// Get the number of spikes that will be generated on the board
+		int totalSpikes = totalTiles / 5;
+
+		// Generate spikes onto the tiles
+		for (int i = 0; i < totalSpikes; i++) {
+			EntityManager.Instance.SpawnEntity(EntityType.SPIKE, GetRandomTile(ignoreEntityTiles: true));
+		}
+
 		// After all the tiles have been generated, recalculate the center position of the board
-		RecalculateCenterPosition( );
+		RecalculateCenter( );
 		CameraManager.SetTransformPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
 	}
 
@@ -159,7 +167,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <param name="boardPosition">The board position to get the cardinal board positions around</param>
 	/// <param name="excludedBoardPositions">Do not add these positions to the returned list of cardinal board positions</param>
 	/// <returns>A list of all the cardinal board positions around the specified board position</returns>
-	public List<Vector2Int> GetCardinalBoardPositions (Vector2Int boardPosition, List<Vector2Int> excludedBoardPositions = null) {
+	public List<Vector2Int> GetCardinalPositions (Vector2Int boardPosition, List<Vector2Int> excludedBoardPositions = null) {
 		// Create a list of all the cardinal board positions to the inputted position
 		List<Vector2Int> cardinalPositions = new List<Vector2Int>( ) {
 			boardPosition + Vector2Int.up,
@@ -184,7 +192,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <returns>A distinct list of all cardinal voids surrounding the specified board position</returns>
 	public List<Vector2Int> GetCardinalVoids (Vector2Int boardPosition, List<Vector2Int> excludedBoardPositions = null) {
 		// Get all of the cardinal positions around the board position
-		List<Vector2Int> cardinalPositions = GetCardinalBoardPositions(boardPosition, excludedBoardPositions: excludedBoardPositions);
+		List<Vector2Int> cardinalPositions = GetCardinalPositions(boardPosition, excludedBoardPositions: excludedBoardPositions);
 
 		// Get all of the cardinal tiles around the board position
 		List<Tile> cardinalTiles = SearchForTilesAt(cardinalPositions);
@@ -207,7 +215,7 @@ public class BoardManager : Singleton<BoardManager> {
 	public List<Tile> GetCardinalTiles (Vector2Int boardPosition, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
 		// Find all tiles at the cardinal board positions
 		List<Tile> cardinalTiles = SearchForTilesAt(
-			GetCardinalBoardPositions(boardPosition),
+			GetCardinalPositions(boardPosition),
 			exclusiveTileGroups: exclusiveTileGroups,
 			excludedTileGroups: excludedTileGroups
 		);
@@ -275,6 +283,10 @@ public class BoardManager : Singleton<BoardManager> {
 		return foundTiles;
 	}
 
+	/*public List<Tile> SearchForTilesAround (Vector2Int boardPosition, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+
+	}*/
+
 	/// <summary>
 	/// Checks to see if there are any tiles at the specified board positions
 	/// </summary>
@@ -283,13 +295,69 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
 	/// <returns>true if there is at least one tile at one of the board positions, false otherwise</returns>
 	public bool HasTilesAt (List<Vector2Int> boardPositions, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
-		return SearchForTilesAt(boardPositions, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups).Count != 0;
+		// Loop through all the tiles on the board
+		foreach (TileGroup tileGroup in tileGroups) {
+			// The exclusive tile groups are the only ones that should be searched
+			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			// The excluded tile groups should never be searched
+			if (excludedTileGroups != null && excludedTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			foreach (Tile tile in tileGroup.Tiles) {
+				// If the board positions array contains the current board position, then there is at least one tile on an inputted board position
+				if (boardPositions.Contains(tile.BoardPosition)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/// <summary>
+	/// Get a random tile on the board
+	/// </summary>
+	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
+	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
+	/// <param name="ignoreEntityTiles">Whether or not to ignore a tile if it has an entity on it</param>
+	/// <returns>A reference to a random tile object</returns>
+	public Tile GetRandomTile (List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null, bool ignoreEntityTiles = false) {
+		// Create a list that has all of the found tiles in it
+		List<Tile> validTiles = new List<Tile>( );
+
+		// Loop through all the tiles on the board
+		foreach (TileGroup tileGroup in tileGroups) {
+			// The exclusive tile groups are the only ones that should be searched
+			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			// The excluded tile groups should never be searched
+			if (excludedTileGroups != null && excludedTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			foreach (Tile tile in tileGroup.Tiles) {
+				// Do checks to make sure the tile is valid
+				if (!ignoreEntityTiles || (ignoreEntityTiles && tile.Entity == null)) {
+					// Add the tile at the same index as the board position to the found tiles list
+					validTiles.Add(tile);
+				}
+			}
+		}
+
+		// Return a random valid tile
+		return validTiles[Random.Range(0, validTiles.Count)];
 	}
 
 	/// <summary>
 	/// Recalculate the center position of the tiles on the board
 	/// </summary>
-	public void RecalculateCenterPosition ( ) {
+	public void RecalculateCenter ( ) {
 		// Variables to track totals
 		Vector2 sumPosition = Vector2.zero;
 		int tileCount = 0;

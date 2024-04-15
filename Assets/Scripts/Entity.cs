@@ -2,11 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EntityType {
+	SPIKE, ROBOT, LASER, BOMB
+}
+
 public abstract class Entity : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private SpriteRenderer spriteRenderer;
 	[Header("Properties")]
 	[SerializeField] private int _turnsUntilAction;
+	[SerializeField] private EntityType _entityType;
 	[Header("Information")]
 	[SerializeField] private Tile _tile;
 
@@ -24,11 +29,13 @@ public abstract class Entity : MonoBehaviour {
 			// Set the tile value and its entity value to this entity
 			_tile = value;
 			_tile.Entity = this;
-
-			// Set the sorting order of this sprite to be above the tile
-			spriteRenderer.sortingOrder = BoardPosition.x - BoardPosition.y + 3;
 		}
 	}
+
+	/// <summary>
+	/// The type of this entity
+	/// </summary>
+	public EntityType EntityType { get => _entityType; protected set => _entityType = value; }
 
 	/// <summary>
 	/// The board position of this entity

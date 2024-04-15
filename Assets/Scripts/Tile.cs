@@ -36,6 +36,7 @@ public class Tile : MonoBehaviour {
 	[SerializeField] private TileSpriteType _detailTileSpriteType;
 	[SerializeField] private TileSpriteType _overlayTileSpriteType;
 	[SerializeField] private Entity _entity;
+	[SerializeField] private int drawOrder;
 
 	private TileGroup _tileGroup;
 	private TileSpriteType currentTileSpriteType;
@@ -177,10 +178,15 @@ public class Tile : MonoBehaviour {
 			transform.position = BoardManager.Instance.BoardToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
-			int order = (_boardPosition.x - _boardPosition.y) * 4;
-			detailTileSpriteRenderer.sortingOrder = order;
-			tileSpriteRenderer.sortingOrder = order + 1;
-			overlayTileSpriteRenderer.sortingOrder = order + 2;
+			drawOrder = (_boardPosition.x - _boardPosition.y) * 4;
+			detailTileSpriteRenderer.sortingOrder = drawOrder;
+			tileSpriteRenderer.sortingOrder = drawOrder + 1;
+			overlayTileSpriteRenderer.sortingOrder = drawOrder + 2;
+
+			// Set the entity sorting order as well if there is one on this tile
+			if (Entity != null) {
+				Entity.GetComponent<SpriteRenderer>( ).sortingOrder = drawOrder + 3;
+			}
 		}
 	}
 
@@ -203,9 +209,10 @@ public class Tile : MonoBehaviour {
 			// Set this entity's tile value to be this tile
 			_entity = value;
 			_entity.Tile = this;
-			
+
 			// Make sure the entity follows this tile (as in, when it gets selected and moves upwards, the entity also moves)
 			_entity.transform.SetParent(tileTransform, false);
+			_entity.GetComponent<SpriteRenderer>( ).sortingOrder = drawOrder + 3;
 		}
 	}
 
@@ -307,7 +314,7 @@ public class Tile : MonoBehaviour {
 
 				// If the tile is just now selected, save its reset position
 				ResetPosition = BoardPosition;
-				
+
 				// Update the position of the tile
 				tileTransform.localPosition = new Vector3(0f, 1.825f, 0f);
 

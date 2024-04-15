@@ -99,4 +99,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 529739085103534810}
   _turnsUntilAction: 1
+  _entityType: 1
   _tile: {fileID: 0}

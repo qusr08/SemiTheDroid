@@ -49,8 +49,6 @@ public class GameManager : Singleton<GameManager> {
 			// Do specific things based on the new game state
 			switch (_gameState) {
 				case GameState.PLAY:
-					BoardManager.Instance.Generate( );
-
 					break;
 				case GameState.PAUSE:
 					break;
@@ -70,7 +68,7 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	private void Start ( ) {
-		GameState = GameState.PLAY;
+		BoardManager.Instance.Generate( );
 	}
 
 	private void Update ( ) {
@@ -98,7 +96,7 @@ public class GameManager : Singleton<GameManager> {
 			// If the left mouse button is pressed, then deselect the tile group and place it where it currently is positioned
 			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0)) {
 				// Update the center of the board because tiles were moved
-				BoardManager.Instance.RecalculateCenterPosition( );
+				BoardManager.Instance.RecalculateCenter( );
 
 				SelectTileGroup(null);
 			}
