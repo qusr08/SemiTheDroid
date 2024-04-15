@@ -9,25 +9,39 @@ public class EntityManager : Singleton<EntityManager> {
 	[SerializeField] private GameObject laserPrefab;
 	[SerializeField] private GameObject bombPrefab;
 
+	private List<Entity> entities;
+
+	protected override void Awake ( ) {
+		base.Awake( );
+
+		entities = new List<Entity>( );
+	}
+
 	/// <summary>
 	/// Spawn an entity onto a tile
 	/// </summary>
 	/// <param name="entityType">The type of entity to spawn</param>
 	/// <param name="tile">The tile to spawn the entity on</param>
 	public void SpawnEntity (EntityType entityType, Tile tile) {
+		Entity newEntity = null;
+
 		switch (entityType) {
 			case EntityType.SPIKE:
-				tile.Entity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
 				break;
 			case EntityType.ROBOT:
-				tile.Entity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
 				break;
 			case EntityType.LASER:
-				tile.Entity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
 				break;
 			case EntityType.BOMB:
-				tile.Entity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
 				break;
 		}
+
+		// Set the tile entity and add the entity to the list of entities
+		tile.Entity = newEntity;
+		entities.Add(newEntity);
 	}
 }

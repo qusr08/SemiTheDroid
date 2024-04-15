@@ -158,7 +158,7 @@ public class BoardManager : Singleton<BoardManager> {
 
 		// After all the tiles have been generated, recalculate the center position of the board
 		RecalculateCenter( );
-		CameraManager.SetTransformPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
+		Utilities.SetPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
 	}
 
 	/// <summary>
@@ -249,7 +249,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <param name="boardPositions">The list of positions to search for</param>
 	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
 	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
-	/// <returns>A list of tiles where each index corresponds to the inputted board positions. If there is a tile object at a specific index, then a tile was found at the board position at the same index in the inputted array</returns>
+	/// <returns>A list of all the tiles that were found at the specified board positions</returns>
 	public List<Tile> SearchForTilesAt (List<Vector2Int> boardPositions, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
 		// Create a list that has all of the found tiles in it
 		List<Tile> foundTiles = new List<Tile>( );
@@ -269,7 +269,7 @@ public class BoardManager : Singleton<BoardManager> {
 			foreach (Tile tile in tileGroup.Tiles) {
 				// If the board positions array contains the current board position, then add it to the found tiles list
 				if (boardPositions.Contains(tile.BoardPosition)) {
-					// Add the tile at the same index as the board position to the found tiles list
+					// Add the tile to the found tiles list
 					foundTiles.Add(tile);
 
 					// If all of the tiles that were needed have already been found, then quit out of the loops
@@ -283,9 +283,103 @@ public class BoardManager : Singleton<BoardManager> {
 		return foundTiles;
 	}
 
-	/*public List<Tile> SearchForTilesAround (Vector2Int boardPosition, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+	/// <summary>
+	/// Search for tiles in a square around the specified board position
+	/// </summary>
+	/// <param name="boardPosition">The board position to search around</param>
+	/// <param name="radius">The tile radius of the square around the center specified board position</param>
+	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
+	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
+	/// <returns>A list of all the tiles that were found around the specified board position</returns>
+	public List<Tile> SearchForTilesAround (Vector2Int boardPosition, int radius, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		// Create a list that has all of the found tiles in it
+		List<Tile> foundTiles = new List<Tile>( );
 
-	}*/
+		// The maximum amount of tiles that can be searched for
+		int sideLength = radius * 2 + 1;
+		int maxTileCount = (sideLength * sideLength) - 1;
+
+		// Loop through all the tiles on the board
+		foreach (TileGroup tileGroup in tileGroups) {
+			// The exclusive tile groups are the only ones that should be searched
+			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			// The excluded tile groups should never be searched
+			if (excludedTileGroups != null && excludedTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			foreach (Tile tile in tileGroup.Tiles) {
+				// If the tile is at the original board position, then return and ignore it
+				if (tile.BoardPosition == boardPosition) {
+					continue;
+				}
+
+				// Calculate the offset in the board positions
+				// Taking the absolute value of the vector because we want to compare it to see if it is greater than or less than the radius value
+				Vector2Int offset = Utilities.Vector2IntAbs(tile.BoardPosition - boardPosition);
+
+				// If the current tile is inside the tile radius that we want to get, add it to the found tiles array
+				if (offset.x <= radius && offset.y <= radius) {
+					foundTiles.Add(tile);
+
+					// If all of the tiles that were needed have already been found, then quit out of the loops
+					if (foundTiles.Count == maxTileCount) {
+						return foundTiles;
+					}
+				}
+			}
+		}
+
+		return foundTiles;
+	}
+
+	/// <summary>
+	/// Search for tiles that either have the same x or same y as the inputted board position
+	/// </summary>
+	/// <param name="boardPosition">The board position to get similar x and y values from</param>
+	/// <param name="searchX">If set to true, the function will search x values and return tiles that match the same x value as the inputted board position</param>
+	/// <param name="searchY">If set to true, the function will search y values and return tiles that match the same y value as the inputted board position</param>
+	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
+	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
+	/// <returns>A list of all the tiles that were found on the same x or y coordinate as the specified board position</returns>
+	public List<Tile> SearchForTilesOnLine (Vector2Int boardPosition, bool searchX, bool searchY, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		// Create a list that has all of the found tiles in it
+		List<Tile> foundTiles = new List<Tile>( );
+
+		// Loop through all the tiles on the board
+		foreach (TileGroup tileGroup in tileGroups) {
+			// The exclusive tile groups are the only ones that should be searched
+			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			// The excluded tile groups should never be searched
+			if (excludedTileGroups != null && excludedTileGroups.Contains(tileGroup)) {
+				continue;
+			}
+
+			foreach (Tile tile in tileGroup.Tiles) {
+				// If the tile is at the original board position, then return and ignore it
+				if (tile.BoardPosition == boardPosition) {
+					continue;
+				}
+
+				// Get whether or not the tile is valid or not based on the input parameters
+				bool onX = searchX && tile.BoardPosition.x == boardPosition.x;
+				bool onY = searchY && tile.BoardPosition.y == boardPosition.y;
+
+				// If the current tile is inside the tile radius that we want to get, add it to the found tiles array
+				if (onX || onY) {
+					foundTiles.Add(tile);
+				}
+			}
+		}
+
+		return foundTiles;
+	}
 
 	/// <summary>
 	/// Checks to see if there are any tiles at the specified board positions

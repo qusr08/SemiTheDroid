@@ -52,15 +52,6 @@ public class CameraManager : Singleton<CameraManager> {
 		cameraPosition = (Vector3) BoardManager.Instance.CenterPosition - boardCenterDifference;
 
 		// Set the position of the camera
-		SetTransformPositionWithoutZ(transform, cameraPosition);
-	}
-
-	/// <summary>
-	/// Set the position of a transform without changing the z value
-	/// </summary>
-	/// <param name="transform">The transform to set</param>
-	/// <param name="position">The position to set the transform to</param>
-	public static void SetTransformPositionWithoutZ (Transform transform, Vector3 position) {
-		transform.position = new Vector3(position.x, position.y, transform.position.z);
+		Utilities.SetPositionWithoutZ(transform, cameraPosition);
 	}
 }

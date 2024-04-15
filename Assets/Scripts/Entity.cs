@@ -47,6 +47,14 @@ public abstract class Entity : MonoBehaviour {
 	/// </summary>
 	public int TurnsUntilAction { get => _turnsUntilAction; set => _turnsUntilAction = value; }
 
+	protected void OnMouseEnter ( ) {
+
+	}
+
+	protected void OnMouseExit ( ) {
+
+	}
+
 	/// <summary>
 	/// A custom action that this entity performs when it is its turn
 	/// </summary>
