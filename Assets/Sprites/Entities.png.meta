@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: cb3f845eb77610a4c93d02e6e73c3a1c
+guid: d2779c549ecc9a543a65959bb0d1220b
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,43 +123,64 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Robot_0
+      name: Entities_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 60
-        width: 28
-        height: 40
+        y: 72
+        width: 54
+        height: 72
       alignment: 9
-      pivot: {x: 0.5, y: 0.1}
+      pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ce052de9a18b3694e92081943a83fc7c
-      internalID: -440156717
+      spriteID: eb1b28f21f7e83e44ae6822d45a2bde2
+      internalID: -1563110185
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Robot_1
+      name: Entities_1
       rect:
         serializedVersion: 2
-        x: 28
-        y: 60
-        width: 28
-        height: 40
+        x: 108
+        y: 72
+        width: 54
+        height: 72
       alignment: 9
-      pivot: {x: 0.5, y: 0.1}
+      pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eafedf0fd42b88d4891890a6f5cc634e
-      internalID: 1327697860
+      spriteID: 95fcb696a0a9d384bb60bfe7d0210bdb
+      internalID: -1756600683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Entities_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aa043575aee6e7445876a3dfa172c908
+      internalID: -643503149
       vertices: []
       indices: 
       edges: []
@@ -175,8 +196,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Robot_0: -440156717
-      Robot_1: 1327697860
+      Entities_0: -1563110185
+      Entities_1: -1756600683
+      Entities_2: -643503149
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

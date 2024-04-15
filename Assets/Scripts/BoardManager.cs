@@ -4,10 +4,9 @@ using System.Linq;
 using TreeEditor;
 using UnityEngine;
 
-public class Board : Singleton<Board> {
+public class BoardManager : Singleton<BoardManager> {
 	[Header("References")]
 	[SerializeField] private GameObject tilePrefab;
-	[SerializeField] private Camera gameCamera;
 	[Header("Properties")]
 	[SerializeField, Min(1)] private int totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
@@ -151,7 +150,7 @@ public class Board : Singleton<Board> {
 
 		// After all the tiles have been generated, recalculate the center position of the board
 		RecalculateCenterPosition( );
-		CameraController.SetTransformPositionWithoutZ(gameCamera.transform, CenterPosition);
+		CameraManager.SetTransformPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
 	}
 
 	/// <summary>

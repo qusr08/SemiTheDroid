@@ -39,7 +39,7 @@ public class TileGroup {
 			// This makes the tile groups not move around as much when they are being placed
 			for (int i = 0; i < Tiles.Count; i++) {
 				// Get all of the cardinal tiles to the current origin tile
-				List<Tile> cardinalTiles = Board.Instance.GetCardinalTiles(originTileOrder[i].BoardPosition, exclusiveTileGroups: new List<TileGroup>( ) { this });
+				List<Tile> cardinalTiles = BoardManager.Instance.GetCardinalTiles(originTileOrder[i].BoardPosition, exclusiveTileGroups: new List<TileGroup>( ) { this });
 
 				// Add all cardinal tiles in this tile group that have not already been added
 				foreach (Tile cardinalTile in cardinalTiles) {
@@ -112,12 +112,12 @@ public class TileGroup {
 				// Check to see if the current tile has an adjacent tile group that is not the current tile group
 				// This is to make sure the tile group is not floating away from the rest of the board positions
 				if (!hasAdjacentTileGroup) {
-					hasAdjacentTileGroup = Board.Instance.GetCardinalTileGroups(newPosition, excludedTileGroups: new List<TileGroup>( ) { this }).Count > 0;
+					hasAdjacentTileGroup = BoardManager.Instance.GetCardinalTileGroups(newPosition, excludedTileGroups: new List<TileGroup>( ) { this }).Count > 0;
 				}
 			}
 
 			// Make sure there are no tiles at the new positions and that there is at least one adjacent tile group
-			if (hasAdjacentTileGroup && !Board.Instance.HasTilesAt(newTilePositions, excludedTileGroups: new List<TileGroup>( ) { this })) {
+			if (hasAdjacentTileGroup && !BoardManager.Instance.HasTilesAt(newTilePositions, excludedTileGroups: new List<TileGroup>( ) { this })) {
 				// Move the selected tiles
 				foreach (Tile tile in Tiles) {
 					tile.BoardPosition += tileOffset;
@@ -149,7 +149,7 @@ public class TileGroup {
 		// Loop through each tile in this tile group to check for surrounding tile groups
 		foreach (Tile tile in Tiles) {
 			// Get all of the cardinal tile groups around the current tile, excluding all of the adjacent tile groups already found
-			adjacentTileGroups.AddRange(Board.Instance.GetCardinalTileGroups(tile.BoardPosition, excludedTileGroups: adjacentTileGroups));
+			adjacentTileGroups.AddRange(BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition, excludedTileGroups: adjacentTileGroups));
 		}
 
 		// Remove this tile group from the adjacent tile groups to finalize the list results

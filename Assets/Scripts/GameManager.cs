@@ -9,8 +9,6 @@ public enum GameState {
 }
 
 public class GameManager : Singleton<GameManager> {
-	[Header("References")]
-	[SerializeField] private Camera gameCamera;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
 	[SerializeField] private GameState _gameState;
@@ -51,7 +49,7 @@ public class GameManager : Singleton<GameManager> {
 			// Do specific things based on the new game state
 			switch (_gameState) {
 				case GameState.PLAY:
-					Board.Instance.Generate( );
+					BoardManager.Instance.Generate( );
 
 					break;
 				case GameState.PAUSE:
@@ -81,7 +79,7 @@ public class GameManager : Singleton<GameManager> {
 		// Update the selected tile group's position if there is one selected
 		if (IsTileGroupSelected) {
 			// Get the closest board tile to the mouse position
-			Vector2Int closestBoardPosition = Board.Instance.WorldToBoardPosition(gameCamera.ScreenToWorldPoint(Input.mousePosition));
+			Vector2Int closestBoardPosition = BoardManager.Instance.WorldToBoardPosition(CameraManager.Instance.GameCamera.ScreenToWorldPoint(Input.mousePosition));
 
 			// If the closest board position is not equal to the last tile position, then update the position of the selected tile group
 			if (closestBoardPosition != lastSelectedPosition) {
@@ -100,7 +98,7 @@ public class GameManager : Singleton<GameManager> {
 			// If the left mouse button is pressed, then deselect the tile group and place it where it currently is positioned
 			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0)) {
 				// Update the center of the board because tiles were moved
-				Board.Instance.RecalculateCenterPosition( );
+				BoardManager.Instance.RecalculateCenterPosition( );
 
 				SelectTileGroup(null);
 			}
@@ -173,7 +171,7 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the searched tile groups count is less than 1 less than all of the tile groups, then this tile group cannot be removed
 			// This means that when the current tile group is removed, all of the remaining tile groups will not connect together
-			if (searchedTileGroups.Count < Board.Instance.TileGroupCount - 1) {
+			if (searchedTileGroups.Count < BoardManager.Instance.TileGroupCount - 1) {
 				return;
 			}
 		}

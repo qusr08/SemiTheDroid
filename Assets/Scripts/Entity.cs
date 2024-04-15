@@ -26,7 +26,7 @@ public abstract class Entity : MonoBehaviour {
 			_tile.Entity = this;
 
 			// Set the sorting order of this sprite to be above the tile
-			spriteRenderer.sortingOrder = BoardPosition.x - BoardPosition.y + 5;
+			spriteRenderer.sortingOrder = BoardPosition.x - BoardPosition.y + 3;
 		}
 	}
 
@@ -40,5 +40,8 @@ public abstract class Entity : MonoBehaviour {
 	/// </summary>
 	public int TurnsUntilAction { get => _turnsUntilAction; set => _turnsUntilAction = value; }
 
+	/// <summary>
+	/// A custom action that this entity performs when it is its turn
+	/// </summary>
 	public abstract void PerformAction ( );
 }

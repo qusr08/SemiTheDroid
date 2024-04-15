@@ -174,10 +174,10 @@ public class Tile : MonoBehaviour {
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
-			transform.position = Board.Instance.BoardToWorldPosition(_boardPosition);
+			transform.position = BoardManager.Instance.BoardToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
-			int order = _boardPosition.x - _boardPosition.y;
+			int order = (_boardPosition.x - _boardPosition.y) * 4;
 			detailTileSpriteRenderer.sortingOrder = order;
 			tileSpriteRenderer.sortingOrder = order + 1;
 			overlayTileSpriteRenderer.sortingOrder = order + 2;
@@ -255,7 +255,7 @@ public class Tile : MonoBehaviour {
 	public void RecalculateTileSprite ( ) {
 		// Get the values of the tiles around this tile
 		// Only the top left and right tiles matter because the top row of pixels of each tile cover the one above it
-		List<Tile> tiles = Board.Instance.SearchForTilesAt(
+		List<Tile> tiles = BoardManager.Instance.SearchForTilesAt(
 			new List<Vector2Int>( ) { BoardPosition + Vector2Int.left, BoardPosition + Vector2Int.up },
 			exclusiveTileGroups: new List<TileGroup>( ) { TileGroup }
 		);

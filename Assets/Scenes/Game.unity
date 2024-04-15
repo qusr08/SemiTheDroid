@@ -167,8 +167,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eed754c500a1a8f4bb8cee7c849fa6e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameCamera: {fileID: 519420031}
   animationSpeed: 0.25
+  _gameState: 2
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 325865079}
   - component: {fileID: 325865080}
   m_Layer: 0
-  m_Name: Board
+  m_Name: Board Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -213,11 +213,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 325865078}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4664a9b2c1dbd464597bdd60f2556d3b, type: 3}
+  m_Script: {fileID: 11500000, guid: d8b5cc6ae64ce7e4881ae05bbc2f38db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
-  gameCamera: {fileID: 519420031}
   totalTiles: 24
   minTileGroupSize: 4
   maxTileGroupSize: 6
@@ -327,12 +326,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e7db990d503a74f86f374ec3b2db57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameCamera: {fileID: 519420031}
+  _gameCamera: {fileID: 519420031}
   minCameraZoom: 1
   maxCameraZoom: 5
   cameraZoomStep: 0.2
   extensionPerZoomLevel: 0.5
   panOrigin: {x: 0, y: 0, z: 0}
+--- !u!1 &660324050
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 660324052}
+  - component: {fileID: 660324051}
+  m_Layer: 0
+  m_Name: Entity Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &660324051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660324050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6cdbf5bfb38a954f8550af0bc0408ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spikePrefab: {fileID: 6180549365575240501, guid: 597d9e99a3a83cd4391799c38b77d10c, type: 3}
+  robotPrefab: {fileID: 247667915643608723, guid: fa8cb02fd4cb67c4797e3885166bfe42, type: 3}
+  laserPrefab: {fileID: 0}
+  bombPrefab: {fileID: 0}
+--- !u!4 &660324052
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660324050}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -340,3 +387,4 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 161658455}
   - {fileID: 325865079}
+  - {fileID: 660324052}
