@@ -11,6 +11,7 @@ public class BoardManager : Singleton<BoardManager> {
 	[SerializeField, Min(1)] private int totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
+	[SerializeField, Range(0, 1)] private float spikePercentage;
 	[Header("Information")]
 	[SerializeField] private Vector2 _centerPosition;
 
@@ -148,17 +149,20 @@ public class BoardManager : Singleton<BoardManager> {
 			tileGroup.RecalculateTileSprites( );
 		}
 
+		// After all the tiles have been generated, recalculate the center position of the board
+		RecalculateCenter( );
+		Utilities.SetPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
+
 		// Get the number of spikes that will be generated on the board
-		int totalSpikes = totalTiles / 5;
+		int totalSpikes = Mathf.FloorToInt(totalTiles * spikePercentage);
 
 		// Generate spikes onto the tiles
 		for (int i = 0; i < totalSpikes; i++) {
 			EntityManager.Instance.SpawnEntity(EntityType.SPIKE, GetRandomTile(ignoreEntityTiles: true));
 		}
 
-		// After all the tiles have been generated, recalculate the center position of the board
-		RecalculateCenter( );
-		Utilities.SetPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
+		// The player gets to move first
+		GameManager.Instance.GameState = GameState.PLAYER_TURN;
 	}
 
 	/// <summary>
@@ -241,6 +245,30 @@ public class BoardManager : Singleton<BoardManager> {
 
 		// return cardinalTileGroups.OrderBy(tileGroup => tileGroup.Count).ToList( );
 		return cardinalTileGroups.Distinct( ).ToList( );
+	}
+
+	/// <summary>
+	/// Get all the adjacent tile groups to the specified tile group
+	/// </summary>
+	/// <param name="tileGroup">The tile group to check around</param>
+	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be added</param>
+	/// <param name="excludedTileGroups">The tile groups in this list are never added</param>
+	/// <returns>A list containing all of the tile groups that are connected to the specified tile group</returns>
+	public List<TileGroup> GetAdjacentTileGroups (TileGroup tileGroup, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		// A list to store all of the adjacent tile groups
+		List<TileGroup> adjacentTileGroups = new List<TileGroup>( );
+
+		// Loop through each tile in this tile group to check for surrounding tile groups
+		foreach (Tile tile in tileGroup.Tiles) {
+			// Get all of the cardinal tile groups around the current tile, excluding all of the adjacent tile groups already found
+			adjacentTileGroups.AddRange(GetCardinalTileGroups(tile.BoardPosition, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
+		}
+
+		// Make sure there are no repeating elements and that the base tile group was removed from the list
+		List<TileGroup> distinctAdjacentTileGroups = adjacentTileGroups.Distinct( ).ToList( );
+		distinctAdjacentTileGroups.Remove(tileGroup);
+
+		return distinctAdjacentTileGroups;
 	}
 
 	/// <summary>

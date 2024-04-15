@@ -139,25 +139,6 @@ public class TileGroup {
 	}
 
 	/// <summary>
-	/// Get a list of all the tile groups that are adjacent (touching) this tile group on the board
-	/// </summary>
-	/// <returns>A TileGroup list with all of the adjacent tile groups in it</returns>
-	public List<TileGroup> GetAdjacentTileGroups ( ) {
-		// A list to store all of the adjacent tile groups
-		List<TileGroup> adjacentTileGroups = new List<TileGroup>( );
-
-		// Loop through each tile in this tile group to check for surrounding tile groups
-		foreach (Tile tile in Tiles) {
-			// Get all of the cardinal tile groups around the current tile, excluding all of the adjacent tile groups already found
-			adjacentTileGroups.AddRange(BoardManager.Instance.GetCardinalTileGroups(tile.BoardPosition, excludedTileGroups: adjacentTileGroups));
-		}
-
-		// Remove this tile group from the adjacent tile groups to finalize the list results
-		adjacentTileGroups.Remove(this);
-		return adjacentTileGroups;
-	}
-
-	/// <summary>
 	/// Recalculate all of the tile sprites inside of this tile group
 	/// </summary>
 	public void RecalculateTileSprites ( ) {

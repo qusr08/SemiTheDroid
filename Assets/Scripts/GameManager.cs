@@ -4,8 +4,10 @@ using System.Linq;
 using TreeEditor;
 using UnityEngine;
 
+// Game State Flow: GENERATE -> PLAYER_TURN <-> ENTITY_TURN -> GAME_OVER
+
 public enum GameState {
-	PLAY, PAUSE, MENU, GAME_OVER
+	GENERATE, PLAYER_TURN, ENTITY_TURN, GAME_OVER
 }
 
 public class GameManager : Singleton<GameManager> {
@@ -48,11 +50,13 @@ public class GameManager : Singleton<GameManager> {
 
 			// Do specific things based on the new game state
 			switch (_gameState) {
-				case GameState.PLAY:
+				case GameState.GENERATE:
+					BoardManager.Instance.Generate( );
+
 					break;
-				case GameState.PAUSE:
+				case GameState.PLAYER_TURN:
 					break;
-				case GameState.MENU:
+				case GameState.ENTITY_TURN:
 					break;
 				case GameState.GAME_OVER:
 					break;
@@ -68,7 +72,7 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	private void Start ( ) {
-		BoardManager.Instance.Generate( );
+		GameState = GameState.GENERATE;
 	}
 
 	private void Update ( ) {
@@ -99,6 +103,9 @@ public class GameManager : Singleton<GameManager> {
 				BoardManager.Instance.RecalculateCenter( );
 
 				SelectTileGroup(null);
+
+				// Now that the player has successfully moved, have the entities do their turn
+				GameState = GameState.ENTITY_TURN;
 			}
 
 			// If the right mouse button is pressed, deselect the tile group and reset its position
@@ -129,36 +136,29 @@ public class GameManager : Singleton<GameManager> {
 
 		// Check to see if the tile group can be moved
 		if (tileGroup != null) {
+			// This is one of the adjacent tile groups to the newly selected tile group
+			// This will act as a starting point for searching and seeing if this tile group can be selected
+			TileGroup startingTileGroup = BoardManager.Instance.GetAdjacentTileGroups(tileGroup)[0];
+
 			// The tile groups that will be searched next
-			List<TileGroup> nextTileGroups = new List<TileGroup>( ) { tileGroup.GetAdjacentTileGroups( )[0] };
+			List<TileGroup> nextTileGroups = new List<TileGroup>( ) { startingTileGroup };
 
 			// The already searched tile groups on the board
 			List<TileGroup> searchedTileGroups = new List<TileGroup>( );
+
+			// A list that contains all of the tile groups that have been seen, both ones that were searched and ones that are next to be searched
+			List<TileGroup> seenTileGroups = new List<TileGroup>( ) { startingTileGroup, tileGroup };
 
 			// Keep going until there are no more tile groups to search
 			while (nextTileGroups.Count > 0) {
 				// Loop through all of the searchable tile groups
 				for (int i = nextTileGroups.Count - 1; i >= 0; i--) {
-					// Loop through all of the adjacent tile groups of the current tile group being searched
-					foreach (TileGroup adjacentTileGroup in nextTileGroups[i].GetAdjacentTileGroups( )) {
-						// If the adjacent tile group is equal to the selected tile group, ignore it
-						if (adjacentTileGroup == tileGroup) {
-							continue;
-						}
+					// Get all of the adjacent tile groups to the current tile group be searched
+					List<TileGroup> adjacentTileGroups = BoardManager.Instance.GetAdjacentTileGroups(nextTileGroups[i], excludedTileGroups: seenTileGroups);
 
-						// If the new adjacent tile group has already been searched, continue to the next group
-						if (searchedTileGroups.Contains(adjacentTileGroup)) {
-							continue;
-						}
-
-						// If the new adjacent tile group has already been staged to be searched next, continue to the next group
-						if (nextTileGroups.Contains(adjacentTileGroup)) {
-							continue;
-						}
-
-						// Since this is a new tile group, add it to be searched next
-						nextTileGroups.Add(adjacentTileGroup);
-					}
+					// Add all of the new adjacent tile groups to be queued to search next
+					nextTileGroups.AddRange(adjacentTileGroups);
+					seenTileGroups.AddRange(adjacentTileGroups);
 
 					// Now that all of the adjacent tile groups have been added, this tile group has been fully searched
 					// Remove it from the next tile groups list and add it to the already searched list

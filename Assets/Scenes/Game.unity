@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationSpeed: 0.25
-  _gameState: 0
+  _gameState: 3
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
@@ -217,9 +217,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
-  totalTiles: 24
+  totalTiles: 30
   minTileGroupSize: 4
   maxTileGroupSize: 6
+  spikePercentage: 0.2
   _centerPosition: {x: 0, y: 0}
 --- !u!1 &519420028
 GameObject:
