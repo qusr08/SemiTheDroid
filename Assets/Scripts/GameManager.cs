@@ -4,16 +4,21 @@ using System.Linq;
 using TreeEditor;
 using UnityEngine;
 
+public enum GameState {
+	PLAY, PAUSE, MENU, GAME_OVER
+}
+
 public class GameManager : Singleton<GameManager> {
 	[Header("References")]
 	[SerializeField] private Camera gameCamera;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
+	[SerializeField] private GameState _gameState;
 	[Header("Information")]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedPosition;
-	
+
 	private TileGroup selectedTileGroup;
 	private bool canPlaceSelectedTileGroup;
 
@@ -30,6 +35,35 @@ public class GameManager : Singleton<GameManager> {
 	/// </summary>
 	public bool IsTileGroupSelected => selectedTileGroup != null;
 
+	/// <summary>
+	/// The current game state of the game
+	/// </summary>
+	public GameState GameState {
+		get => _gameState;
+		set {
+			// If the game state is being set to the same value, return and do nothing
+			if (_gameState == value) {
+				return;
+			}
+
+			_gameState = value;
+
+			// Do specific things based on the new game state
+			switch (_gameState) {
+				case GameState.PLAY:
+					Board.Instance.Generate( );
+
+					break;
+				case GameState.PAUSE:
+					break;
+				case GameState.MENU:
+					break;
+				case GameState.GAME_OVER:
+					break;
+			}
+		}
+	}
+
 	protected override void Awake ( ) {
 		base.Awake( );
 
@@ -37,23 +71,12 @@ public class GameManager : Singleton<GameManager> {
 		CurrentAnimationFrame = 0;
 	}
 
+	private void Start ( ) {
+		GameState = GameState.PLAY;
+	}
+
 	private void Update ( ) {
-		// Increment the animation timer by the time that has passed since the last update call
-		// Once the timer has reached the animation speed, update the sprites
-		animationTimer += Time.deltaTime;
-		if (animationTimer >= animationSpeed) {
-			// Subtract the animation time from the animation timer
-			// This makes it slightly more exact in when the animation changes sprites
-			animationTimer -= animationSpeed;
-
-			// Increment the current animation frame
-			// All animations should use this so they are all synced
-			// All animations will be 4 looped frames
-			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
-
-			// Update all of the tiles if they need to be animated
-			OnAnimationFrame( );
-		}
+		UpdateAnimationFrame( );
 
 		// Update the selected tile group's position if there is one selected
 		if (IsTileGroupSelected) {
@@ -157,7 +180,7 @@ public class GameManager : Singleton<GameManager> {
 
 		// Set the previous selected tile group to not be selected anymore
 		if (selectedTileGroup != null) {
-			selectedTileGroup.TileGroupState = TileState.REGULAR;
+			selectedTileGroup.TileGroupState = TileState.DEFAULT;
 		}
 
 		selectedTileGroup = tileGroup;
@@ -172,5 +195,27 @@ public class GameManager : Singleton<GameManager> {
 		}
 
 		canPlaceSelectedTileGroup = false;
+	}
+
+	/// <summary>
+	/// Update the current animation frame
+	/// </summary>
+	private void UpdateAnimationFrame ( ) {
+		// Increment the animation timer by the time that has passed since the last update call
+		// Once the timer has reached the animation speed, update the sprites
+		animationTimer += Time.deltaTime;
+		if (animationTimer >= animationSpeed) {
+			// Subtract the animation time from the animation timer
+			// This makes it slightly more exact in when the animation changes sprites
+			animationTimer -= animationSpeed;
+
+			// Increment the current animation frame
+			// All animations should use this so they are all synced
+			// All animations will be 4 looped frames
+			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
+
+			// Update all of the tiles if they need to be animated
+			OnAnimationFrame( );
+		}
 	}
 }

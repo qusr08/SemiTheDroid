@@ -34,10 +34,6 @@ public class Board : Singleton<Board> {
 		tileGroups = new List<TileGroup>( );
 	}
 
-	private void Start ( ) {
-		Generate( );
-	}
-
 	private void Update ( ) {
 		// TEST: When you press the spacebar, the board is regenerated
 		if (Input.GetKeyDown(KeyCode.Space)) {
@@ -56,7 +52,7 @@ public class Board : Singleton<Board> {
 	/// <summary>
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
-	private void Generate ( ) {
+	public void Generate ( ) {
 		// All available tiles across the entire board, regardless of what tile group it is next to
 		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 

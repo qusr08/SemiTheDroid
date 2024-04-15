@@ -172,7 +172,6 @@ MonoBehaviour:
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
-  canPlaceSelectedTileGroup: 0
 --- !u!1 &325865078
 GameObject:
   m_ObjectHideFlags: 0

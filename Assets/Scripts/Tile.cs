@@ -5,32 +5,40 @@ using UnityEngine;
 // The order of the sprites inside the "sprites" list should match up to the order of these enum values
 public enum TileSpriteType {
 	NONE = -1,
-	REG_SOL_SOL, REG_SOL_DOT, REG_DOT_SOL, REG_DOT_DOT,
-	SEL_SOL_SOL, SEL_SOL_DOT, SEL_DOT_SOL, SEL_DOT_DOT,
+	DEF_SOL_SOL, DEF_SOL_DOT, DEF_DOT_SOL, DEF_DOT_DOT,
+	HOV_SOL_SOL, HOV_SOL_DOT, HOV_DOT_SOL, HOV_DOT_DOT,
 	HAZ_F1, HAZ_F2, HAZ_F3, HAZ_F4,
-	OUT_F1, OUT_F2, OUT_F3, OUT_F4
+	OUT_F1, OUT_F2, OUT_F3, OUT_F4,
+	HAZ_HOV_F1, HAZ_HOV_F2, HAZ_HOV_F3, HAZ_HOV_F4
 }
 
 public enum TileState {
-	REGULAR, HAZARD, SELECTED, HOVERED
+	DEFAULT, SELECTED, HOVERED
+}
+
+public enum TileOverlayState {
+	NONE, HAZARD
 }
 
 public class Tile : MonoBehaviour {
 	[Header("References")]
-	[SerializeField] private SpriteRenderer spriteRenderer;
-	[SerializeField] private SpriteRenderer hoverTileSpriteRenderer;
+	[SerializeField] private SpriteRenderer tileSpriteRenderer;
+	[SerializeField] private SpriteRenderer detailTileSpriteRenderer;
 	[SerializeField] private SpriteRenderer overlayTileSpriteRenderer;
+	[SerializeField] private Transform tileTransform;
 	[SerializeField] private Sprite[ ] sprites;
 	[Header("Information")]
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private Vector2Int _resetPosition;
 	[SerializeField] private TileState _tileState;
-	[SerializeField] private TileSpriteType currentTileSpriteType;
+	[SerializeField] private TileOverlayState _tileOverlayState;
 	[SerializeField] private TileSpriteType _tileSpriteType;
-	[SerializeField] private TileSpriteType _hoveredTileSpriteType;
+	[SerializeField] private TileSpriteType _detailTileSpriteType;
 	[SerializeField] private TileSpriteType _overlayTileSpriteType;
+	[SerializeField] private Entity _entity;
 
 	private TileGroup _tileGroup;
+	private TileSpriteType currentTileSpriteType;
 
 	/// <summary>
 	/// The current state of this tile
@@ -45,13 +53,22 @@ public class Tile : MonoBehaviour {
 
 			_tileState = value;
 
-			switch (_tileState) {
-				case TileState.SELECTED:
-					// If the tile is just now selected, save its reset position
-					ResetPosition = BoardPosition;
+			UpdateTileSprite( );
+		}
+	}
 
-					break;
+	/// <summary>
+	/// The current state of the tile overlay
+	/// </summary>
+	public TileOverlayState TileOverlayState {
+		get => _tileOverlayState;
+		set {
+			// If the tile overlay state is being set to the same value, return and do nothing
+			if (_tileOverlayState == value) {
+				return;
 			}
+
+			_tileOverlayState = value;
 
 			UpdateTileSprite( );
 		}
@@ -63,13 +80,18 @@ public class Tile : MonoBehaviour {
 	public TileSpriteType TileSpriteType {
 		get => _tileSpriteType;
 		set {
+			// Do not update the sprite if it is being set to the same value
+			if (_tileSpriteType == value) {
+				return;
+			}
+
 			_tileSpriteType = value;
 
 			// Set the sprite of this tile
 			if (_tileSpriteType != TileSpriteType.NONE) {
-				spriteRenderer.sprite = sprites[(int) _tileSpriteType];
+				tileSpriteRenderer.sprite = sprites[(int) _tileSpriteType];
 			} else {
-				spriteRenderer.sprite = null;
+				tileSpriteRenderer.sprite = null;
 			}
 		}
 	}
@@ -77,16 +99,21 @@ public class Tile : MonoBehaviour {
 	/// <summary>
 	/// The type of sprite that is showing on the hovered tile
 	/// </summary>
-	public TileSpriteType HoveredTileSpriteType {
-		get => _hoveredTileSpriteType;
+	public TileSpriteType DetailTileSpriteType {
+		get => _detailTileSpriteType;
 		set {
-			_hoveredTileSpriteType = value;
+			// Do not update the sprite if it is being set to the same value
+			if (_detailTileSpriteType == value) {
+				return;
+			}
 
-			// Set the sprite of the hovered tile
-			if (_hoveredTileSpriteType != TileSpriteType.NONE) {
-				hoverTileSpriteRenderer.sprite = sprites[(int) _hoveredTileSpriteType];
+			_detailTileSpriteType = value;
+
+			// Set the sprite of the detail tile
+			if (_detailTileSpriteType != TileSpriteType.NONE) {
+				detailTileSpriteRenderer.sprite = sprites[(int) _detailTileSpriteType];
 			} else {
-				hoverTileSpriteRenderer.sprite = null;
+				detailTileSpriteRenderer.sprite = null;
 			}
 		}
 	}
@@ -97,6 +124,11 @@ public class Tile : MonoBehaviour {
 	public TileSpriteType OverlayTileSpriteType {
 		get => _overlayTileSpriteType;
 		set {
+			// Do not update the sprite if it is being set to the same value
+			if (_overlayTileSpriteType == value) {
+				return;
+			}
+
 			_overlayTileSpriteType = value;
 
 			// Set the sprite of the overlay tile
@@ -134,15 +166,21 @@ public class Tile : MonoBehaviour {
 	public Vector2Int BoardPosition {
 		get => _boardPosition;
 		set {
+			// If the board position is being set to the same position, then return and do nothing
+			if (_boardPosition == value) {
+				return;
+			}
+
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
 			transform.position = Board.Instance.BoardToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
-			spriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
-			hoverTileSpriteRenderer.sortingOrder = _boardPosition.x - _boardPosition.y;
-			overlayTileSpriteRenderer.sortingOrder = (_boardPosition.x - _boardPosition.y) + 1;
+			int order = _boardPosition.x - _boardPosition.y;
+			detailTileSpriteRenderer.sortingOrder = order;
+			tileSpriteRenderer.sortingOrder = order + 1;
+			overlayTileSpriteRenderer.sortingOrder = order + 2;
 		}
 	}
 
@@ -150,6 +188,26 @@ public class Tile : MonoBehaviour {
 	/// Used to track the position that this tile will reset back to if a tile group selection is cancelled
 	/// </summary>
 	public Vector2Int ResetPosition { get => _resetPosition; set => _resetPosition = value; }
+
+	/// <summary>
+	/// The entity currently on this tile
+	/// </summary>
+	public Entity Entity {
+		get => _entity;
+		set {
+			// If the entity value is being set to the same value, return
+			if (_entity == value) {
+				return;
+			}
+
+			// Set this entity's tile value to be this tile
+			_entity = value;
+			_entity.Tile = this;
+			
+			// Make sure the entity follows this tile (as in, when it gets selected and moves upwards, the entity also moves)
+			_entity.transform.SetParent(tileTransform, false);
+		}
+	}
 
 	private void OnMouseEnter ( ) {
 		// Do not update the hover state while there is a selected tile group
@@ -166,7 +224,7 @@ public class Tile : MonoBehaviour {
 			return;
 		}
 
-		TileGroup.TileGroupState = TileState.REGULAR;
+		TileGroup.TileGroupState = TileState.DEFAULT;
 	}
 
 	private void OnMouseDown ( ) {
@@ -206,21 +264,21 @@ public class Tile : MonoBehaviour {
 		switch (tiles.Count) {
 			case 0:
 				// This means there are no tiles above this tile in the tile group
-				currentTileSpriteType = TileSpriteType.REG_SOL_SOL;
+				currentTileSpriteType = TileSpriteType.DEF_SOL_SOL;
 
 				break;
 			case 1:
 				// This means one of tiles above this tile are in the tile group, we just need to know which one specifically
 				if (tiles[0].BoardPosition == BoardPosition + Vector2Int.left) {
-					currentTileSpriteType = TileSpriteType.REG_DOT_SOL;
+					currentTileSpriteType = TileSpriteType.DEF_DOT_SOL;
 				} else {
-					currentTileSpriteType = TileSpriteType.REG_SOL_DOT;
+					currentTileSpriteType = TileSpriteType.DEF_SOL_DOT;
 				}
 
 				break;
 			case 2:
 				// This means both tiles above this tile are in the tile group
-				currentTileSpriteType = TileSpriteType.REG_DOT_DOT;
+				currentTileSpriteType = TileSpriteType.DEF_DOT_DOT;
 
 				break;
 		}
@@ -234,29 +292,44 @@ public class Tile : MonoBehaviour {
 	/// </summary>
 	private void UpdateTileSprite ( ) {
 		// Update the sprite renderers based on the new tile state
-		switch (_tileState) {
-			case TileState.REGULAR:
+		switch (TileState) {
+			case TileState.DEFAULT:
 				TileSpriteType = currentTileSpriteType;
-				HoveredTileSpriteType = TileSpriteType.NONE;
-				OverlayTileSpriteType = TileSpriteType.NONE;
+				DetailTileSpriteType = TileSpriteType.NONE;
 
-				break;
-			case TileState.HAZARD:
-				TileSpriteType = currentTileSpriteType;
-				HoveredTileSpriteType = TileSpriteType.NONE;
-				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
+				// Update the position of the tile
+				tileTransform.localPosition = new Vector3(0f, 0f, 0f);
 
 				break;
 			case TileState.SELECTED:
-				TileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
-				HoveredTileSpriteType = currentTileSpriteType;
-				OverlayTileSpriteType = TileSpriteType.NONE;
+				TileSpriteType = currentTileSpriteType;
+				DetailTileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
+
+				// If the tile is just now selected, save its reset position
+				ResetPosition = BoardPosition;
+				
+				// Update the position of the tile
+				tileTransform.localPosition = new Vector3(0f, 1.825f, 0f);
 
 				break;
 			case TileState.HOVERED:
 				TileSpriteType = currentTileSpriteType + 4;
-				HoveredTileSpriteType = TileSpriteType.NONE;
+				DetailTileSpriteType = TileSpriteType.NONE;
+
+				// Update the position of the tile
+				tileTransform.localPosition = new Vector3(0f, 0f, 0f);
+
+				break;
+		}
+
+		// Update the overlay sprite renderer based on the new state
+		switch (TileOverlayState) {
+			case TileOverlayState.NONE:
 				OverlayTileSpriteType = TileSpriteType.NONE;
+
+				break;
+			case TileOverlayState.HAZARD:
+				OverlayTileSpriteType = (TileState == TileState.HOVERED ? TileSpriteType.HAZ_HOV_F1 : TileSpriteType.HAZ_F1) + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 		}
@@ -268,13 +341,16 @@ public class Tile : MonoBehaviour {
 	private void UpdateAnimationFrame ( ) {
 		// Only update the necessary sprites during necessary states
 		// Updating all tiles multiple tiles a second each with three sprites causes a lot of lag
-		switch (_tileState) {
-			case TileState.HAZARD:
-				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
+		switch (TileState) {
+			case TileState.SELECTED:
+				DetailTileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
-			case TileState.SELECTED:
-				TileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
+		}
+
+		switch (TileOverlayState) {
+			case TileOverlayState.HAZARD:
+				OverlayTileSpriteType = (TileState == TileState.HOVERED ? TileSpriteType.HAZ_HOV_F1 : TileSpriteType.HAZ_F1) + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 		}

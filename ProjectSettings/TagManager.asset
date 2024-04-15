@@ -44,6 +44,3 @@ TagManager:
   - name: Tiles
     uniqueID: 382631051
     locked: 0
-  - name: Hover Tiles
-    uniqueID: 1410770315
-    locked: 0
