@@ -26,7 +26,7 @@ public class Robot : Entity {
 
 		// Set the sorting order of the arrow, making sure that it appears above the tile it is on
 		// This makes the arrow show up above the entity that is on the tile it is placed on
-		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -5 : 5);
+		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 	}
 
 	public override void PerformAction ( ) {
