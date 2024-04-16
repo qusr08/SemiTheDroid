@@ -161,8 +161,11 @@ public class BoardManager : Singleton<BoardManager> {
 			EntityManager.Instance.SpawnEntity(EntityType.SPIKE, GetRandomTile(ignoreEntityTiles: true));
 		}
 
+		// Spawn the robot somewhere
+		EntityManager.Instance.SpawnEntity(EntityType.ROBOT, GetRandomTile(ignoreEntityTiles: true));
+
 		// The player gets to move first
-		GameManager.Instance.GameState = GameState.PLAYER_TURN;
+		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
 	}
 
 	/// <summary>

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d2779c549ecc9a543a65959bb0d1220b
+guid: a433673b56ebb234b84296c2466e7dbf
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,49 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Entities_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: eb1b28f21f7e83e44ae6822d45a2bde2
-      internalID: -1563110185
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Entities_1
-      rect:
-        serializedVersion: 2
-        x: 108
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 95fcb696a0a9d384bb60bfe7d0210bdb
-      internalID: -1756600683
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Entities_2
+      name: Robot_0
       rect:
         serializedVersion: 2
         x: 0
@@ -179,8 +137,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: aa043575aee6e7445876a3dfa172c908
-      internalID: -643503149
+      spriteID: 7c8cc0135444ee549843fe9f85510452
+      internalID: 2119139419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Robot_1
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dac1a0b0cd0020d41b08dad080ede634
+      internalID: 336213288
       vertices: []
       indices: 
       edges: []
@@ -196,9 +175,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Entities_0: -1563110185
-      Entities_1: -1756600683
-      Entities_2: -643503149
+      Robot_0: 2119139419
+      Robot_1: 336213288
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

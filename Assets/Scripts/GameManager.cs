@@ -4,8 +4,6 @@ using System.Linq;
 using TreeEditor;
 using UnityEngine;
 
-// Game State Flow: GENERATE -> PLAYER_TURN <-> ENTITY_TURN -> GAME_OVER
-
 public enum GameState {
 	GENERATE, PLAYER_TURN, ENTITY_TURN, GAME_OVER
 }
@@ -13,7 +11,7 @@ public enum GameState {
 public class GameManager : Singleton<GameManager> {
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
-	[SerializeField] private GameState _gameState;
+	[SerializeField] private GameState gameState;
 	[Header("Information")]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
@@ -35,35 +33,6 @@ public class GameManager : Singleton<GameManager> {
 	/// </summary>
 	public bool IsTileGroupSelected => selectedTileGroup != null;
 
-	/// <summary>
-	/// The current game state of the game
-	/// </summary>
-	public GameState GameState {
-		get => _gameState;
-		set {
-			// If the game state is being set to the same value, return and do nothing
-			if (_gameState == value) {
-				return;
-			}
-
-			_gameState = value;
-
-			// Do specific things based on the new game state
-			switch (_gameState) {
-				case GameState.GENERATE:
-					BoardManager.Instance.Generate( );
-
-					break;
-				case GameState.PLAYER_TURN:
-					break;
-				case GameState.ENTITY_TURN:
-					break;
-				case GameState.GAME_OVER:
-					break;
-			}
-		}
-	}
-
 	protected override void Awake ( ) {
 		base.Awake( );
 
@@ -72,7 +41,7 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	private void Start ( ) {
-		GameState = GameState.GENERATE;
+		SetGameState(GameState.GENERATE);
 	}
 
 	private void Update ( ) {
@@ -105,7 +74,7 @@ public class GameManager : Singleton<GameManager> {
 				SelectTileGroup(null);
 
 				// Now that the player has successfully moved, have the entities do their turn
-				GameState = GameState.ENTITY_TURN;
+				SetGameState(GameState.ENTITY_TURN);
 			}
 
 			// If the right mouse button is pressed, deselect the tile group and reset its position
@@ -194,6 +163,55 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	/// <summary>
+	/// Set the current game state of the game
+	/// </summary>
+	/// <param name="gameState">The new game state to set the game to</param>
+	public void SetGameState (GameState gameState) {
+		/// TODO: This definitely needs to be an IEnumerator at some point so animations can play
+
+		// If the game state is being set to the same value, return and do nothing
+		if (this.gameState == gameState) {
+			return;
+		}
+
+		// Do specific things when switching off of the old game state
+		switch (this.gameState) {
+			case GameState.PLAYER_TURN:
+				/// TODO: Update all entity turn counts
+
+				break;
+			case GameState.ENTITY_TURN:
+				/// TODO: Spawn more entities
+
+				break;
+			case GameState.GAME_OVER:
+				break;
+		}
+
+		this.gameState = gameState;
+
+		// Do specific things based on the new game state
+		switch (this.gameState) {
+			case GameState.GENERATE:
+				BoardManager.Instance.Generate( );
+
+				break;
+			case GameState.PLAYER_TURN:
+				/// TODO: Display player turn text
+
+				break;
+			case GameState.ENTITY_TURN:
+				/// TODO: Display entity turn text
+
+				break;
+			case GameState.GAME_OVER:
+				/// TODO: Display game over text
+
+				break;
+		}
+	}
+
+	/// <summary>
 	/// Update the current animation frame
 	/// </summary>
 	private void UpdateAnimationFrame ( ) {
@@ -211,7 +229,10 @@ public class GameManager : Singleton<GameManager> {
 			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
 
 			// Update all of the tiles if they need to be animated
-			OnAnimationFrame( );
+			// If there are no subscribed events, this throws an error
+			try {
+				OnAnimationFrame( );
+			} catch { }
 		}
 	}
 }

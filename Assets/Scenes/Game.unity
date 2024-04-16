@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationSpeed: 0.25
-  _gameState: 3
+  gameState: 3
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
@@ -364,7 +364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spikePrefab: {fileID: 6180549365575240501, guid: 597d9e99a3a83cd4391799c38b77d10c, type: 3}
   robotPrefab: {fileID: 247667915643608723, guid: fa8cb02fd4cb67c4797e3885166bfe42, type: 3}
-  laserPrefab: {fileID: 0}
+  laserPrefab: {fileID: 2640157172760107758, guid: 9b303c59bf9604a468e7840bf04a8fce, type: 3}
   bombPrefab: {fileID: 0}
 --- !u!4 &660324052
 Transform:

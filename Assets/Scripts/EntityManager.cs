@@ -30,18 +30,21 @@ public class EntityManager : Singleton<EntityManager> {
 				newEntity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
 				break;
 			case EntityType.ROBOT:
-				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
 				break;
 			case EntityType.LASER:
-				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Laser>( );
 				break;
 			case EntityType.BOMB:
-				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Bomb>( );
 				break;
 		}
 
 		// Set the tile entity and add the entity to the list of entities
 		tile.Entity = newEntity;
 		entities.Add(newEntity);
+
+		// Face the entity in a random direction when starting
+		newEntity.FacingDirection = BoardManager.Instance.GetCardinalPositions(Vector2Int.zero)[Random.Range(0, 4)];
 	}
 }

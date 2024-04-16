@@ -178,14 +178,14 @@ public class Tile : MonoBehaviour {
 			transform.position = BoardManager.Instance.BoardToWorldPosition(_boardPosition);
 
 			// Make sure tiles that have a lower y position appear in front of others
-			drawOrder = (_boardPosition.x - _boardPosition.y) * 4;
+			drawOrder = (_boardPosition.x - _boardPosition.y) * 5;
 			detailTileSpriteRenderer.sortingOrder = drawOrder;
 			tileSpriteRenderer.sortingOrder = drawOrder + 1;
 			overlayTileSpriteRenderer.sortingOrder = drawOrder + 2;
 
 			// Set the entity sorting order as well if there is one on this tile
 			if (Entity != null) {
-				Entity.GetComponent<SpriteRenderer>( ).sortingOrder = drawOrder + 3;
+				Entity.SetSpriteSortingOrder(drawOrder + 3);
 			}
 		}
 	}
@@ -208,11 +208,13 @@ public class Tile : MonoBehaviour {
 
 			// Set this entity's tile value to be this tile
 			_entity = value;
-			_entity.Tile = this;
 
 			// Make sure the entity follows this tile (as in, when it gets selected and moves upwards, the entity also moves)
-			_entity.transform.SetParent(tileTransform, false);
-			_entity.GetComponent<SpriteRenderer>( ).sortingOrder = drawOrder + 3;
+			if (_entity != null) {
+				_entity.transform.SetParent(tileTransform, false);
+				_entity.Tile = this;
+				_entity.SetSpriteSortingOrder(drawOrder + 3);
+			}
 		}
 	}
 
