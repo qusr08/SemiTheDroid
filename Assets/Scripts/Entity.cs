@@ -16,6 +16,8 @@ public abstract class Entity : MonoBehaviour {
 	[Header("Information")]
 	[SerializeField] private Tile _tile;
 	[SerializeField] private Vector2Int _facingDirection;
+	[SerializeField] private Vector2Int _boardPosition;
+	[SerializeField] private List<Vector2Int> _hazardBoardPositions;
 
 	protected bool isFacingUp;
 	protected bool isFacingLeft;
@@ -23,7 +25,23 @@ public abstract class Entity : MonoBehaviour {
 	/// <summary>
 	/// The tile that this entity is currently standing on
 	/// </summary>
-	public Tile Tile { get => _tile; set => SetTile(value); }
+	public Tile Tile {
+		get => _tile;
+		set {
+			if (_tile == value) {
+				return;
+			}
+
+			_tile = value;
+			_tile.Entity = this;
+			BoardPosition = _tile.BoardPosition;
+		}
+	}
+
+	/// <summary>
+	/// A list of all the board positions that will be hazards based on this entity's attack
+	/// </summary>
+	public List<Vector2Int> HazardBoardPositions { get => _hazardBoardPositions; private set => _hazardBoardPositions = value; }
 
 	/// <summary>
 	/// The direction that this entity is currently facing
@@ -38,7 +56,7 @@ public abstract class Entity : MonoBehaviour {
 	/// <summary>
 	/// The board position of this entity
 	/// </summary>
-	public Vector2Int BoardPosition => Tile.BoardPosition;
+	public Vector2Int BoardPosition { get => _boardPosition; set => SetBoardPosition(value); }
 
 	/// <summary>
 	/// The number of turns until this entity does its action
@@ -60,27 +78,39 @@ public abstract class Entity : MonoBehaviour {
 		}
 	}
 
+	private void Awake ( ) {
+		HazardBoardPositions = new List<Vector2Int>( );
+	}
+
 	protected void OnMouseEnter ( ) {
-		/// TODO: Show only this entities hazard tiles
+		// Set the entity that is being hovered to this entity
+		EntityManager.Instance.HoveredEntity = this;
 	}
 
 	protected void OnMouseExit ( ) {
-		/// TODO: Show all entities hazard tiles
-	}
-
-	/// <summary>
-	/// Set the tile that this entity is currently on
-	/// </summary>
-	/// <param name="tile">The tile to set the entity on</param>
-	protected virtual void SetTile (Tile tile) {
-		// If the tile is being set to the same value, return
-		if (_tile == tile) {
+		// If the entity that is currently being hovered is not equal to this, then return
+		if (EntityManager.Instance.HoveredEntity != this) {
 			return;
 		}
 
-		// Set the tile value and its entity value to this entity
-		_tile = tile;
-		_tile.Entity = this;
+		// Set there to be no hovered entity anymore
+		EntityManager.Instance.HoveredEntity = null;
+	}
+
+	/// <summary>
+	/// Set the board position of this entity
+	/// </summary>
+	/// <param name="boardPosition"></param>
+	protected virtual void SetBoardPosition (Vector2Int boardPosition) {
+		// Do nothing if the board position is being set to the same value
+		if (_boardPosition == boardPosition) {
+			return;
+		}
+
+		_boardPosition = boardPosition;
+
+		// Set the sprite sorting order based on the new position
+		entitySpriteRenderer.sortingOrder = ((boardPosition.x - boardPosition.y) * 5) + 3;
 	}
 
 	/// <summary>
@@ -98,14 +128,6 @@ public abstract class Entity : MonoBehaviour {
 		// Recalculate if the entity is facing up or left
 		isFacingUp = (FacingDirection.x < 0 || FacingDirection.y > 0);
 		isFacingLeft = (FacingDirection.x < 0 || FacingDirection.y < 0);
-	}
-
-	/// <summary>
-	/// Set this entity's sprite renderer's sorting order
-	/// </summary>
-	/// <param name="sortingOrder">The sorting order value to set</param>
-	public virtual void SetSpriteSortingOrder (int sortingOrder) {
-		entitySpriteRenderer.sortingOrder = sortingOrder;
 	}
 
 	/// <summary>

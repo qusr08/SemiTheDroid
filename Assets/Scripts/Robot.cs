@@ -21,8 +21,8 @@ public class Robot : Entity {
 		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 0 : 1];
 	}
 
-	public override void SetSpriteSortingOrder (int sortingOrder) {
-		base.SetSpriteSortingOrder(sortingOrder);
+	protected override void SetBoardPosition (Vector2Int boardPosition) {
+		base.SetBoardPosition(boardPosition);
 
 		// Set the sorting order of the arrow, making sure that it appears above the tile it is on
 		// This makes the arrow show up above the entity that is on the tile it is placed on

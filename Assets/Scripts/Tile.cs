@@ -8,8 +8,7 @@ public enum TileSpriteType {
 	DEF_SOL_SOL, DEF_SOL_DOT, DEF_DOT_SOL, DEF_DOT_DOT,
 	HOV_SOL_SOL, HOV_SOL_DOT, HOV_DOT_SOL, HOV_DOT_DOT,
 	HAZ_F1, HAZ_F2, HAZ_F3, HAZ_F4,
-	OUT_F1, OUT_F2, OUT_F3, OUT_F4,
-	HAZ_HOV_F1, HAZ_HOV_F2, HAZ_HOV_F3, HAZ_HOV_F4
+	OUT_F1, OUT_F2, OUT_F3, OUT_F4
 }
 
 public enum TileState {
@@ -185,7 +184,14 @@ public class Tile : MonoBehaviour {
 
 			// Set the entity sorting order as well if there is one on this tile
 			if (Entity != null) {
-				Entity.SetSpriteSortingOrder(drawOrder + 3);
+				Entity.BoardPosition = _boardPosition;
+			}
+
+			// If the new board position is contained with the board positions that are currently being shown as a hazard, then switch this tiles overlay state
+			if (EntityManager.Instance.ShownHazardPositions.Contains(_boardPosition)) {
+				TileOverlayState = TileOverlayState.HAZARD;
+			} else if (TileOverlayState == TileOverlayState.HAZARD) {
+				TileOverlayState = TileOverlayState.NONE;
 			}
 		}
 	}
@@ -213,7 +219,6 @@ public class Tile : MonoBehaviour {
 			if (_entity != null) {
 				_entity.transform.SetParent(tileTransform, false);
 				_entity.Tile = this;
-				_entity.SetSpriteSortingOrder(drawOrder + 3);
 			}
 		}
 	}
@@ -338,7 +343,7 @@ public class Tile : MonoBehaviour {
 
 				break;
 			case TileOverlayState.HAZARD:
-				OverlayTileSpriteType = (TileState == TileState.HOVERED ? TileSpriteType.HAZ_HOV_F1 : TileSpriteType.HAZ_F1) + GameManager.Instance.CurrentAnimationFrame;
+				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 		}
@@ -359,7 +364,7 @@ public class Tile : MonoBehaviour {
 
 		switch (TileOverlayState) {
 			case TileOverlayState.HAZARD:
-				OverlayTileSpriteType = (TileState == TileState.HOVERED ? TileSpriteType.HAZ_HOV_F1 : TileSpriteType.HAZ_F1) + GameManager.Instance.CurrentAnimationFrame;
+				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
 		}

@@ -97,7 +97,6 @@ public class TileGroup {
 
 		// Loop through all possible origin tiles to see if the tile group can fit at the location
 		foreach (Tile originTile in originTileOrder) {
-
 			// Calculate the offset between the origin tile and the board position to move this tile group to
 			Vector2Int tileOffset = boardPosition - originTile.BoardPosition;
 
@@ -125,9 +124,6 @@ public class TileGroup {
 
 				_originTile = originTile;
 
-				// Since all of the tiles were moved, recalculate all of the tile sprites
-				// RecalculateTileSprites( );
-
 				return true;
 			}
 
@@ -135,6 +131,10 @@ public class TileGroup {
 			newTilePositions.Clear( );
 		}
 
+		return false;
+	}
+
+	public bool TryRotate (int rotateDirection) {
 		return false;
 	}
 

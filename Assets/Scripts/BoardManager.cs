@@ -164,6 +164,12 @@ public class BoardManager : Singleton<BoardManager> {
 		// Spawn the robot somewhere
 		EntityManager.Instance.SpawnEntity(EntityType.ROBOT, GetRandomTile(ignoreEntityTiles: true));
 
+		// Spawn a test laser
+		EntityManager.Instance.SpawnEntity(EntityType.LASER, GetRandomTile(ignoreEntityTiles: true));
+
+		// Set there to be no hovered entity
+		EntityManager.Instance.UpdateShownHazardTiles( );
+
 		// The player gets to move first
 		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
 	}
