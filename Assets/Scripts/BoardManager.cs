@@ -59,6 +59,9 @@ public class BoardManager : Singleton<BoardManager> {
 	private void Update ( ) {
 		// TEST: When you press the r key, the board is regenerated
 		if (Input.GetKeyDown(KeyCode.R)) {
+			// Deselect the tile group if there is one
+			GameManager.Instance.SelectTileGroup(null);
+
 			for (int i = TileGroups.Count - 1; i >= 0; i--) {
 				for (int j = 0; j < TileGroups[i].Count; j++) {
 					Destroy(TileGroups[i].Tiles[j].gameObject);

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TreeEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class TileGroup {
 	private List<Tile> _tiles;
@@ -89,9 +91,10 @@ public class TileGroup {
 	/// <summary>
 	/// Try to move this tile group to a specific board position
 	/// </summary>
-	/// <param name="boardPosition">The board position to check if this tile group can be placed there</param>
+	/// <param name="movementDirection">The direction to move all of the tiles in this tile group by</param>
+	/// <param name="rotationDirection">The direction to rotate the tile group around the origin tile by 90 degrees</param>
 	/// <returns>true if the tile group successfully moved to the specified board position, false otherwise</returns>
-	public bool TryMove (Vector2Int boardPosition) {
+	public bool TryMoveAndRotate (Vector2Int boardPosition, int rotationDirection) {
 		// A list of all the new positions that all the blocks will move to
 		List<Vector2Int> newTilePositions = new List<Vector2Int>( );
 
@@ -105,7 +108,8 @@ public class TileGroup {
 
 			// Add all of the new board positions and adjacent tile groups to their arrays
 			foreach (Tile tile in Tiles) {
-				Vector2Int newPosition = tile.BoardPosition + tileOffset;
+				// Calculate the new position that the current tile will move to based on the movement and rotation direction
+				Vector2Int newPosition = Utilities.Vector2IntRotateAround(tile.BoardPosition, originTile.BoardPosition, rotationDirection) + tileOffset;
 				newTilePositions.Add(newPosition);
 
 				// Check to see if the current tile has an adjacent tile group that is not the current tile group
@@ -117,12 +121,27 @@ public class TileGroup {
 
 			// Make sure there are no tiles at the new positions and that there is at least one adjacent tile group
 			if (hasAdjacentTileGroup && !BoardManager.Instance.HasTilesAt(newTilePositions, excludedTileGroups: new List<TileGroup>( ) { this })) {
-				// Move the selected tiles
-				foreach (Tile tile in Tiles) {
-					tile.BoardPosition += tileOffset;
+				// Move the selected tiles by the calculated amount
+				for (int i = 0; i < Count; i++) {
+					// The positions calculated earlier are the new positions for each of the tiles
+					Tiles[i].BoardPosition = newTilePositions[i];
+
+					// If the tile being moved has an entity on it, rotate the entity along with the tile group
+					Entity tileEntity = Tiles[i].Entity;
+					if (tileEntity != null) {
+						tileEntity.FacingDirection = Utilities.Vector2IntRotateAround(tileEntity.FacingDirection, Vector2Int.zero, rotationDirection);
+					}
 				}
 
+				// The new origin tile will be equal to whatever origin had a successful movement
+				// We do not want to set the propery here because the set part of it has special code that we dont not want to run
 				_originTile = originTile;
+
+				// Update the tile sprites if the tiles were rotated
+				// If the tiles were just translated, then there is no need to update
+				if (rotationDirection != 0) {
+					RecalculateTileSprites( );
+				}
 
 				return true;
 			}

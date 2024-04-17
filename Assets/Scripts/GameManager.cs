@@ -55,10 +55,15 @@ public class GameManager : Singleton<GameManager> {
 			// If the closest board position is not equal to the last tile position, then update the position of the selected tile group
 			if (closestBoardPosition != lastSelectedPosition) {
 				// Try to move the selected tile group to the new board position
-				if (selectedTileGroup.TryMove(closestBoardPosition)) {
+				if (selectedTileGroup.TryMoveAndRotate(closestBoardPosition, 0)) {
 					// Update the last selected position that the selected tile group moved to
 					lastSelectedPosition = closestBoardPosition;
 				}
+			}
+
+			// If the player presses the spacebar, try to rotate the tile group by 90 degrees
+			if (Input.GetKeyDown(KeyCode.Space)) {
+				selectedTileGroup.TryMoveAndRotate(lastSelectedPosition, 1);
 			}
 
 			// Since selecting and placing the tile groups are done with the same mouse button, we need to wait for the mouse to be lifted in order for the tile group to be placed

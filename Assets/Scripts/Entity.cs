@@ -114,9 +114,9 @@ public abstract class Entity : MonoBehaviour {
 	/// <param name="boardPosition"></param>
 	protected virtual void SetBoardPosition (Vector2Int boardPosition) {
 		// Do nothing if the board position is being set to the same value
-		if (_boardPosition == boardPosition) {
+		/*if (_boardPosition == boardPosition) {
 			return;
-		}
+		}*/
 
 		_boardPosition = boardPosition;
 

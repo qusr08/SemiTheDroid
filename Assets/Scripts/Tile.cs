@@ -167,9 +167,9 @@ public class Tile : MonoBehaviour {
 		get => _boardPosition;
 		set {
 			// If the board position is being set to the same position, then return and do nothing
-			if (_boardPosition == value) {
+			/*if (_boardPosition == value) {
 				return;
-			}
+			}*/
 
 			_boardPosition = value;
 
