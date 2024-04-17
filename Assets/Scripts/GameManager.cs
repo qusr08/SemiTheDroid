@@ -230,9 +230,9 @@ public class GameManager : Singleton<GameManager> {
 
 			// Update all of the tiles if they need to be animated
 			// If there are no subscribed events, this throws an error
-			try {
+			if (OnAnimationFrame != null) {
 				OnAnimationFrame( );
-			} catch { }
+			}
 		}
 	}
 }

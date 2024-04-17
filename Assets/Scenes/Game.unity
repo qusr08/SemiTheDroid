@@ -217,7 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
-  totalTiles: 30
+  _totalTiles: 30
   minTileGroupSize: 4
   maxTileGroupSize: 6
   spikePercentage: 0.2
@@ -309,7 +309,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -365,7 +365,10 @@ MonoBehaviour:
   spikePrefab: {fileID: 6180549365575240501, guid: 597d9e99a3a83cd4391799c38b77d10c, type: 3}
   robotPrefab: {fileID: 247667915643608723, guid: fa8cb02fd4cb67c4797e3885166bfe42, type: 3}
   laserPrefab: {fileID: 2640157172760107758, guid: 9b303c59bf9604a468e7840bf04a8fce, type: 3}
-  bombPrefab: {fileID: 0}
+  bombPrefab: {fileID: 2220241697670459418, guid: cfc16c3b6f0b5ed4da58beac0f4466c8, type: 3}
+  _hoveredEntity: {fileID: 0}
+  _shownHazardPositions: []
+  _entities: []
 --- !u!4 &660324052
 Transform:
   m_ObjectHideFlags: 0
@@ -385,7 +388,7 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 519420032}
-  - {fileID: 161658455}
   - {fileID: 325865079}
+  - {fileID: 519420032}
   - {fileID: 660324052}
+  - {fileID: 161658455}

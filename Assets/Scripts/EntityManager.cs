@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class EntityManager : Singleton<EntityManager> {
@@ -12,8 +13,7 @@ public class EntityManager : Singleton<EntityManager> {
 	[Header("Information")]
 	[SerializeField] private Entity _hoveredEntity;
 	[SerializeField] private List<Vector2Int> _shownHazardPositions;
-
-	private List<Entity> entities;
+	[SerializeField] private List<Entity> _entities;
 
 	/// <summary>
 	/// The current entity that is being hovered
@@ -28,9 +28,14 @@ public class EntityManager : Singleton<EntityManager> {
 
 			_hoveredEntity = value;
 
-			UpdateShownHazardTiles( );
+			UpdateShownHazardPositions( );
 		}
 	}
+
+	/// <summary>
+	/// A list of all the entities on the board
+	/// </summary>
+	public List<Entity> Entities { get => _entities; private set => _entities = value; }
 
 	/// <summary>
 	/// A list of all the board positions that are currently being shown as a hazard
@@ -40,8 +45,8 @@ public class EntityManager : Singleton<EntityManager> {
 	protected override void Awake ( ) {
 		base.Awake( );
 
-		entities = new List<Entity>( );
-		_shownHazardPositions = new List<Vector2Int>( );
+		Entities = new List<Entity>( );
+		ShownHazardPositions = new List<Vector2Int>( );
 	}
 
 	/// <summary>
@@ -55,60 +60,71 @@ public class EntityManager : Singleton<EntityManager> {
 		switch (entityType) {
 			case EntityType.SPIKE:
 				newEntity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+
 				break;
 			case EntityType.ROBOT:
 				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
+
+				// Set entity variables that are specific to robots
+				newEntity.FacingDirection = BoardManager.Instance.GetCardinalPositions(Vector2Int.zero)[Random.Range(0, 4)];
+				newEntity.TurnsUntilAction = 1;
+
 				break;
 			case EntityType.LASER:
 				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Laser>( );
+
+				// Set entity variables that are specific to lasers
+				newEntity.FacingDirection = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.left }[Random.Range(0, 2)];
+				newEntity.TurnsUntilAction = 3;
+
 				break;
 			case EntityType.BOMB:
 				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Bomb>( );
+
+				// Set entity variables that are specific to bombs
+				newEntity.TurnsUntilAction = 3;
+
 				break;
 		}
 
-		// Set the tile entity and add the entity to the list of entities
-		entities.Add(newEntity);
-		tile.Entity = newEntity;
-
-		// Face the entity in a random direction when starting
-		newEntity.FacingDirection = BoardManager.Instance.GetCardinalPositions(Vector2Int.zero)[Random.Range(0, 4)];
+		// Set entity variables that are the same for every entity
+		newEntity.Tile = tile;
 	}
 
 	/// <summary>
 	/// Update all of the tiles on the board that need to show a hazard based on the currently hovered entity
 	/// </summary>
-	public void UpdateShownHazardTiles ( ) {
-		// Create a list to hold all of the new hazard board positions
+	public void UpdateShownHazardPositions ( ) {
+		// Lists to store all of the new hazard positions that will now be shown and hidden
 		List<Vector2Int> newShownHazardPositions = new List<Vector2Int>( );
 
 		// Loop through all the entities on the board
-		foreach (Entity entity in entities) {
+		foreach (Entity entity in Entities) {
 			// If the hovered entity is null, then we want all of the entity hazard tiles to be visible
 			// If the hovered entity is not null, then we only want to show the current entity's hazard tiles
-			if (HoveredEntity == null || HoveredEntity == entity) {
-				newShownHazardPositions.AddRange(entity.HazardBoardPositions);
+			if ((HoveredEntity == null && entity.TurnsUntilAction == 1) || HoveredEntity == entity) {
+				newShownHazardPositions.AddRange(entity.HazardPositions);
 			}
 		}
 
-		// Only keep all of the board positions that changed in being shown as hazard
-		List<Vector2Int> modifiedBoardPositions = ShownHazardPositions.Except(newShownHazardPositions).Union(newShownHazardPositions.Except(ShownHazardPositions)).ToList( );
+		// The hazard positions that are going to be removed is equal to whatever is currently shown minus what will be shown next
+		// The hazard positions that are going to be added is equal to whatever we want to add minus what has already been added
+		List<Vector2Int> hazardPositionsToRemove = ShownHazardPositions.Except(newShownHazardPositions).ToList( );
+		List<Vector2Int> hazardPositionsToAdd = newShownHazardPositions.Except(ShownHazardPositions).ToList( );
 
-		// Loop through all of the tiles at the modified board positions and change their tile overlay states
-		foreach (Tile tile in BoardManager.Instance.SearchForTilesAt(modifiedBoardPositions)) {
-			switch (tile.TileOverlayState) {
-				case TileOverlayState.NONE:
-					tile.TileOverlayState = TileOverlayState.HAZARD;
+		// Need to add and remove hazard positions separately because some of them might not line up with tiles
+		// For example, the laser's line of hazard positions stretches way further than the board reaches, so those hazard positions need to be added and removed when the laser entity moves
+		ShownHazardPositions.RemoveAll(hazardPosition => hazardPositionsToRemove.Contains(hazardPosition));
+		ShownHazardPositions.AddRange(hazardPositionsToAdd);
 
-					break;
-				case TileOverlayState.HAZARD:
-					tile.TileOverlayState = TileOverlayState.NONE;
-
-					break;
-			}
+		// Loop through all of the tiles at the specified board position and change their overlay state to not show a hazard tile anymore
+		foreach (Tile oldHazardTile in BoardManager.Instance.SearchForTilesAt(hazardPositionsToRemove)) {
+			oldHazardTile.TileOverlayState = TileOverlayState.NONE;
 		}
 
-		// Set the current shown positions to be the new shown positions
-		ShownHazardPositions = newShownHazardPositions;
+		// Loop through all of the tiles at the specified board position and change their overlay state to show a hazard tile
+		foreach (Tile newHazardTile in BoardManager.Instance.SearchForTilesAt(hazardPositionsToAdd)) {
+			newHazardTile.TileOverlayState = TileOverlayState.HAZARD;
+		}
 	}
 }

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7390078691883934613}
   - component: {fileID: 529739085103534810}
+  - component: {fileID: 390240012622962909}
   - component: {fileID: 4001790022341991421}
   m_Layer: 0
   m_Name: Robot
@@ -86,6 +87,59 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!60 &390240012622962909
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247667915643608723}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.25}
+    oldSize: {x: 1.0384616, y: 1.3846154}
+    newSize: {x: 1.0384616, y: 1.3846154}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.26923078, y: 0.26923078}
+      - {x: -0.23076925, y: 0.11538462}
+      - {x: -0.09615385, y: 0.05769231}
+      - {x: 0.23076925, y: 0.17307693}
+      - {x: 0.26923078, y: 0.30769232}
+      - {x: 0.15384616, y: 0.6730769}
+      - {x: 0.01923077, y: 0.7115385}
+      - {x: -0.15384616, y: 0.6346154}
+  m_UseDelaunayMesh: 0
 --- !u!114 &4001790022341991421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,6 +158,8 @@ MonoBehaviour:
   _entityType: 1
   _tile: {fileID: 0}
   _facingDirection: {x: 0, y: 0}
+  _boardPosition: {x: 0, y: 0}
+  _hazardPositions: []
   arrowSpriteRenderer: {fileID: 5364368060632552187}
   arrowTransform: {fileID: 7937696862510689260}
   arrowSprites:

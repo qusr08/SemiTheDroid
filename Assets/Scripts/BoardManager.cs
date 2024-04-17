@@ -4,18 +4,30 @@ using System.Linq;
 using TreeEditor;
 using UnityEngine;
 
+/*
+
+Game Controls:
+- Press middle mouse button and drag to pan camera
+- Use scroll wheel to zoom in and out
+- Press left click on a tile group to pick it up
+- Press spacebar to rotate a picked up tile group
+- Press right click to return the picked up tile group to its original position
+- Press left click while a tile group is picked up to place it down on the board and end the player's turn
+
+*/
+
 public class BoardManager : Singleton<BoardManager> {
 	[Header("References")]
 	[SerializeField] private GameObject tilePrefab;
 	[Header("Properties")]
-	[SerializeField, Min(1)] private int totalTiles;
+	[SerializeField, Min(1)] private int _totalTiles;
 	[SerializeField, Min(1)] private int minTileGroupSize;
 	[SerializeField, Min(1)] private int maxTileGroupSize;
 	[SerializeField, Range(0, 1)] private float spikePercentage;
 	[Header("Information")]
 	[SerializeField] private Vector2 _centerPosition;
 
-	private List<TileGroup> tileGroups;
+	private List<TileGroup> _tileGroups;
 
 	/// <summary>
 	/// The center position of all the tiles on the board
@@ -23,26 +35,36 @@ public class BoardManager : Singleton<BoardManager> {
 	public Vector2 CenterPosition { get => _centerPosition; private set => _centerPosition = value; }
 
 	/// <summary>
+	/// A list of all the tile groups on the board
+	/// </summary>
+	public List<TileGroup> TileGroups { get => _tileGroups; private set => _tileGroups = value; }
+
+	/// <summary>
 	/// The number of tile groups on the board
 	/// </summary>
-	public int TileGroupCount => tileGroups.Count;
+	public int TileGroupCount => TileGroups.Count;
+
+	/// <summary>
+	/// The total number of tiles on the board
+	/// </summary>
+	public int TotalTiles { get => _totalTiles; private set => _totalTiles = value; }
 
 	protected override void Awake ( ) {
 		base.Awake( );
 
 		// Declare the list of tile groups
-		tileGroups = new List<TileGroup>( );
+		TileGroups = new List<TileGroup>( );
 	}
 
 	private void Update ( ) {
-		// TEST: When you press the spacebar, the board is regenerated
-		if (Input.GetKeyDown(KeyCode.Space)) {
-			for (int i = tileGroups.Count - 1; i >= 0; i--) {
-				for (int j = 0; j < tileGroups[i].Count; j++) {
-					Destroy(tileGroups[i].Tiles[j].gameObject);
+		// TEST: When you press the r key, the board is regenerated
+		if (Input.GetKeyDown(KeyCode.R)) {
+			for (int i = TileGroups.Count - 1; i >= 0; i--) {
+				for (int j = 0; j < TileGroups[i].Count; j++) {
+					Destroy(TileGroups[i].Tiles[j].gameObject);
 				}
 
-				tileGroups.RemoveAt(i);
+				TileGroups.RemoveAt(i);
 			}
 
 			Generate( );
@@ -53,6 +75,9 @@ public class BoardManager : Singleton<BoardManager> {
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
 	public void Generate ( ) {
+		// Clear all previous hazard positions from the entity manager class
+		EntityManager.Instance.ShownHazardPositions.Clear( );
+
 		// All available tiles across the entire board, regardless of what tile group it is next to
 		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 
@@ -63,7 +88,7 @@ public class BoardManager : Singleton<BoardManager> {
 		List<Vector2Int> tileGroupTilePositions = new List<Vector2Int>( );
 
 		// The current tiles that are left to be generated on the board
-		int remaingingTiles = totalTiles;
+		int remaingingTiles = TotalTiles;
 
 		// The total number of tile groups on the board
 		// Adding 1 because the max tile group size is inclusive in the range of tile group sizes
@@ -100,7 +125,7 @@ public class BoardManager : Singleton<BoardManager> {
 
 			// Create a new tile group object
 			TileGroup tileGroup = new TileGroup( );
-			tileGroups.Add(tileGroup);
+			TileGroups.Add(tileGroup);
 
 			// Generate all of the tiles in the current tile group
 			for (int i = 0; i < randomTileGroupSize; i++) {
@@ -154,7 +179,7 @@ public class BoardManager : Singleton<BoardManager> {
 		Utilities.SetPositionWithoutZ(CameraManager.Instance.GameCamera.transform, CenterPosition);
 
 		// Get the number of spikes that will be generated on the board
-		int totalSpikes = Mathf.FloorToInt(totalTiles * spikePercentage);
+		int totalSpikes = Mathf.FloorToInt(TotalTiles * spikePercentage);
 
 		// Generate spikes onto the tiles
 		for (int i = 0; i < totalSpikes; i++) {
@@ -164,11 +189,9 @@ public class BoardManager : Singleton<BoardManager> {
 		// Spawn the robot somewhere
 		EntityManager.Instance.SpawnEntity(EntityType.ROBOT, GetRandomTile(ignoreEntityTiles: true));
 
-		// Spawn a test laser
+		// Spawn a test laser and bomb
 		EntityManager.Instance.SpawnEntity(EntityType.LASER, GetRandomTile(ignoreEntityTiles: true));
-
-		// Set there to be no hovered entity
-		EntityManager.Instance.UpdateShownHazardTiles( );
+		EntityManager.Instance.SpawnEntity(EntityType.BOMB, GetRandomTile(ignoreEntityTiles: true));
 
 		// The player gets to move first
 		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
@@ -292,7 +315,7 @@ public class BoardManager : Singleton<BoardManager> {
 		List<Tile> foundTiles = new List<Tile>( );
 
 		// Loop through all the tiles on the board
-		foreach (TileGroup tileGroup in tileGroups) {
+		foreach (TileGroup tileGroup in TileGroups) {
 			// The exclusive tile groups are the only ones that should be searched
 			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
 				continue;
@@ -321,23 +344,23 @@ public class BoardManager : Singleton<BoardManager> {
 	}
 
 	/// <summary>
-	/// Search for tiles in a square around the specified board position
+	/// Search for tile board positions in a square around the specified board position
 	/// </summary>
 	/// <param name="boardPosition">The board position to search around</param>
 	/// <param name="radius">The tile radius of the square around the center specified board position</param>
 	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
 	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
-	/// <returns>A list of all the tiles that were found around the specified board position</returns>
-	public List<Tile> SearchForTilesAround (Vector2Int boardPosition, int radius, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
-		// Create a list that has all of the found tiles in it
-		List<Tile> foundTiles = new List<Tile>( );
+	/// <returns>A list of all the tile board positions that were found around the specified board position</returns>
+	public List<Vector2Int> SearchForPositionsAround (Vector2Int boardPosition, int radius, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		// Create a list that has all of the found tile positions in it
+		List<Vector2Int> foundTilePositions = new List<Vector2Int>( );
 
 		// The maximum amount of tiles that can be searched for
 		int sideLength = radius * 2 + 1;
 		int maxTileCount = (sideLength * sideLength) - 1;
 
-		// Loop through all the tiles on the board
-		foreach (TileGroup tileGroup in tileGroups) {
+		// Loop through all the tile groups on the board
+		foreach (TileGroup tileGroup in TileGroups) {
 			// The exclusive tile groups are the only ones that should be searched
 			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
 				continue;
@@ -348,6 +371,7 @@ public class BoardManager : Singleton<BoardManager> {
 				continue;
 			}
 
+			// Loop through all of the tiles in the current tile group
 			foreach (Tile tile in tileGroup.Tiles) {
 				// If the tile is at the original board position, then return and ignore it
 				if (tile.BoardPosition == boardPosition) {
@@ -360,34 +384,34 @@ public class BoardManager : Singleton<BoardManager> {
 
 				// If the current tile is inside the tile radius that we want to get, add it to the found tiles array
 				if (offset.x <= radius && offset.y <= radius) {
-					foundTiles.Add(tile);
+					foundTilePositions.Add(tile.BoardPosition);
 
 					// If all of the tiles that were needed have already been found, then quit out of the loops
-					if (foundTiles.Count == maxTileCount) {
-						return foundTiles;
+					if (foundTilePositions.Count == maxTileCount) {
+						return foundTilePositions;
 					}
 				}
 			}
 		}
 
-		return foundTiles;
+		return foundTilePositions;
 	}
 
 	/// <summary>
-	/// Search for tiles that either have the same x or same y as the inputted board position
+	/// Search for board positions that either have the same x or same y as the inputted board position
 	/// </summary>
 	/// <param name="boardPosition">The board position to get similar x and y values from</param>
-	/// <param name="searchX">If set to true, the function will search x values and return tiles that match the same x value as the inputted board position</param>
-	/// <param name="searchY">If set to true, the function will search y values and return tiles that match the same y value as the inputted board position</param>
+	/// <param name="searchX">If set to true, the function will search x values and return tile board positions that match the same x value as the inputted board position</param>
+	/// <param name="searchY">If set to true, the function will search y values and return tile board positions that match the same y value as the inputted board position</param>
 	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
 	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
-	/// <returns>A list of all the tiles that were found on the same x or y coordinate as the specified board position</returns>
-	public List<Tile> SearchForTilesOnLine (Vector2Int boardPosition, bool searchX, bool searchY, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
-		// Create a list that has all of the found tiles in it
-		List<Tile> foundTiles = new List<Tile>( );
+	/// <returns>A list of all the tile board positions that were found on the same x or y coordinate as the specified board position</returns>
+	public List<Vector2Int> SearchForPositionsOnLine (Vector2Int boardPosition, bool searchX, bool searchY, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		// Create a list that has all of the found tile positions in it
+		List<Vector2Int> foundTilePositions = new List<Vector2Int>( );
 
-		// Loop through all the tiles on the board
-		foreach (TileGroup tileGroup in tileGroups) {
+		// Loop through all the tile groups on the board
+		foreach (TileGroup tileGroup in TileGroups) {
 			// The exclusive tile groups are the only ones that should be searched
 			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
 				continue;
@@ -398,24 +422,25 @@ public class BoardManager : Singleton<BoardManager> {
 				continue;
 			}
 
+			// Loop through all of the tiles in the current tile group
 			foreach (Tile tile in tileGroup.Tiles) {
 				// If the tile is at the original board position, then return and ignore it
 				if (tile.BoardPosition == boardPosition) {
 					continue;
 				}
 
-				// Get whether or not the tile is valid or not based on the input parameters
+				// Get whether or not the tile position is valid or not based on the input parameters
 				bool onX = searchX && tile.BoardPosition.x == boardPosition.x;
 				bool onY = searchY && tile.BoardPosition.y == boardPosition.y;
 
-				// If the current tile is inside the tile radius that we want to get, add it to the found tiles array
+				// If the current tile is inside the tile radius that we want to get, add it to the found tile position array
 				if (onX || onY) {
-					foundTiles.Add(tile);
+					foundTilePositions.Add(tile.BoardPosition);
 				}
 			}
 		}
 
-		return foundTiles;
+		return foundTilePositions;
 	}
 
 	/// <summary>
@@ -427,7 +452,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <returns>true if there is at least one tile at one of the board positions, false otherwise</returns>
 	public bool HasTilesAt (List<Vector2Int> boardPositions, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
 		// Loop through all the tiles on the board
-		foreach (TileGroup tileGroup in tileGroups) {
+		foreach (TileGroup tileGroup in TileGroups) {
 			// The exclusive tile groups are the only ones that should be searched
 			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
 				continue;
@@ -461,7 +486,7 @@ public class BoardManager : Singleton<BoardManager> {
 		List<Tile> validTiles = new List<Tile>( );
 
 		// Loop through all the tiles on the board
-		foreach (TileGroup tileGroup in tileGroups) {
+		foreach (TileGroup tileGroup in TileGroups) {
 			// The exclusive tile groups are the only ones that should be searched
 			if (exclusiveTileGroups != null && !exclusiveTileGroups.Contains(tileGroup)) {
 				continue;
@@ -481,6 +506,11 @@ public class BoardManager : Singleton<BoardManager> {
 			}
 		}
 
+		// If there are no tiles to get, then return null
+		if (validTiles.Count == 0) {
+			return null;
+		}
+
 		// Return a random valid tile
 		return validTiles[Random.Range(0, validTiles.Count)];
 	}
@@ -494,7 +524,7 @@ public class BoardManager : Singleton<BoardManager> {
 		int tileCount = 0;
 
 		// Add up the total number of tiles on the board and their positions
-		foreach (TileGroup tileGroup in tileGroups) {
+		foreach (TileGroup tileGroup in TileGroups) {
 			foreach (Tile tile in tileGroup.Tiles) {
 				sumPosition += (Vector2) tile.transform.position;
 				tileCount++;
@@ -502,7 +532,9 @@ public class BoardManager : Singleton<BoardManager> {
 		}
 
 		// The average of all the positions will be the center position of the board
-		CenterPosition = sumPosition / tileCount;
+		if (tileCount > 0) {
+			CenterPosition = sumPosition / tileCount;
+		}
 	}
 
 	/// <summary>
@@ -531,7 +563,7 @@ public class BoardManager : Singleton<BoardManager> {
 		return new Vector3(
 			(boardPosition.x + boardPosition.y) * 0.5f,
 			(boardPosition.y - boardPosition.x) * 0.25f,
-			(boardPosition.y - boardPosition.x) * 0.05f
+			(boardPosition.y - boardPosition.x) * 0.005f
 		);
 	}
 

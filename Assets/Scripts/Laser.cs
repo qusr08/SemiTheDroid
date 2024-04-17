@@ -3,15 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Laser : Entity {
-	protected override void SetFacingDirection (Vector2Int facingDirection) {
-		base.SetFacingDirection(facingDirection);
-	}
-
-	protected override void SetBoardPosition (Vector2Int boardPosition) {
-		base.SetBoardPosition(boardPosition);
-	}
-
 	public override void PerformAction ( ) {
 		throw new System.NotImplementedException( );
+	}
+
+	protected override void UpdateHazardPositions ( ) {
+		// The hazard positions for the laser are going to be along either a horizontal or vertical line, depending on the way it is facing
+		// The worst case scenario for the laser is if all of the tiles on the board are in a perfect line, where the laser is at the end of it
+		// We need to account for this case as it means that all other cases will be fine
+		List<Vector2Int> newHazardPositions = new List<Vector2Int>( );
+
+		// If the facing direction is not equal to zero, then this laser is facing on the x axis
+		// If it is not facing any direction on the x axis, it must be facing on the y axis
+		if (FacingDirection.x != 0) {
+			// Loop and add all possible board positions on the line of the laser
+			for (int i = -BoardManager.Instance.TotalTiles + 1; i < BoardManager.Instance.TotalTiles; i++) {
+				newHazardPositions.Add(BoardPosition + new Vector2Int(i, 0));
+			}
+		} else {
+			// Loop and add all possible board positions on the line of the laser
+			for (int i = -BoardManager.Instance.TotalTiles + 1; i < BoardManager.Instance.TotalTiles; i++) {
+				newHazardPositions.Add(BoardPosition + new Vector2Int(0, i));
+			}
+		}
+
+		// Make sure the laser's board position is never a hazard position
+		newHazardPositions.Remove(BoardPosition);
+
+		// Set the hazard board positions to the new line
+		HazardPositions = newHazardPositions;
+
+		// Update the shown hazard board positions in the main entity manager class
+		EntityManager.Instance.UpdateShownHazardPositions( );
 	}
 }

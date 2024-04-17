@@ -217,7 +217,13 @@ public class Tile : MonoBehaviour {
 
 			// Make sure the entity follows this tile (as in, when it gets selected and moves upwards, the entity also moves)
 			if (_entity != null) {
+				// Have the entity follow this tile around
 				_entity.transform.SetParent(tileTransform, false);
+
+				// Make sure the entity hitbox is always above the tile hitbox
+				_entity.transform.localPosition = new Vector3(0, 0, -0.0025f);
+
+				// If it hasn't been done already, set the entity's tile variable to be this tile
 				_entity.Tile = this;
 			}
 		}
@@ -251,15 +257,16 @@ public class Tile : MonoBehaviour {
 		GameManager.Instance.SelectTileGroup(TileGroup, originTile: this);
 	}
 
-	private void Start ( ) {
-		GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
-	}
-
 	private void OnDestroy ( ) {
 		// Check to make sure the game manager instance is not null before trying to reference it
 		// This was throwing a lot of errors when closing out the editor play mode, this seems to fix it
 		if (GameManager.Instance != null) {
 			GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
+		}
+
+		// Destroy the entity on tile if there is one
+		if (Entity != null) {
+			Destroy(Entity.gameObject);
 		}
 	}
 
@@ -319,6 +326,8 @@ public class Tile : MonoBehaviour {
 				TileSpriteType = currentTileSpriteType;
 				DetailTileSpriteType = TileSpriteType.OUT_F1 + GameManager.Instance.CurrentAnimationFrame;
 
+				GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
+
 				// If the tile is just now selected, save its reset position
 				ResetPosition = BoardPosition;
 
@@ -346,6 +355,13 @@ public class Tile : MonoBehaviour {
 				OverlayTileSpriteType = TileSpriteType.HAZ_F1 + GameManager.Instance.CurrentAnimationFrame;
 
 				break;
+		}
+
+		// Update whether or not this tile is subscribed to the update animation from check
+		if (TileState == TileState.SELECTED || TileOverlayState == TileOverlayState.HAZARD) {
+			GameManager.Instance.OnAnimationFrame += UpdateAnimationFrame;
+		} else {
+			GameManager.Instance.OnAnimationFrame -= UpdateAnimationFrame;
 		}
 	}
 

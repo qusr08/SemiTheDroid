@@ -32,4 +32,6 @@ public class Robot : Entity {
 	public override void PerformAction ( ) {
 		throw new System.NotImplementedException( );
 	}
+
+	protected override void UpdateHazardPositions ( ) { }
 }
