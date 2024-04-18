@@ -16,6 +16,7 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedPosition;
+	[SerializeField] private int _survivedTurnedCount;
 
 	private TileGroup selectedTileGroup;
 	private bool canPlaceSelectedTileGroup;
@@ -33,11 +34,17 @@ public class GameManager : Singleton<GameManager> {
 	/// </summary>
 	public bool IsTileGroupSelected => selectedTileGroup != null;
 
+	/// <summary>
+	/// The number of turns that the player has currently survived
+	/// </summary>
+	public int SurvivedTurnCount { get => _survivedTurnedCount; private set => _survivedTurnedCount = value; }
+
 	protected override void Awake ( ) {
 		base.Awake( );
 
 		animationTimer = 0;
 		CurrentAnimationFrame = 0;
+		SurvivedTurnCount = 0;
 	}
 
 	private void Start ( ) {
@@ -72,7 +79,8 @@ public class GameManager : Singleton<GameManager> {
 			}
 
 			// If the left mouse button is pressed, then deselect the tile group and place it where it currently is positioned
-			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0)) {
+			// Make sure the tile group is not at its starting position either
+			if (canPlaceSelectedTileGroup && Input.GetMouseButtonDown(0) && !selectedTileGroup.IsAtSavedTileState) {
 				// Update the center of the board because tiles were moved
 				BoardManager.Instance.RecalculateCenter( );
 
@@ -84,13 +92,7 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the right mouse button is pressed, deselect the tile group and reset its position
 			if (Input.GetMouseButtonDown(1)) {
-				// Reset all of the tiles back to where they originally were
-				foreach (Tile tile in selectedTileGroup.Tiles) {
-					tile.BoardPosition = tile.ResetPosition;
-				}
-
-				// Since all of the tiles were moved, recalculate all of the tile sprites
-				// selectedTileGroup.RecalculateTileSprites( );
+				selectedTileGroup.ResetTileStates( );
 
 				SelectTileGroup(null);
 			}
@@ -105,6 +107,11 @@ public class GameManager : Singleton<GameManager> {
 	public void SelectTileGroup (TileGroup tileGroup, Tile originTile = null) {
 		// If the selected tile group is trying to be set to the same value, then return and do nothing
 		if (selectedTileGroup == tileGroup) {
+			return;
+		}
+
+		// If the current gamestate is not the player's turn, then do not let the player select a tile group
+		if (gameState != GameState.PLAYER_TURN) {
 			return;
 		}
 
@@ -143,7 +150,7 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the searched tile groups count is less than 1 less than all of the tile groups, then this tile group cannot be removed
 			// This means that when the current tile group is removed, all of the remaining tile groups will not connect together
-			if (searchedTileGroups.Count < BoardManager.Instance.TileGroupCount - 1) {
+			if (searchedTileGroups.Count < BoardManager.Instance.TileGroups.Count - 1) {
 				return;
 			}
 		}
@@ -162,6 +169,9 @@ public class GameManager : Singleton<GameManager> {
 			// Select the origin tile
 			selectedTileGroup.OriginTile = originTile;
 			lastSelectedPosition = originTile.BoardPosition;
+
+			// Now that this tile group is selected, save the states of its tiles
+			selectedTileGroup.SaveTileStates( );
 		}
 
 		canPlaceSelectedTileGroup = false;
@@ -172,27 +182,13 @@ public class GameManager : Singleton<GameManager> {
 	/// </summary>
 	/// <param name="gameState">The new game state to set the game to</param>
 	public void SetGameState (GameState gameState) {
-		/// TODO: This definitely needs to be an IEnumerator at some point so animations can play
-
 		// If the game state is being set to the same value, return and do nothing
 		if (this.gameState == gameState) {
 			return;
 		}
 
-		// Do specific things when switching off of the old game state
-		switch (this.gameState) {
-			case GameState.PLAYER_TURN:
-				/// TODO: Update all entity turn counts
-
-				break;
-			case GameState.ENTITY_TURN:
-				/// TODO: Spawn more entities
-
-				break;
-			case GameState.GAME_OVER:
-				break;
-		}
-
+		// Save the old gamestate as there are certain things that we might want to do based on it
+		GameState oldGameState = this.gameState;
 		this.gameState = gameState;
 
 		// Do specific things based on the new game state
@@ -204,9 +200,16 @@ public class GameManager : Singleton<GameManager> {
 			case GameState.PLAYER_TURN:
 				/// TODO: Display player turn text
 
+				// Since the player has survived the entity turn, increment the number of survived rounds
+				if (oldGameState == GameState.ENTITY_TURN) {
+					SurvivedTurnCount++;
+				}
+
 				break;
 			case GameState.ENTITY_TURN:
 				/// TODO: Display entity turn text
+
+				EntityManager.Instance.UpdateEntityTurns( );
 
 				break;
 			case GameState.GAME_OVER:
@@ -235,9 +238,7 @@ public class GameManager : Singleton<GameManager> {
 
 			// Update all of the tiles if they need to be animated
 			// If there are no subscribed events, this throws an error
-			if (OnAnimationFrame != null) {
-				OnAnimationFrame( );
-			}
+			OnAnimationFrame?.Invoke( );
 		}
 	}
 }

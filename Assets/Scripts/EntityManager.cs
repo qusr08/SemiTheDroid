@@ -10,10 +10,14 @@ public class EntityManager : Singleton<EntityManager> {
 	[SerializeField] private GameObject robotPrefab;
 	[SerializeField] private GameObject laserPrefab;
 	[SerializeField] private GameObject bombPrefab;
+	[Header("Properties")]
+	[SerializeField, Min(1)] private int minStartingTurnCount;
+	[SerializeField, Min(1)] private int maxStartingTurnCount;
 	[Header("Information")]
 	[SerializeField] private Entity _hoveredEntity;
 	[SerializeField] private List<Vector2Int> _shownHazardPositions;
 	[SerializeField] private List<Entity> _entities;
+	[SerializeField] private List<Entity> _entityTurnQueue;
 
 	/// <summary>
 	/// The current entity that is being hovered
@@ -38,6 +42,11 @@ public class EntityManager : Singleton<EntityManager> {
 	public List<Entity> Entities { get => _entities; private set => _entities = value; }
 
 	/// <summary>
+	/// A list used as queue that holds the order in which entities will execute their turns
+	/// </summary>
+	public List<Entity> EntityTurnQueue { get => _entityTurnQueue; private set => _entityTurnQueue = value; }
+
+	/// <summary>
 	/// A list of all the board positions that are currently being shown as a hazard
 	/// </summary>
 	public List<Vector2Int> ShownHazardPositions { get => _shownHazardPositions; private set => _shownHazardPositions = value; }
@@ -47,6 +56,7 @@ public class EntityManager : Singleton<EntityManager> {
 
 		Entities = new List<Entity>( );
 		ShownHazardPositions = new List<Vector2Int>( );
+		EntityTurnQueue = new List<Entity>( );
 	}
 
 	/// <summary>
@@ -60,35 +70,57 @@ public class EntityManager : Singleton<EntityManager> {
 		switch (entityType) {
 			case EntityType.SPIKE:
 				newEntity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity.TurnsUntilAction = -1;
 
 				break;
 			case EntityType.ROBOT:
 				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
-
-				// Set entity variables that are specific to robots
-				newEntity.FacingDirection = BoardManager.Instance.GetCardinalPositions(Vector2Int.zero)[Random.Range(0, 4)];
+				newEntity.Direction = BoardManager.Instance.GetCardinalPositions(Vector2Int.zero)[Random.Range(0, 4)];
 				newEntity.TurnsUntilAction = 1;
 
 				break;
 			case EntityType.LASER:
 				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Laser>( );
-
-				// Set entity variables that are specific to lasers
-				newEntity.FacingDirection = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.left }[Random.Range(0, 2)];
-				newEntity.TurnsUntilAction = 3;
+				newEntity.Direction = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.left }[Random.Range(0, 2)];
+				newEntity.TurnsUntilAction = GetRandomTurnCount( );
 
 				break;
 			case EntityType.BOMB:
 				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Bomb>( );
-
-				// Set entity variables that are specific to bombs
-				newEntity.TurnsUntilAction = 3;
+				newEntity.TurnsUntilAction = GetRandomTurnCount( );
 
 				break;
 		}
 
 		// Set entity variables that are the same for every entity
 		newEntity.Tile = tile;
+		newEntity.TurnOrder = 1;
+
+		// If there are no entities spawned yet, just add the new entity to the list, there is no need to sort it
+		if (Entities.Count == 0) {
+			Entities.Add(newEntity);
+			return;
+		}
+
+		// Loop through all of the entities on the board to sort the new entity by its turn count and turn order
+		// Lower turn counts are closer towards the start of the array and within that turn the lowest turn order is closer to the start as well
+		// So, the entity closest to the start of the array is the next entity to perform their action
+		for (int i = 0; i <= Entities.Count; i++) {
+			// If the current entity's turn count is higher than the new entities turn count, then insert the new entity at the current index
+			if (i == Entities.Count) {
+				// If the end of the entity array has been reached, just add the new entity to the end
+				Entities.Add(newEntity);
+				break;
+			} else if (Entities[i].TurnsUntilAction > newEntity.TurnsUntilAction) {
+				// If the entity needs to be added to the middle of the array, insert it
+				Entities.Insert(i, newEntity);
+				break;
+			} else if (Entities[i].TurnsUntilAction == newEntity.TurnsUntilAction) {
+				// If the current entity has the same turn count as the new entity, then increment the turn order of the new entity
+				// This will make the new entity go after all previously spawned entities with the same remaining turn count
+				newEntity.TurnOrder++;
+			}
+		}
 	}
 
 	/// <summary>
@@ -126,5 +158,44 @@ public class EntityManager : Singleton<EntityManager> {
 		foreach (Tile newHazardTile in BoardManager.Instance.SearchForTilesAt(hazardPositionsToAdd)) {
 			newHazardTile.TileOverlayState = TileOverlayState.HAZARD;
 		}
+	}
+
+	/// <summary>
+	/// Perform all entity turns based on their turn order and turn count
+	/// </summary>
+	public void UpdateEntityTurns ( ) {
+		// Copy the order of the entities over to the turn list
+		// The entities should already be order from next to move to last to move
+		EntityTurnQueue = new List<Entity>(Entities);
+
+		// While there are entities that need to take their turns, continue looping
+		while (EntityTurnQueue.Count > 0) {
+			// Get the next entity in the queue and remove it from the queue
+			Entity nextEntity = EntityTurnQueue[0];
+			EntityTurnQueue.RemoveAt(0);
+
+			// Perform that entities action
+			nextEntity.PerformTurn( );
+		}
+
+		// Since the entities were updated, update the shown hazard tiles
+		UpdateShownHazardPositions( );
+
+		// Once the entity turn is finished, switch the turn back to the player
+		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
+	}
+
+	/// <summary>
+	/// Get a random turn count for an entity that is scaled to the board difficulty
+	/// </summary>
+	/// <returns>A random integer that is the turn count</returns>
+	public int GetRandomTurnCount ( ) {
+		// Get a range value to scale the difficulty of the board based on the survived turn count
+		float rangeValue = maxStartingTurnCount * Mathf.Exp(-GameManager.Instance.SurvivedTurnCount * 0.04f);
+
+		// Get a random number between the range of +-1 of the range value
+		// Round that number up to the nearest int
+		// Clamp the value between the min and max turn count
+		return Mathf.Clamp(Mathf.CeilToInt(Random.Range(rangeValue - 1f, rangeValue + 1f)), minStartingTurnCount, maxStartingTurnCount);
 	}
 }

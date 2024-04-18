@@ -14,6 +14,11 @@ Game Controls:
 - Press right click to return the picked up tile group to its original position
 - Press left click while a tile group is picked up to place it down on the board and end the player's turn
 
+- Press r to regenerate board
+
+To Do:
+- Need to make methods IEnumerators so that way animations can play
+
 */
 
 public class BoardManager : Singleton<BoardManager> {
@@ -38,11 +43,6 @@ public class BoardManager : Singleton<BoardManager> {
 	/// A list of all the tile groups on the board
 	/// </summary>
 	public List<TileGroup> TileGroups { get => _tileGroups; private set => _tileGroups = value; }
-
-	/// <summary>
-	/// The number of tile groups on the board
-	/// </summary>
-	public int TileGroupCount => TileGroups.Count;
 
 	/// <summary>
 	/// The total number of tiles on the board
@@ -194,7 +194,7 @@ public class BoardManager : Singleton<BoardManager> {
 
 		// Spawn a test laser and bomb
 		EntityManager.Instance.SpawnEntity(EntityType.LASER, GetRandomTile(ignoreEntityTiles: true));
-		EntityManager.Instance.SpawnEntity(EntityType.BOMB, GetRandomTile(ignoreEntityTiles: true));
+		EntityManager.Instance.SpawnEntity(EntityType.LASER, GetRandomTile(ignoreEntityTiles: true));
 
 		// The player gets to move first
 		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
@@ -310,10 +310,11 @@ public class BoardManager : Singleton<BoardManager> {
 	/// Search for tiles at specific board positions
 	/// </summary>
 	/// <param name="boardPositions">The list of positions to search for</param>
+	/// <param name="onlyEntityTiles">If true, the returned list will only have tiles that have entities on them</param>
 	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
 	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
 	/// <returns>A list of all the tiles that were found at the specified board positions</returns>
-	public List<Tile> SearchForTilesAt (List<Vector2Int> boardPositions, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+	public List<Tile> SearchForTilesAt (List<Vector2Int> boardPositions, bool onlyEntityTiles = false, List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
 		// Create a list that has all of the found tiles in it
 		List<Tile> foundTiles = new List<Tile>( );
 
@@ -331,7 +332,7 @@ public class BoardManager : Singleton<BoardManager> {
 
 			foreach (Tile tile in tileGroup.Tiles) {
 				// If the board positions array contains the current board position, then add it to the found tiles list
-				if (boardPositions.Contains(tile.BoardPosition)) {
+				if (((onlyEntityTiles && tile.Entity != null) || !onlyEntityTiles) && boardPositions.Contains(tile.BoardPosition)) {
 					// Add the tile to the found tiles list
 					foundTiles.Add(tile);
 

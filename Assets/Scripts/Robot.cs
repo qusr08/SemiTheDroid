@@ -9,11 +9,11 @@ public class Robot : Entity {
 	[SerializeField] private Sprite[ ] arrowSprites;
 	[SerializeField] private Sprite[ ] robotSprites;
 
-	protected override void SetFacingDirection (Vector2Int facingDirection) {
-		base.SetFacingDirection(facingDirection);
+	protected override void SetDirection (Vector2Int facingDirection) {
+		base.SetDirection(facingDirection);
 
 		// Set the position of the arrow to be at the new facing direction
-		arrowTransform.localPosition = BoardManager.Instance.BoardToWorldPosition(FacingDirection);
+		arrowTransform.localPosition = BoardManager.Instance.BoardToWorldPosition(Direction);
 
 		// Make sure the arrow and robot are facing the right direction and have the right sprite
 		arrowSpriteRenderer.flipX = entitySpriteRenderer.flipX = isFacingLeft;
@@ -29,9 +29,24 @@ public class Robot : Entity {
 		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 	}
 
-	public override void PerformAction ( ) {
-		throw new System.NotImplementedException( );
+	public override void PerformTurn ( ) {
+		// If this robot is killed, then return from the function
+		if (isKilled) {
+			return;
+		}
+
 	}
 
 	protected override void UpdateHazardPositions ( ) { }
+
+	public override void Kill ( ) {
+		isKilled = true;
+		EntityManager.Instance.EntityTurnQueue.Remove(this);
+
+		// TODO: Play animation of robot exploding
+
+		Destroy(gameObject);
+
+		GameManager.Instance.SetGameState(GameState.GAME_OVER);
+	}
 }

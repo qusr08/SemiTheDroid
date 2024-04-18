@@ -172,6 +172,7 @@ MonoBehaviour:
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
+  _survivedTurnedCount: 0
 --- !u!1 &325865078
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,6 +367,8 @@ MonoBehaviour:
   robotPrefab: {fileID: 247667915643608723, guid: fa8cb02fd4cb67c4797e3885166bfe42, type: 3}
   laserPrefab: {fileID: 2640157172760107758, guid: 9b303c59bf9604a468e7840bf04a8fce, type: 3}
   bombPrefab: {fileID: 2220241697670459418, guid: cfc16c3b6f0b5ed4da58beac0f4466c8, type: 3}
+  minStartingTurnCount: 1
+  maxStartingTurnCount: 3
   _hoveredEntity: {fileID: 0}
   _shownHazardPositions: []
   _entities: []

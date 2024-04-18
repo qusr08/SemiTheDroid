@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ public class TileGroup {
 	private TileState _tileGroupState;
 	private Tile _originTile;
 	private List<Tile> originTileOrder;
+	private List<Vector2Int> tileResetPositions;
+	private List<Vector2Int> entityResetDirections;
 
 	/// <summary>
 	/// A list of all the tiles that are a part of this tile group
@@ -67,6 +70,24 @@ public class TileGroup {
 	}
 
 	/// <summary>
+	/// Whether or not this tile group is at its last saved state or not
+	/// </summary>
+	public bool IsAtSavedTileState {
+		get {
+			// Loop through all the tiles in this tile group
+			for (int i = 0; i < Tiles.Count; i++) {
+				// If the current position of one of the tiles is not equal to its corresponding reset position, then the tile position has moved from its last saved state
+				if (Tiles[i].BoardPosition != tileResetPositions[i]) {
+					return false;
+				}
+			}
+
+			// If all tiles are at the same board position, then the tile group is currently at its last saved state
+			return true;
+		}
+	}
+
+	/// <summary>
 	/// The state of this tile group
 	/// </summary>
 	public TileState TileGroupState {
@@ -86,12 +107,14 @@ public class TileGroup {
 	/// </summary>
 	public TileGroup ( ) {
 		Tiles = new List<Tile>( );
+		tileResetPositions = new List<Vector2Int>( );
+		entityResetDirections = new List<Vector2Int>( );
 	}
 
 	/// <summary>
 	/// Try to move this tile group to a specific board position
 	/// </summary>
-	/// <param name="movementDirection">The direction to move all of the tiles in this tile group by</param>
+	/// <param name="boardPosition">The board position to move all of the tiles in this tile group to</param>
 	/// <param name="rotationDirection">The direction to rotate the tile group around the origin tile by 90 degrees</param>
 	/// <returns>true if the tile group successfully moved to the specified board position, false otherwise</returns>
 	public bool TryMoveAndRotate (Vector2Int boardPosition, int rotationDirection) {
@@ -129,7 +152,7 @@ public class TileGroup {
 					// If the tile being moved has an entity on it, rotate the entity along with the tile group
 					Entity tileEntity = Tiles[i].Entity;
 					if (tileEntity != null) {
-						tileEntity.FacingDirection = Utilities.Vector2IntRotateAround(tileEntity.FacingDirection, Vector2Int.zero, rotationDirection);
+						tileEntity.Direction = Utilities.Vector2IntRotateAround(tileEntity.Direction, Vector2Int.zero, rotationDirection);
 					}
 				}
 
@@ -153,10 +176,6 @@ public class TileGroup {
 		return false;
 	}
 
-	public bool TryRotate (int rotateDirection) {
-		return false;
-	}
-
 	/// <summary>
 	/// Recalculate all of the tile sprites inside of this tile group
 	/// </summary>
@@ -164,5 +183,36 @@ public class TileGroup {
 		foreach (Tile tile in Tiles) {
 			tile.RecalculateTileSprite( );
 		}
+	}
+
+	/// <summary>
+	/// Save the state of the tiles in this tile group. NOTE: This only works if the Tiles array never changes order
+	/// </summary>
+	public void SaveTileStates ( ) {
+		// Clear any previous saved positions
+		tileResetPositions.Clear( );
+		entityResetDirections.Clear( );
+
+		// Loop through all the tiles in this tile group
+		foreach (Tile tile in Tiles) {
+			tileResetPositions.Add(tile.BoardPosition);
+			entityResetDirections.Add(tile.Entity == null ? Vector2Int.zero : tile.Entity.Direction);
+		}
+	}
+
+	/// <summary>
+	/// Reset the state of the tiles in this tile group. NOTE: This only works if the Tiles array never changes order
+	/// </summary>
+	public void ResetTileStates ( ) {
+		for (int i = 0; i < Tiles.Count; i++) {
+			Tiles[i].BoardPosition = tileResetPositions[i];
+
+			if (Tiles[i].Entity != null) {
+				Tiles[i].Entity.Direction = entityResetDirections[i];
+			}
+		}
+
+		// Since all of the tiles were moved, recalculate all of the tile sprites
+		RecalculateTileSprites( );
 	}
 }

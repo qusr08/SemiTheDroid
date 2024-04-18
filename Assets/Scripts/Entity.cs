@@ -15,9 +15,10 @@ public abstract class Entity : MonoBehaviour {
 	[SerializeField] private EntityType _entityType;
 	[Header("Information")]
 	[SerializeField] private Tile _tile;
-	[SerializeField] private Vector2Int _facingDirection;
+	[SerializeField] private Vector2Int _direction;
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private List<Vector2Int> _hazardPositions;
+	[SerializeField] protected bool isKilled;
 
 	protected bool isFacingUp;
 	protected bool isFacingLeft;
@@ -46,7 +47,7 @@ public abstract class Entity : MonoBehaviour {
 	/// <summary>
 	/// The direction that this entity is currently facing
 	/// </summary>
-	public Vector2Int FacingDirection { get => _facingDirection; set => SetFacingDirection(value); }
+	public Vector2Int Direction { get => _direction; set => SetDirection(value); }
 
 	/// <summary>
 	/// The type of this entity
@@ -61,32 +62,24 @@ public abstract class Entity : MonoBehaviour {
 	/// <summary>
 	/// The number of turns until this entity does its action
 	/// </summary>
-	public int TurnsUntilAction {
-		get => _turnsUntilAction;
-		set {
-			_turnsUntilAction = value;
-		}
-	}
+	public int TurnsUntilAction { get => _turnsUntilAction; set => _turnsUntilAction = value; }
 
 	/// <summary>
 	/// The order within the actions taking place on this entities turn that this entity will act
 	/// </summary>
-	public int TurnOrder {
-		get => _turnOrder;
-		set {
-			_turnOrder = value;
-		}
-	}
+	public int TurnOrder { get => _turnOrder; set => _turnOrder = value; }
 
 	private void Awake ( ) {
 		HazardPositions = new List<Vector2Int>( );
-	}
-
-	private void Start ( ) {
-		EntityManager.Instance.Entities.Add(this);
+		isKilled = false;
 	}
 
 	protected void OnMouseEnter ( ) {
+		// If there is currently a selected tile group, then entities should not be able to be hovered
+		if (GameManager.Instance.IsTileGroupSelected) {
+			return;
+		}
+
 		// Set the entity that is being hovered to this entity
 		EntityManager.Instance.HoveredEntity = this;
 	}
@@ -102,7 +95,7 @@ public abstract class Entity : MonoBehaviour {
 	}
 
 	private void OnDestroy ( ) {
-		// If the entity manager still exists, then remove this entity from the main entity list
+		// If the entity manager still exists, then remove this entity from the main entity lists
 		if (EntityManager.Instance != null) {
 			EntityManager.Instance.Entities.Remove(this);
 		}
@@ -131,17 +124,17 @@ public abstract class Entity : MonoBehaviour {
 	/// Set the direction that this entity is facing
 	/// </summary>
 	/// <param name="facingDirection"></param>
-	protected virtual void SetFacingDirection (Vector2Int facingDirection) {
+	protected virtual void SetDirection (Vector2Int facingDirection) {
 		// If the facing direction is equal to 0 or it is being set to the same facing direction, then return
-		if (facingDirection == Vector2Int.zero || _facingDirection == facingDirection) {
+		if (facingDirection == Vector2Int.zero || _direction == facingDirection) {
 			return;
 		}
 
-		_facingDirection = facingDirection;
+		_direction = facingDirection;
 
 		// Recalculate if the entity is facing up or left
-		isFacingUp = (FacingDirection.x < 0 || FacingDirection.y > 0);
-		isFacingLeft = (FacingDirection.x < 0 || FacingDirection.y < 0);
+		isFacingUp = (Direction.x < 0 || Direction.y > 0);
+		isFacingLeft = (Direction.x < 0 || Direction.y < 0);
 
 		// Since the direction of this entity has changed, update the hazard board positions
 		UpdateHazardPositions( );
@@ -155,5 +148,10 @@ public abstract class Entity : MonoBehaviour {
 	/// <summary>
 	/// A custom action that this entity performs when it is its turn
 	/// </summary>
-	public abstract void PerformAction ( );
+	public abstract void PerformTurn ( );
+
+	/// <summary>
+	/// A function called whenever this entity is killed on the board
+	/// </summary>
+	public abstract void Kill ( );
 }
