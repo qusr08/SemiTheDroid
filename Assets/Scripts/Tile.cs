@@ -162,10 +162,16 @@ public class Tile : MonoBehaviour {
 	}
 
 	private void OnMouseEnter ( ) {
+		// If it is not the player's turn, do not change the tile state
+		if (GameManager.Instance.GameState != GameState.PLAYER_TURN) {
+			return;
+		}
+
 		// Do not update the hover state while there is a selected tile group
 		if (GameManager.Instance.IsTileGroupSelected) {
 			return;
 		}
+
 
 		TileGroup.TileGroupState = TileState.HOVERED;
 	}
@@ -180,6 +186,11 @@ public class Tile : MonoBehaviour {
 	}
 
 	private void OnMouseDown ( ) {
+		// If it is not the player's turn, do not change the tile state
+		if (GameManager.Instance.GameState != GameState.PLAYER_TURN) {
+			return;
+		}
+
 		// If there is already a selected tile group, then do not select another tile group
 		if (GameManager.Instance.IsTileGroupSelected) {
 			return;

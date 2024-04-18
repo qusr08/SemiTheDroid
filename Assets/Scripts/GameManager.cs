@@ -11,7 +11,7 @@ public enum GameState {
 public class GameManager : Singleton<GameManager> {
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
-	[SerializeField] private GameState gameState;
+	[SerializeField] private GameState _gameState;
 	[Header("Information")]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
@@ -38,6 +38,11 @@ public class GameManager : Singleton<GameManager> {
 	/// The number of turns that the player has currently survived
 	/// </summary>
 	public int SurvivedTurnCount { get => _survivedTurnedCount; private set => _survivedTurnedCount = value; }
+
+	/// <summary>
+	/// The current gamestate of the game
+	/// </summary>
+	public GameState GameState { get => _gameState; private set => _gameState = value; }
 
 	protected override void Awake ( ) {
 		base.Awake( );
@@ -111,7 +116,7 @@ public class GameManager : Singleton<GameManager> {
 		}
 
 		// If the current gamestate is not the player's turn, then do not let the player select a tile group
-		if (gameState != GameState.PLAYER_TURN) {
+		if (GameState != GameState.PLAYER_TURN) {
 			return;
 		}
 
@@ -183,16 +188,16 @@ public class GameManager : Singleton<GameManager> {
 	/// <param name="gameState">The new game state to set the game to</param>
 	public void SetGameState (GameState gameState) {
 		// If the game state is being set to the same value, return and do nothing
-		if (this.gameState == gameState) {
+		if (GameState == gameState) {
 			return;
 		}
 
 		// Save the old gamestate as there are certain things that we might want to do based on it
-		GameState oldGameState = this.gameState;
-		this.gameState = gameState;
+		GameState oldGameState = GameState;
+		GameState = gameState;
 
 		// Do specific things based on the new game state
-		switch (this.gameState) {
+		switch (GameState) {
 			case GameState.GENERATE:
 				BoardManager.Instance.Generate( );
 

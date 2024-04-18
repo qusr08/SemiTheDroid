@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationSpeed: 0.25
-  gameState: 3
+  _gameState: 3
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
@@ -372,6 +372,7 @@ MonoBehaviour:
   _hoveredEntity: {fileID: 0}
   _shownHazardPositions: []
   _entities: []
+  _entityTurnQueue: []
 --- !u!4 &660324052
 Transform:
   m_ObjectHideFlags: 0

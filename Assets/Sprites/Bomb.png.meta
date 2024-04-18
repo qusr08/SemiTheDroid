@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a433673b56ebb234b84296c2466e7dbf
+guid: 1231b0ff1cdca5e4cb131f38fef51f30
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,36 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Robot_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape:
-      - - {x: -14, y: -2}
-        - {x: -12, y: -9}
-        - {x: 5, y: -15}
-        - {x: 12, y: -12}
-        - {x: 14, y: -4}
-        - {x: 8, y: 15}
-        - {x: -1, y: 19}
-        - {x: -8, y: 17}
-      tessellationDetail: 0
-      bones: []
-      spriteID: 7c8cc0135444ee549843fe9f85510452
-      internalID: 2119139419
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Robot_1
+      name: Bomb_0
       rect:
         serializedVersion: 2
         x: 0
@@ -164,66 +135,20 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape:
-      - - {x: -14, y: -4}
-        - {x: -12, y: -12}
-        - {x: -5, y: -15}
-        - {x: 12, y: -9}
-        - {x: 14, y: -2}
-        - {x: 8, y: 17}
-        - {x: 1, y: 19}
-        - {x: -8, y: 15}
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
       tessellationDetail: 0
       bones: []
-      spriteID: dac1a0b0cd0020d41b08dad080ede634
-      internalID: 336213288
+      spriteID: d741c80605766e545b4ff25429e01f16
+      internalID: 2141705554
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Robot_2
-      rect:
-        serializedVersion: 2
-        x: 54
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 32260f58f4b2d7c4c9ecabb326fb4e83
-      internalID: -604085242
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Robot_3
-      rect:
-        serializedVersion: 2
-        x: 108
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 184fdcf963dec114786f3258eb956226
-      internalID: -2108350682
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Robot_4
+      name: Bomb_1
       rect:
         serializedVersion: 2
         x: 54
@@ -234,17 +159,21 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
       tessellationDetail: 0
       bones: []
-      spriteID: 032d1096b9c9cfb4c86d614fe59dda5f
-      internalID: -117275815
+      spriteID: 7cd2d744e8035464e868a5cef75013ae
+      internalID: -1930496404
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Robot_5
+      name: Bomb_2
       rect:
         serializedVersion: 2
         x: 108
@@ -255,11 +184,140 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
       tessellationDetail: 0
       bones: []
-      spriteID: 713ae5085a0449947aea575ae7aef62b
-      internalID: -1432799965
+      spriteID: 06ce306c2cd2642419a28f071256c70a
+      internalID: 990877838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_3
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: e9d90b9b7880cdf4a81855315d31e134
+      internalID: 1495158670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_4
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4b7932bcf92d6a49a8c00692d2ab7c0
+      internalID: -527170166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_5
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 392915bfd58cd0c49bbecacaeb5399eb
+      internalID: 1398392161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_6
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1b3673e49051239498855060c3fdc4cb
+      internalID: 1207634741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_7
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e26fc30fec164540a205e25e1d5b33e
+      internalID: -1463995239
       vertices: []
       indices: 
       edges: []
@@ -275,12 +333,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Robot_0: 2119139419
-      Robot_1: 336213288
-      Robot_2: -604085242
-      Robot_3: -2108350682
-      Robot_4: -117275815
-      Robot_5: -1432799965
+      Bomb_0: 2141705554
+      Bomb_1: -1930496404
+      Bomb_2: 990877838
+      Bomb_3: 1495158670
+      Bomb_4: -527170166
+      Bomb_5: 1398392161
+      Bomb_6: 1207634741
+      Bomb_7: -1463995239
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

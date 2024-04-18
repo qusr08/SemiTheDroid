@@ -76,7 +76,7 @@ public abstract class Entity : MonoBehaviour {
 
 	protected void OnMouseEnter ( ) {
 		// If there is currently a selected tile group, then entities should not be able to be hovered
-		if (GameManager.Instance.IsTileGroupSelected) {
+		if (GameManager.Instance.GameState != GameState.PLAYER_TURN) {
 			return;
 		}
 

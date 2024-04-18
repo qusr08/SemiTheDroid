@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a433673b56ebb234b84296c2466e7dbf
+guid: f41c192b508c33b4188f7314caa11016
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,36 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Robot_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape:
-      - - {x: -14, y: -2}
-        - {x: -12, y: -9}
-        - {x: 5, y: -15}
-        - {x: 12, y: -12}
-        - {x: 14, y: -4}
-        - {x: 8, y: 15}
-        - {x: -1, y: 19}
-        - {x: -8, y: 17}
-      tessellationDetail: 0
-      bones: []
-      spriteID: 7c8cc0135444ee549843fe9f85510452
-      internalID: 2119139419
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Robot_1
+      name: Laser_0
       rect:
         serializedVersion: 2
         x: 0
@@ -164,66 +135,20 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape:
-      - - {x: -14, y: -4}
-        - {x: -12, y: -12}
-        - {x: -5, y: -15}
-        - {x: 12, y: -9}
-        - {x: 14, y: -2}
-        - {x: 8, y: 17}
-        - {x: 1, y: 19}
-        - {x: -8, y: 15}
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
       tessellationDetail: 0
       bones: []
-      spriteID: dac1a0b0cd0020d41b08dad080ede634
-      internalID: 336213288
+      spriteID: 4228c6c5aa945034ab5fad284fdb19dd
+      internalID: -87410984
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Robot_2
-      rect:
-        serializedVersion: 2
-        x: 54
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 32260f58f4b2d7c4c9ecabb326fb4e83
-      internalID: -604085242
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Robot_3
-      rect:
-        serializedVersion: 2
-        x: 108
-        y: 72
-        width: 54
-        height: 72
-      alignment: 9
-      pivot: {x: 0.5, y: 0.25}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 184fdcf963dec114786f3258eb956226
-      internalID: -2108350682
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Robot_4
+      name: Laser_1
       rect:
         serializedVersion: 2
         x: 54
@@ -234,17 +159,21 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
       tessellationDetail: 0
       bones: []
-      spriteID: 032d1096b9c9cfb4c86d614fe59dda5f
-      internalID: -117275815
+      spriteID: cea14c5b04f5745479cdf78fefb74b5f
+      internalID: -322697439
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Robot_5
+      name: Laser_2
       rect:
         serializedVersion: 2
         x: 108
@@ -255,11 +184,140 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
       tessellationDetail: 0
       bones: []
-      spriteID: 713ae5085a0449947aea575ae7aef62b
-      internalID: -1432799965
+      spriteID: 760adac519398304ca8498f28d2c3f50
+      internalID: -1648308242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Laser_3
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4a85cdb27081484408bc9ba6db9bf0bb
+      internalID: 1924904950
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Laser_4
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8bfedc44c30a9934cb76bd02fe27ebcb
+      internalID: 615187047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Laser_5
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: d9cc9dde3282e904f95494809f415772
+      internalID: -72306736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Laser_6
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 98f54b049a5cc8f40b0c842ef73642bd
+      internalID: 1732466579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Laser_7
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: -12, y: 12}
+        - {x: -12, y: -22}
+        - {x: 12, y: -22}
+        - {x: 12, y: 12}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81c0a580d39c5ec49a47147e3856e52e
+      internalID: 2042422731
       vertices: []
       indices: 
       edges: []
@@ -275,12 +333,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Robot_0: 2119139419
-      Robot_1: 336213288
-      Robot_2: -604085242
-      Robot_3: -2108350682
-      Robot_4: -117275815
-      Robot_5: -1432799965
+      Laser_0: -87410984
+      Laser_1: -322697439
+      Laser_2: -1648308242
+      Laser_3: 1924904950
+      Laser_4: 615187047
+      Laser_5: -72306736
+      Laser_6: 1732466579
+      Laser_7: 2042422731
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

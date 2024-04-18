@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a7323475ba527aa45b8da540b5fdede2, type: 3}
+  m_Sprite: {fileID: 2042422731, guid: f41c192b508c33b4188f7314caa11016, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -154,6 +154,7 @@ MonoBehaviour:
   _turnOrder: 0
   _entityType: 2
   _tile: {fileID: 0}
-  _facingDirection: {x: 0, y: 0}
+  _direction: {x: 0, y: 0}
   _boardPosition: {x: 0, y: 0}
   _hazardPositions: []
+  isKilled: 0

@@ -182,7 +182,11 @@ public class EntityManager : Singleton<EntityManager> {
 		UpdateShownHazardPositions( );
 
 		// Once the entity turn is finished, switch the turn back to the player
-		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
+		// If the robot was destroyed, then the game state should not be the entities turn anymore and should be in the game over state
+		// Only switch the state if that did not happen
+		if (GameManager.Instance.GameState == GameState.ENTITY_TURN) {
+			GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
+		}
 	}
 
 	/// <summary>
