@@ -77,6 +77,7 @@ public class Robot : Entity {
 	public override void Kill ( ) {
 		isKilled = true;
 		EntityManager.Instance.EntityTurnQueue.Remove(this);
+		EntityManager.Instance.Entities.Remove(this);
 
 		// TODO: Play animation of robot exploding
 

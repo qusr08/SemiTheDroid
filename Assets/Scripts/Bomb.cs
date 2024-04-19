@@ -32,6 +32,7 @@ public class Bomb : Entity {
 	public override void Kill ( ) {
 		isKilled = true;
 		EntityManager.Instance.EntityTurnQueue.Remove(this);
+		EntityManager.Instance.Entities.Remove(this);
 
 		// Immediately perform this bomb's turn if it is killed
 		// This will cause the bomb to explode
