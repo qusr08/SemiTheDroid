@@ -11,6 +11,9 @@ public enum GameState {
 public class GameManager : Singleton<GameManager> {
 	[Header("References")]
 	[SerializeField] private TextMeshProUGUI turnCountText;
+	[SerializeField] private GameObject pauseMenu;
+	[SerializeField] private GameObject gameOverMenu;
+	[SerializeField] private TextMeshProUGUI statsText;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
 	[SerializeField] private GameState _gameState;
@@ -20,12 +23,20 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedPosition;
 	[SerializeField] private int _turnCount;
+	[SerializeField] private int _lasersDestroyed;
+	[SerializeField] private bool isPaused;
+	[SerializeField] private float startTime;
 
 	private TileGroup selectedTileGroup;
 	private bool canPlaceSelectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
 	public event OnAnimationFrameEvent OnAnimationFrame;
+
+	/// <summary>
+	/// A stat value to track how many lasers were destroyed
+	/// </summary>
+	public int LasersDestroyed { get => _lasersDestroyed; set => _lasersDestroyed = value; }
 
 	/// <summary>
 	/// The difficulty scaling value
@@ -65,6 +76,8 @@ public class GameManager : Singleton<GameManager> {
 		animationTimer = 0;
 		CurrentAnimationFrame = 0;
 		TurnCount = 0;
+		isPaused = false;
+		startTime = Time.time;
 	}
 
 	private void Start ( ) {
@@ -72,6 +85,11 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	private void Update ( ) {
+		// Have the escape be to toggle the paused state
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			SetPauseState(!isPaused);
+		}
+
 		UpdateAnimationFrame( );
 
 		// Update the selected tile group's position if there is one selected
@@ -132,6 +150,11 @@ public class GameManager : Singleton<GameManager> {
 
 		// If the current gamestate is not the player's turn, then do not let the player select a tile group
 		if (GameState != GameState.PLAYER_TURN) {
+			return;
+		}
+
+		// Do not do anything while the game is paused
+		if (isPaused) {
 			return;
 		}
 
@@ -236,14 +259,23 @@ public class GameManager : Singleton<GameManager> {
 				EntityManager.Instance.UpdateEntityTurns( );
 
 				// Spawn new random entities in
-				EntityManager.Instance.SpawnRandomEntities( );
+				// Make sure entities are never spawned on the same tile group has the robot
+				EntityManager.Instance.SpawnRandomEntities(excludedTileGroups: new List<TileGroup>( ) { EntityManager.Instance.Robot.Tile.TileGroup });
 
 				break;
 			case GameState.GAME_OVER:
-				/// TODO: Display game over text
+				statsText.text = $"Turns survived: {TurnCount}\nLasers destroyed: {LasersDestroyed}\nTotal run time: {(int) (Time.time - startTime)} seconds";
+				gameOverMenu.SetActive(true);
 
 				break;
 		}
+	}
+
+	public void SetPauseState (bool isPaused) {
+		this.isPaused = isPaused;
+
+		// Set the pause menu visibility based on the pause state
+		pauseMenu.SetActive(isPaused);
 	}
 
 	/// <summary>

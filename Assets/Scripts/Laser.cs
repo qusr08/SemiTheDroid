@@ -32,6 +32,9 @@ public class Laser : Entity {
 		EntityManager.Instance.EntityTurnQueue.Remove(this);
 		EntityManager.Instance.Entities.Remove(this);
 
+		// Update the laser destroyed stat
+		GameManager.Instance.LasersDestroyed++;
+
 		Destroy(gameObject);
 	}
 

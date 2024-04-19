@@ -21,9 +21,15 @@ public class EntityManager : Singleton<EntityManager> {
 	[SerializeField, Min(1)] private int maxStartingTurnCount;
 	[Header("Information")]
 	[SerializeField] private Entity _hoveredEntity;
+	[SerializeField] private Robot _robot;
 	[SerializeField] private List<Vector2Int> _shownHazardPositions;
 	[SerializeField] private List<Entity> _entities;
 	[SerializeField] private List<Entity> _entityTurnQueue;
+
+	/// <summary>
+	/// The current robot on the board
+	/// </summary>
+	public Robot Robot { get => _robot; private set => _robot = value; }
 
 	/// <summary>
 	/// The current entity that is being hovered
@@ -101,9 +107,16 @@ public class EntityManager : Singleton<EntityManager> {
 
 				break;
 			case EntityType.ROBOT:
+				// If a robot has already been spawned, do not spawn another one
+				if (Robot != null) {
+					return;
+				}
+
 				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
 				newEntity.Direction = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left }[Random.Range(0, 4)];
 				newEntity.TurnsUntilAction = 1;
+
+				Robot = (Robot) newEntity;
 
 				break;
 			case EntityType.LASER:
