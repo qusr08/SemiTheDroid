@@ -35,6 +35,41 @@ public class Robot : Entity {
 			return;
 		}
 
+		// The robots turn counter never changes as it moves every turn
+		// It should also always be the first entity to move each turn
+
+		// Get the tile that the robot is going to move to (if it exists)
+		List<Tile> toTileList = BoardManager.Instance.SearchForTilesAt(new List<Vector2Int>( ) { BoardPosition + Direction });
+
+		// If there is no tile found, then the robot is killed
+		if (toTileList.Count == 0) {
+			/// TODO: Play some animation of the robot walking forward and then falling off
+			
+			Kill( );
+			return;
+		}
+
+		Tile toTile = toTileList[0];
+
+		// If the tile that this entity is walking to has an entity on it, do certain things 
+		if (toTile.Entity != null) {
+			// If the entity is a laser, then do nothing. The robot just gets stuck if it tries to walk into a laser
+			if (toTile.Entity.EntityType == EntityType.LASER) {
+				return;
+			}
+
+			// If the entity is a spike or a bomb, then the robot dies
+			if (toTile.Entity.EntityType == EntityType.SPIKE || toTile.Entity.EntityType == EntityType.BOMB) {
+				Kill( );
+				return;
+			}
+		}
+
+		/// TODO: Play some animation of robot walking towards the tile location
+
+		// If the tile is found, then set that tile to have this robot as its entity
+		Tile.Entity = null;
+		Tile = toTile;
 	}
 
 	protected override void UpdateHazardPositions ( ) { }

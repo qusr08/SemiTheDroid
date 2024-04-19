@@ -140,7 +140,6 @@ public class Tile : MonoBehaviour {
 				return;
 			}
 
-			// Set this entity's tile value to be this tile
 			_entity = value;
 
 			// Make sure the entity follows this tile (as in, when it gets selected and moves upwards, the entity also moves)

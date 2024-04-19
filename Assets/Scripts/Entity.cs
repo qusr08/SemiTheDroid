@@ -41,13 +41,19 @@ public abstract class Entity : MonoBehaviour {
 	public Tile Tile {
 		get => _tile;
 		set {
+			// If the tile is being set to the same value, return and do nothing
 			if (_tile == value) {
 				return;
 			}
 
 			_tile = value;
-			_tile.Entity = this;
-			BoardPosition = _tile.BoardPosition;
+
+			// If the new tile is not null, then set this entity's board position and set the new tile's entity
+			if (_tile != null) {
+				BoardPosition = _tile.BoardPosition;
+
+				_tile.Entity = this;
+			}
 		}
 	}
 
