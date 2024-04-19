@@ -156,10 +156,13 @@ MonoBehaviour:
   _turnsUntilAction: -1
   _turnOrder: 0
   _entityType: 1
+  _entityName: Semi
+  _entityDescription: Moves forward every turn. Protect at all costs!
   _tile: {fileID: 0}
-  _facingDirection: {x: 0, y: 0}
+  _direction: {x: 0, y: 0}
   _boardPosition: {x: 0, y: 0}
   _hazardPositions: []
+  isKilled: 0
   arrowSpriteRenderer: {fileID: 5364368060632552187}
   arrowTransform: {fileID: 7937696862510689260}
   arrowSprites:

@@ -13,6 +13,8 @@ public abstract class Entity : MonoBehaviour {
 	[SerializeField] private int _turnsUntilAction;
 	[SerializeField] private int _turnOrder;
 	[SerializeField] private EntityType _entityType;
+	[SerializeField] private string _entityName;
+	[SerializeField] private string _entityDescription;
 	[Header("Information")]
 	[SerializeField] private Tile _tile;
 	[SerializeField] private Vector2Int _direction;
@@ -22,6 +24,16 @@ public abstract class Entity : MonoBehaviour {
 
 	protected bool isFacingUp;
 	protected bool isFacingLeft;
+
+	/// <summary>
+	/// The name of this entity
+	/// </summary>
+	public string EntityName { get => _entityName; private set => _entityName = value; }
+
+	/// <summary>
+	/// The description of this entity
+	/// </summary>
+	public string EntityDescription { get => _entityDescription; private set => _entityDescription = value; }
 
 	/// <summary>
 	/// The tile that this entity is currently standing on

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.VersionControl;
+using TMPro;
 using UnityEngine;
 
 public class EntityManager : Singleton<EntityManager> {
@@ -10,6 +10,12 @@ public class EntityManager : Singleton<EntityManager> {
 	[SerializeField] private GameObject robotPrefab;
 	[SerializeField] private GameObject laserPrefab;
 	[SerializeField] private GameObject bombPrefab;
+	[Space]
+	[SerializeField] private GameObject entityInfoBox;
+	[SerializeField] private TextMeshProUGUI entityNameText;
+	[SerializeField] private TextMeshProUGUI entityDescriptionText;
+	[SerializeField] private TextMeshProUGUI entityTurnText;
+	[SerializeField] private TextMeshProUGUI entityTurnOrderText;
 	[Header("Properties")]
 	[SerializeField, Min(1)] private int minStartingTurnCount;
 	[SerializeField, Min(1)] private int maxStartingTurnCount;
@@ -31,6 +37,22 @@ public class EntityManager : Singleton<EntityManager> {
 			}
 
 			_hoveredEntity = value;
+
+			// If the hovered entity is not equal to null, then set the text fields for entity info
+			entityInfoBox.SetActive(_hoveredEntity != null);
+			if (_hoveredEntity != null) {
+				entityNameText.text = $"~ {_hoveredEntity.EntityName} ~";
+				entityDescriptionText.text = _hoveredEntity.EntityDescription;
+
+				if (_hoveredEntity.EntityType != EntityType.SPIKE) {
+					string s = _hoveredEntity.TurnsUntilAction == 1 ? "" : "s";
+					entityTurnText.text = $"Will act in {_hoveredEntity.TurnsUntilAction} turn{s}";
+					entityTurnOrderText.text = $"Order in turn: {_hoveredEntity.TurnOrder}";
+				} else {
+					entityTurnText.text = "";
+					entityTurnOrderText.text = "";
+				}
+			}
 
 			UpdateShownHazardPositions( );
 		}
@@ -164,6 +186,9 @@ public class EntityManager : Singleton<EntityManager> {
 	/// Perform all entity turns based on their turn order and turn count
 	/// </summary>
 	public void UpdateEntityTurns ( ) {
+		// Because some variables are updating as a result of the entity turn, just disable the info box
+		entityInfoBox.SetActive(false);
+
 		// Copy the order of the entities over to the turn list
 		// The entities should already be order from next to move to last to move
 		EntityTurnQueue = new List<Entity>(Entities);

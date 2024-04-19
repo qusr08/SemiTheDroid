@@ -153,6 +153,8 @@ MonoBehaviour:
   _turnsUntilAction: -1
   _turnOrder: 0
   _entityType: 2
+  _entityName: Laser
+  _entityDescription: Damages tiles in a row or column
   _tile: {fileID: 0}
   _direction: {x: 0, y: 0}
   _boardPosition: {x: 0, y: 0}

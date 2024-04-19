@@ -153,6 +153,8 @@ MonoBehaviour:
   _turnsUntilAction: 0
   _turnOrder: 0
   _entityType: 3
+  _entityName: Bomb
+  _entityDescription: Damages objects on nearby tiles
   _tile: {fileID: 0}
   _direction: {x: 0, y: 0}
   _boardPosition: {x: 0, y: 0}

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TreeEditor;
+using TMPro;
 using UnityEngine;
 
 public enum GameState {
@@ -9,6 +9,8 @@ public enum GameState {
 }
 
 public class GameManager : Singleton<GameManager> {
+	[Header("References")]
+	[SerializeField] private TextMeshProUGUI turnCountText;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
 	[SerializeField] private GameState _gameState;
@@ -37,7 +39,14 @@ public class GameManager : Singleton<GameManager> {
 	/// <summary>
 	/// The number of turns that the player has currently survived
 	/// </summary>
-	public int SurvivedTurnCount { get => _survivedTurnedCount; private set => _survivedTurnedCount = value; }
+	public int SurvivedTurnCount {
+		get => _survivedTurnedCount;
+		private set {
+			_survivedTurnedCount = value;
+
+			turnCountText.text = $"Turn {_survivedTurnedCount}";
+		}
+	}
 
 	/// <summary>
 	/// The current gamestate of the game

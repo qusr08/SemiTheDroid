@@ -153,7 +153,10 @@ MonoBehaviour:
   _turnsUntilAction: -1
   _turnOrder: 0
   _entityType: 0
+  _entityName: Spike
+  _entityDescription: These look like they hurt!
   _tile: {fileID: 0}
-  _facingDirection: {x: 0, y: 0}
+  _direction: {x: 0, y: 0}
   _boardPosition: {x: 0, y: 0}
   _hazardPositions: []
+  isKilled: 0
