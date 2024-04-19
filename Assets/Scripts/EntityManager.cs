@@ -87,6 +87,11 @@ public class EntityManager : Singleton<EntityManager> {
 	/// <param name="entityType">The type of entity to spawn</param>
 	/// <param name="tile">The tile to spawn the entity on</param>
 	public void SpawnEntity (EntityType entityType, Tile tile) {
+		// If the tile is equal to null, then do not try and spawn an entity
+		if (tile == null) {
+			return;
+		}
+
 		Entity newEntity = null;
 
 		switch (entityType) {
@@ -97,7 +102,7 @@ public class EntityManager : Singleton<EntityManager> {
 				break;
 			case EntityType.ROBOT:
 				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
-				newEntity.Direction = BoardManager.Instance.GetCardinalPositions(Vector2Int.zero)[Random.Range(0, 4)];
+				newEntity.Direction = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left }[Random.Range(0, 4)];
 				newEntity.TurnsUntilAction = 1;
 
 				break;
@@ -156,7 +161,7 @@ public class EntityManager : Singleton<EntityManager> {
 		foreach (Entity entity in Entities) {
 			// If the hovered entity is null, then we want all of the entity hazard tiles to be visible
 			// If the hovered entity is not null, then we only want to show the current entity's hazard tiles
-			if ((HoveredEntity == null && entity.TurnsUntilAction == 1) || HoveredEntity == entity) {
+			if ((HoveredEntity == null && (entity.TurnsUntilAction == 1 || entity.Tile.TileState == TileState.SELECTED)) || HoveredEntity == entity) {
 				newShownHazardPositions.AddRange(entity.HazardPositions);
 			}
 		}
@@ -215,12 +220,38 @@ public class EntityManager : Singleton<EntityManager> {
 	}
 
 	/// <summary>
+	/// Spawn in a number of new entities based on a difficulty curve
+	/// </summary>
+	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
+	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
+	public void SpawnRandomEntities (List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+		// Get the distance between entity spawns
+		int spawnCounter = Mathf.CeilToInt((-3f * GameManager.Instance.TurnCount * GameManager.Instance.DifficultyValue) + maxStartingTurnCount + minStartingTurnCount);
+
+		// If the current survived turn count is not a multiple of the spawn counter, then do not spawn entities
+		// This means that entities will spawn slower in the beginning and faster in later turns
+		if (GameManager.Instance.TurnCount % spawnCounter != 0) {
+			return;
+		}
+
+		// Spawn between 1 and 3 entities 
+		int entitySpawnCount = Random.Range(1, 4);
+		for (int i = 0; i < entitySpawnCount; i++) {
+			if (Random.Range(0f, 1f) < 0.5f) {
+				SpawnEntity(EntityType.LASER, BoardManager.Instance.GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
+			} else {
+				SpawnEntity(EntityType.BOMB, BoardManager.Instance.GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
+			}
+		}
+	}
+
+	/// <summary>
 	/// Get a random turn count for an entity that is scaled to the board difficulty
 	/// </summary>
 	/// <returns>A random integer that is the turn count</returns>
 	public int GetRandomTurnCount ( ) {
 		// Get a range value to scale the difficulty of the board based on the survived turn count
-		float rangeValue = maxStartingTurnCount * Mathf.Exp(-GameManager.Instance.SurvivedTurnCount * 0.04f);
+		float rangeValue = maxStartingTurnCount * Mathf.Exp(-GameManager.Instance.TurnCount * GameManager.Instance.DifficultyValue);
 
 		// Get a random number between the range of +-1 of the range value
 		// Round that number up to the nearest int

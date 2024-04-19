@@ -45,17 +45,24 @@ public class Laser : Entity {
 		if (Direction.x != 0) {
 			// Loop and add all possible board positions on the line of the laser
 			for (int i = -BoardManager.Instance.TotalTiles + 1; i < BoardManager.Instance.TotalTiles; i++) {
+				// Do not add the current board position of this laser to the hazard tile list
+				if (i == 0) {
+					continue;
+				}
+
 				newHazardPositions.Add(BoardPosition + new Vector2Int(i, 0));
 			}
 		} else {
 			// Loop and add all possible board positions on the line of the laser
 			for (int i = -BoardManager.Instance.TotalTiles + 1; i < BoardManager.Instance.TotalTiles; i++) {
+				// Do not add the current board position of this laser to the hazard tile list
+				if (i == 0) {
+					continue;
+				}
+
 				newHazardPositions.Add(BoardPosition + new Vector2Int(0, i));
 			}
 		}
-
-		// Make sure the laser's board position is never a hazard position
-		newHazardPositions.Remove(BoardPosition);
 
 		// Set the hazard board positions to the new line
 		HazardPositions = newHazardPositions;

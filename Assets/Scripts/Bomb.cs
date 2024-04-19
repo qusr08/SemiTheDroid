@@ -44,7 +44,17 @@ public class Bomb : Entity {
 
 	protected override void UpdateHazardPositions ( ) {
 		// For bombs, its hazard positions will be around its board position
-		HazardPositions = BoardManager.Instance.SearchForPositionsAround(BoardPosition, 1);
+		List<Vector2Int> newHazardPositions = new List<Vector2Int>( );
+
+		// Loop through all the positions around the bomb's board position
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				newHazardPositions.Add(BoardPosition + new Vector2Int(x, y));
+			}
+		}
+
+		// Set the hazard board positions to the new area
+		HazardPositions = newHazardPositions;
 
 		// Update the shown hazard board positions in the main entity manager class
 		EntityManager.Instance.UpdateShownHazardPositions( );

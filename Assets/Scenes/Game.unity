@@ -304,10 +304,11 @@ MonoBehaviour:
   turnCountText: {fileID: 1587609493}
   animationSpeed: 0.25
   _gameState: 3
+  _difficultyValue: 0.02
   animationTimer: 0
   _currentAnimationFrame: 0
   lastSelectedPosition: {x: 0, y: 0}
-  _survivedTurnedCount: 0
+  _turnCount: 0
 --- !u!1 &325865078
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,10 +354,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 4619846219926378027, guid: a4a168da9bf82bb4b885416733263b7b, type: 3}
-  _totalTiles: 30
+  _totalTiles: 24
   minTileGroupSize: 4
   maxTileGroupSize: 6
-  spikePercentage: 0.2
   _centerPosition: {x: 0, y: 0}
 --- !u!1 &378598213
 GameObject:

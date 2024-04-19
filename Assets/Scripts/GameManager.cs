@@ -14,17 +14,23 @@ public class GameManager : Singleton<GameManager> {
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float animationSpeed;
 	[SerializeField] private GameState _gameState;
+	[SerializeField, Range(0f, 0.1f)] private float _difficultyValue;
 	[Header("Information")]
 	[SerializeField] private float animationTimer;
 	[SerializeField] private int _currentAnimationFrame;
 	[SerializeField] private Vector2Int lastSelectedPosition;
-	[SerializeField] private int _survivedTurnedCount;
+	[SerializeField] private int _turnCount;
 
 	private TileGroup selectedTileGroup;
 	private bool canPlaceSelectedTileGroup;
 
 	public delegate void OnAnimationFrameEvent ( );
 	public event OnAnimationFrameEvent OnAnimationFrame;
+
+	/// <summary>
+	/// The difficulty scaling value
+	/// </summary>
+	public float DifficultyValue { get => _difficultyValue; private set => _difficultyValue = value; }
 
 	/// <summary>
 	/// The current animation frame for all board elements
@@ -39,12 +45,12 @@ public class GameManager : Singleton<GameManager> {
 	/// <summary>
 	/// The number of turns that the player has currently survived
 	/// </summary>
-	public int SurvivedTurnCount {
-		get => _survivedTurnedCount;
+	public int TurnCount {
+		get => _turnCount;
 		private set {
-			_survivedTurnedCount = value;
+			_turnCount = value;
 
-			turnCountText.text = $"Turn {_survivedTurnedCount}";
+			turnCountText.text = $"Turn {_turnCount}";
 		}
 	}
 
@@ -58,7 +64,7 @@ public class GameManager : Singleton<GameManager> {
 
 		animationTimer = 0;
 		CurrentAnimationFrame = 0;
-		SurvivedTurnCount = 0;
+		TurnCount = 0;
 	}
 
 	private void Start ( ) {
@@ -189,6 +195,9 @@ public class GameManager : Singleton<GameManager> {
 		}
 
 		canPlaceSelectedTileGroup = false;
+
+		// Since entity hazards are shown when they are on a selected tile group, update the shown positions
+		EntityManager.Instance.UpdateShownHazardPositions( );
 	}
 
 	/// <summary>
@@ -214,16 +223,20 @@ public class GameManager : Singleton<GameManager> {
 			case GameState.PLAYER_TURN:
 				/// TODO: Display player turn text
 
-				// Since the player has survived the entity turn, increment the number of survived rounds
-				if (oldGameState == GameState.ENTITY_TURN) {
-					SurvivedTurnCount++;
+				// Since the player has survived the entity turn or the board has just been generated, increment the number of survived rounds
+				if (oldGameState == GameState.ENTITY_TURN || oldGameState == GameState.GENERATE) {
+					TurnCount++;
 				}
 
 				break;
 			case GameState.ENTITY_TURN:
 				/// TODO: Display entity turn text
 
+				// Update all the turns of every entity on the board
 				EntityManager.Instance.UpdateEntityTurns( );
+
+				// Spawn new random entities in
+				EntityManager.Instance.SpawnRandomEntities( );
 
 				break;
 			case GameState.GAME_OVER:
