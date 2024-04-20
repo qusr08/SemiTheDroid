@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Laser : Entity {
 	[Header("Laser Subclass - References")]
+	[SerializeField] private SpriteRenderer beamSpriteRenderer;
 	[SerializeField] private Sprite[ ] laserSprites;
 
 	protected override void UpdateHazardPositions ( ) {
@@ -41,6 +42,12 @@ public class Laser : Entity {
 
 		// Update the shown hazard board positions in the main entity manager class
 		EntityManager.Instance.UpdateShownHazardPositions( );
+	}
+
+	protected override void SetDirection (Vector2Int facingDirection) {
+		base.SetDirection(facingDirection);
+
+		beamSpriteRenderer.flipX = entitySpriteRenderer.flipX = isFacingLeft;
 	}
 
 	public override IEnumerator PerformTurn ( ) {

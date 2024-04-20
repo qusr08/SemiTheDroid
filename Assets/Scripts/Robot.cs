@@ -25,24 +25,20 @@ public class Robot : Entity {
 		// Make sure the arrow and robot are facing the right direction and have the right sprite
 		arrowSpriteRenderer.flipX = entitySpriteRenderer.flipX = isFacingLeft;
 		arrowSpriteRenderer.sprite = arrowSprites[isFacingUp ? 0 : 1];
-		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
+		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 
-		UpdateArrowSpriteSortOrder( );
+		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
 	}
 
 	protected override void SetBoardPosition (Vector2Int boardPosition) {
 		base.SetBoardPosition(boardPosition);
 
-		UpdateArrowSpriteSortOrder( );
-	}
-
-	protected override void UpdateHazardPositions ( ) { }
-
-	private void UpdateArrowSpriteSortOrder ( ) {
 		// Set the sorting order of the arrow, making sure that it appears above the tile it is on
 		// This makes the arrow show up above the entity that is on the tile it is placed on
 		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 	}
+
+	protected override void UpdateHazardPositions ( ) { }
 
 	public override IEnumerator PerformTurn ( ) {
 		// If this robot is killed, then return from the function

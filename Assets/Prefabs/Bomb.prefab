@@ -130,12 +130,12 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 0.42307693}
-      - {x: -0.13461539, y: 0.36538464}
-      - {x: -0.13461539, y: 0.05769231}
-      - {x: 0, y: 0}
-      - {x: 0.13461539, y: 0.05769231}
-      - {x: 0.13461539, y: 0.36538464}
+    - - {x: 0, y: 0.26923078}
+      - {x: -0.17307693, y: 0.1923077}
+      - {x: -0.17307693, y: 0.05769231}
+      - {x: 0, y: -0.01923077}
+      - {x: 0.17307693, y: 0.05769231}
+      - {x: 0.17307693, y: 0.1923077}
   m_UseDelaunayMesh: 0
 --- !u!114 &6267345084803396071
 MonoBehaviour:
@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entitySpriteRenderer: {fileID: 3359246730242321523}
+  entitySprites: []
   _turnsUntilAction: 0
   _turnOrder: 0
   _entityType: 3
@@ -160,3 +161,14 @@ MonoBehaviour:
   _boardPosition: {x: 0, y: 0}
   _hazardPositions: []
   isKilled: 0
+  isFacingUp: 0
+  isFacingLeft: 0
+  bombSprites:
+  - {fileID: 2141705554, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: -1930496404, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: 990877838, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: 1495158670, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: -527170166, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: 1398392161, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: 1207634741, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
+  - {fileID: -1463995239, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}

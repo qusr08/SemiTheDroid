@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 336213288, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  m_Sprite: {fileID: -117275815, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -180,6 +180,7 @@ MonoBehaviour:
   - {fileID: -1271361329, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
   - {fileID: -863465590, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
   - {fileID: -117275815, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  robotSpriteType: 0
 --- !u!1 &4385113057701653025
 GameObject:
   m_ObjectHideFlags: 0
