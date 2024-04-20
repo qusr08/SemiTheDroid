@@ -53,6 +53,25 @@ public class BoardManager : Singleton<BoardManager> {
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
 	public IEnumerator Generate ( ) {
+		// Make sure all variables are reset
+
+		// Deselect the tile group if there is one
+		GameManager.Instance.SelectTileGroup(null);
+
+		// Delete all tiles from the board
+		for (int i = TileGroups.Count - 1; i >= 0; i--) {
+			for (int j = 0; j < TileGroups[i].Count; j++) {
+				Destroy(TileGroups[i].Tiles[j].gameObject);
+			}
+
+			TileGroups.RemoveAt(i);
+		}
+
+		// Clear the shown hazard positions
+		EntityManager.Instance.ShownHazardPositions.Clear( );
+		EntityManager.Instance.HoveredEntity = null;
+		EntityManager.Instance.Robot = null;
+
 		// All available tiles across the entire board, regardless of what tile group it is next to
 		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 

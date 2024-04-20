@@ -203,6 +203,11 @@ public abstract class Entity : MonoBehaviour {
 		SetEntitySpriteType(EntitySpriteType.NONE);
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 
+		// If the type of this entity is a robot, then set the game state to game over
+		if (EntityType == EntityType.ROBOT) {
+			yield return GameManager.Instance.SetGameState(GameState.GAME_OVER);
+		}
+
 		// Destroy the game object
 		Destroy(gameObject);
 	}

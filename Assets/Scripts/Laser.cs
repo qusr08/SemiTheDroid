@@ -64,11 +64,18 @@ public class Laser : Entity {
 			yield break;
 		}
 
+		// Enable the laser beam
+		beamSpriteRenderer.enabled = true;
+
 		// Loop through all tiles that are effected by the hazard positions of this laser
 		foreach (Tile effectedTile in BoardManager.Instance.SearchForTilesAt(HazardPositions, onlyEntityTiles: true)) {
 			// Since there is an entity on the current tile, kill it
 			yield return effectedTile.Entity.OnKill( );
 		}
+
+		// Make sure the beam is shown for a little bit before disappearing again
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed * 2);
+		beamSpriteRenderer.enabled = false;
 
 		// Lasers stay on the board until they are destroyed, so just get a new turn count for it
 		TurnsUntilAction = EntityManager.Instance.GetRandomTurnCount( );
@@ -82,14 +89,29 @@ public class Laser : Entity {
 		// Update the laser destroyed stat
 		GameManager.Instance.LasersDestroyed++;
 
+		// Disable beam sprite renderer (it shouldn't be enabled at this point, but just in case)
+		beamSpriteRenderer.enabled = false;
+
 		StartCoroutine(ExplodeAnimation( ));
 
 		yield return null;
 	}
 
 	public override IEnumerator OnCreate ( ) {
-		/// TODO: Add spawning in animation
-
-		yield return null;
+		entitySpriteRenderer.sprite = laserSprites[0];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[1];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[2];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[3];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[4];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[5];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[6];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = laserSprites[7];
 	}
 }

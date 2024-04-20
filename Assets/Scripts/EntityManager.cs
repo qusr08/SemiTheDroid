@@ -21,15 +21,10 @@ public class EntityManager : Singleton<EntityManager> {
 	[SerializeField, Min(1)] private int maxStartingTurnCount;
 	[Header("Information")]
 	[SerializeField] private Entity _hoveredEntity;
-	[SerializeField] private Robot _robot;
+	[SerializeField] public Robot Robot;
 	[SerializeField] private List<Vector2Int> _shownHazardPositions;
 	[SerializeField] private List<Entity> _entities;
 	[SerializeField] private List<Entity> _entityTurnQueue;
-
-	/// <summary>
-	/// The current robot on the board
-	/// </summary>
-	public Robot Robot { get => _robot; private set => _robot = value; }
 
 	/// <summary>
 	/// The current entity that is being hovered
@@ -208,9 +203,6 @@ public class EntityManager : Singleton<EntityManager> {
 				break;
 		}
 
-		// Wait until the on create coroutine is finished
-		yield return newEntity.OnCreate( );
-
 		// Set entity variables that are the same for every entity
 		newEntity.Tile = tile;
 		newEntity.TurnOrder = 1;
@@ -218,29 +210,31 @@ public class EntityManager : Singleton<EntityManager> {
 		// If there are no entities spawned yet, just add the new entity to the list, there is no need to sort it
 		if (Entities.Count == 0) {
 			Entities.Add(newEntity);
-			yield break;
-		}
+		} else {
+			// Loop through all of the entities on the board to sort the new entity by its turn count and turn order
+			// Lower turn counts are closer towards the start of the array and within that turn the lowest turn order is closer to the start as well
+			// So, the entity closest to the start of the array is the next entity to perform their action
+			for (int i = 0; i <= Entities.Count; i++) {
+				// If the current entity's turn count is higher than the new entities turn count, then insert the new entity at the current index
+				if (i == Entities.Count) {
+					// If the end of the entity array has been reached, just add the new entity to the end
+					Entities.Add(newEntity);
 
-		// Loop through all of the entities on the board to sort the new entity by its turn count and turn order
-		// Lower turn counts are closer towards the start of the array and within that turn the lowest turn order is closer to the start as well
-		// So, the entity closest to the start of the array is the next entity to perform their action
-		for (int i = 0; i <= Entities.Count; i++) {
-			// If the current entity's turn count is higher than the new entities turn count, then insert the new entity at the current index
-			if (i == Entities.Count) {
-				// If the end of the entity array has been reached, just add the new entity to the end
-				Entities.Add(newEntity);
+					break;
+				} else if (Entities[i].TurnsUntilAction > newEntity.TurnsUntilAction) {
+					// If the entity needs to be added to the middle of the array, insert it
+					Entities.Insert(i, newEntity);
 
-				break;
-			} else if (Entities[i].TurnsUntilAction > newEntity.TurnsUntilAction) {
-				// If the entity needs to be added to the middle of the array, insert it
-				Entities.Insert(i, newEntity);
-
-				break;
+					break;
+				}
 			}
 		}
 
 		// Since a new entity was added, update the turn orders for all the entities
 		UpdateEntityTurnOrders( );
+
+		// Wait until the on create coroutine is finished
+		yield return newEntity.OnCreate( );
 	}
 
 	/// <summary>

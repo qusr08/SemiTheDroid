@@ -11,6 +11,7 @@ public enum GameState {
 public class GameManager : Singleton<GameManager> {
 	[Header("References")]
 	[SerializeField] private TextMeshProUGUI turnCountText;
+	[SerializeField] private TextMeshProUGUI turnIndicatorText;
 	[SerializeField] private GameObject pauseMenu;
 	[SerializeField] private GameObject gameOverMenu;
 	[SerializeField] private TextMeshProUGUI statsText;
@@ -80,14 +81,6 @@ public class GameManager : Singleton<GameManager> {
 
 		animationTimer = 0;
 		CurrentAnimationFrame = 0;
-		TurnCount = 0;
-		isPaused = false;
-		startTime = Time.time;
-	}
-
-	private void Start ( ) {
-		StartCoroutine(SetGameState(GameState.GENERATE));
-		// StartCoroutine(Test1( ));
 	}
 
 	private void Update ( ) {
@@ -114,7 +107,7 @@ public class GameManager : Singleton<GameManager> {
 
 			// If the player presses the spacebar, try to rotate the tile group by 90 degrees
 			if (Input.GetKeyDown(KeyCode.Space)) {
-				selectedTileGroup.TryMoveAndRotate(lastSelectedPosition, 1);
+				selectedTileGroup.TryMoveAndRotate(lastSelectedPosition, -1);
 			}
 
 			// Since selecting and placing the tile groups are done with the same mouse button, we need to wait for the mouse to be lifted in order for the tile group to be placed
@@ -246,11 +239,20 @@ public class GameManager : Singleton<GameManager> {
 		// Do specific things based on the new game state
 		switch (GameState) {
 			case GameState.GENERATE:
+				// Set default values
+				TurnCount = 0;
+				isPaused = false;
+				startTime = Time.time;
+
+				// Set menus to not be active anymore
+				pauseMenu.SetActive(false);
+				gameOverMenu.SetActive(false);
+
 				yield return BoardManager.Instance.Generate( );
 
 				break;
 			case GameState.PLAYER_TURN:
-				/// TODO: Display player turn text
+				turnIndicatorText.text = "Player's Turn";
 
 				// Since the player has survived the entity turn or the board has just been generated, increment the number of survived rounds
 				if (oldGameState == GameState.ENTITY_TURN || oldGameState == GameState.GENERATE) {
@@ -263,7 +265,7 @@ public class GameManager : Singleton<GameManager> {
 
 				break;
 			case GameState.ENTITY_TURN:
-				/// TODO: Display entity turn text
+				turnIndicatorText.text = "Entities' Turn";
 
 				// Update all the turns of every entity on the board
 				yield return EntityManager.Instance.UpdateEntityTurns( );

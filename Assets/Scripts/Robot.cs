@@ -2,19 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum RobotSpriteType {
-	UP_1, UP_2, UP_3, UP_4,
-	DOWN_1, DOWN_2, DOWN_3, DOWN_4
-}
-
 public class Robot : Entity {
 	[Header("Robot Subclass - References")]
 	[SerializeField] private SpriteRenderer arrowSpriteRenderer;
 	[SerializeField] private Transform arrowTransform;
 	[SerializeField] private Sprite[ ] arrowSprites;
 	[SerializeField] private Sprite[ ] robotSprites;
-	[Header("Robot Subclass - Information")]
-	[SerializeField] private RobotSpriteType robotSpriteType;
 
 	protected override void SetDirection (Vector2Int facingDirection) {
 		base.SetDirection(facingDirection);
@@ -27,7 +20,8 @@ public class Robot : Entity {
 		arrowSpriteRenderer.sprite = arrowSprites[isFacingUp ? 0 : 1];
 		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 
-		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
+		// Set the sprite of the robot
+		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 3 : 7];
 	}
 
 	protected override void SetBoardPosition (Vector2Int boardPosition) {
@@ -67,11 +61,18 @@ public class Robot : Entity {
 				yield break;
 			}
 
-			// If the entity is a spike or a bomb, then the robot dies
-			if (toTile.Entity.EntityType == EntityType.SPIKE || toTile.Entity.EntityType == EntityType.BOMB) {
+			// If the entity is a spike, then the robot dies
+			if (toTile.Entity.EntityType == EntityType.SPIKE) {
 				// Do an animation for walking forward
 				yield return WalkToTileAnimation(toTile);
 				yield return OnKill( );
+				yield break;
+			}
+
+			// If the entity is a bomb, then the robot dies and the bomb dies
+			if (toTile.Entity.EntityType == EntityType.BOMB) {
+				yield return WalkToTileAnimation(toTile);
+				yield return toTile.Entity.PerformTurn( );
 				yield break;
 			}
 		}
@@ -85,9 +86,12 @@ public class Robot : Entity {
 		EntityManager.Instance.EntityTurnQueue.Remove(this);
 		EntityManager.Instance.Entities.Remove(this);
 
-		yield return ExplodeAnimation( );
+		// Disable arrow sprite renderer
+		arrowSpriteRenderer.enabled = false;
 
-		yield return GameManager.Instance.SetGameState(GameState.GAME_OVER);
+		StartCoroutine(ExplodeAnimation( ));
+
+		yield return null;
 	}
 
 	public override IEnumerator OnCreate ( ) {
@@ -126,16 +130,16 @@ public class Robot : Entity {
 		}
 
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_1 : RobotSpriteType.DOWN_1);
+		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 0 : 4];
 		transform.localPosition += movement;
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_2 : RobotSpriteType.DOWN_2);
+		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 1 : 5];
 		transform.localPosition += movement;
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_3 : RobotSpriteType.DOWN_3);
+		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 2 : 6];
 		transform.localPosition += movement;
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
+		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 3 : 7];
 		transform.localPosition += movement;
 
 		// If the robot is facing up, set the tile after walking
@@ -157,36 +161,20 @@ public class Robot : Entity {
 			arrowSpriteRenderer.enabled = false;
 
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_1 : RobotSpriteType.DOWN_1);
+			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 0 : 4];
 			transform.localPosition += fallMovement;
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_2 : RobotSpriteType.DOWN_2);
+			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 1 : 5];
 			transform.localPosition += fallMovement;
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_3 : RobotSpriteType.DOWN_3);
+			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 2 : 6];
 			transform.localPosition += fallMovement;
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
+			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 3 : 7];
 			transform.localPosition += fallMovement;
 
 			yield return OnKill( );
 		}
-	}
-
-	/// <summary>
-	/// Set the sprite type of this robot entity
-	/// </summary>
-	/// <param name="robotSpriteType">The robot sprite to set</param>
-	private void SetRobotSpriteType (RobotSpriteType robotSpriteType) {
-		// Do not update the sprite if it is being set to the same value
-		if (this.robotSpriteType == robotSpriteType) {
-			return;
-		}
-
-		this.robotSpriteType = robotSpriteType;
-
-		// Set the sprite of the robot
-		entitySpriteRenderer.sprite = robotSprites[(int) this.robotSpriteType];
 	}
 }
 

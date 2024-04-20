@@ -40,18 +40,9 @@ public class Bomb : Entity {
 
 		// Loop through all tiles that are effected by the hazard positions of this laser
 		foreach (Tile effectedTile in BoardManager.Instance.SearchForTilesAt(HazardPositions, onlyEntityTiles: true)) {
-			// The hazard tile for a bomb is shown, but we do not want to kill the bomb inside this loop
-			// If the effected tile is equal to the tile that this bomb is on, just ignore it
-			if (effectedTile == Tile) {
-				continue;
-			}
-			
 			// Since there is an entity on the current tile, kill it
 			yield return effectedTile.Entity.OnKill( );
 		}
-
-		// When a bomb performs its turn it explodes, killing itself
-		yield return OnKill( );
 	}
 
 	public override IEnumerator OnKill ( ) {
@@ -71,8 +62,20 @@ public class Bomb : Entity {
 	}
 
 	public override IEnumerator OnCreate ( ) {
-		/// TODO: Add spawning in animation
-
-		yield return null;
+		entitySpriteRenderer.sprite = bombSprites[0];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[1];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[2];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[3];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[4];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[5];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[6];
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		entitySpriteRenderer.sprite = bombSprites[7];
 	}
 }
