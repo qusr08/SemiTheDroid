@@ -15,7 +15,7 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private GameObject gameOverMenu;
 	[SerializeField] private TextMeshProUGUI statsText;
 	[Header("Properties")]
-	[SerializeField, Min(0.01f)] private float animationSpeed;
+	[SerializeField, Min(0.01f)] private float _animationSpeed;
 	[SerializeField] private GameState _gameState;
 	[SerializeField, Range(0f, 0.1f)] private float _difficultyValue;
 	[Header("Information")]
@@ -32,6 +32,11 @@ public class GameManager : Singleton<GameManager> {
 
 	public delegate void OnAnimationFrameEvent ( );
 	public event OnAnimationFrameEvent OnAnimationFrame;
+
+	/// <summary>
+	/// The seconds in between animation frames
+	/// </summary>
+	public float AnimationSpeed { get => _animationSpeed; private set => _animationSpeed = value; }
 
 	/// <summary>
 	/// A stat value to track how many lasers were destroyed
@@ -290,10 +295,10 @@ public class GameManager : Singleton<GameManager> {
 		// Increment the animation timer by the time that has passed since the last update call
 		// Once the timer has reached the animation speed, update the sprites
 		animationTimer += Time.deltaTime;
-		if (animationTimer >= animationSpeed) {
+		if (animationTimer >= AnimationSpeed) {
 			// Subtract the animation time from the animation timer
 			// This makes it slightly more exact in when the animation changes sprites
-			animationTimer -= animationSpeed;
+			animationTimer -= AnimationSpeed;
 
 			// Increment the current animation frame
 			// All animations should use this so they are all synced

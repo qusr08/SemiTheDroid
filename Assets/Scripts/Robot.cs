@@ -13,6 +13,8 @@ public class Robot : Entity {
 	[SerializeField] private Transform arrowTransform;
 	[SerializeField] private Sprite[ ] arrowSprites;
 	[SerializeField] private Sprite[ ] robotSprites;
+	[Header("Robot Subclass - Information")]
+	[SerializeField] private RobotSpriteType robotSpriteType;
 
 	protected override void SetDirection (Vector2Int facingDirection) {
 		base.SetDirection(facingDirection);
@@ -23,7 +25,7 @@ public class Robot : Entity {
 		// Make sure the arrow and robot are facing the right direction and have the right sprite
 		arrowSpriteRenderer.flipX = entitySpriteRenderer.flipX = isFacingLeft;
 		arrowSpriteRenderer.sprite = arrowSprites[isFacingUp ? 0 : 1];
-		entitySpriteRenderer.sprite = robotSprites[(int) (isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4)];
+		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
 
 		UpdateArrowSpriteSortOrder( );
 	}
@@ -56,7 +58,7 @@ public class Robot : Entity {
 
 		// If there is no tile found, then the robot is killed
 		if (toTileList.Count == 0) {
-			yield return OnKill( );
+			yield return WalkToTileAnimation(null);
 			yield break;
 		}
 
@@ -76,9 +78,8 @@ public class Robot : Entity {
 			}
 		}
 
-		// If the tile is found and doesnt have an entity on it, then set that tile to have this robot as its entity
-		Tile.Entity = null;
-		Tile = toTile;
+		// Do an animation for walking forward
+		yield return WalkToTileAnimation(toTile);
 	}
 
 	public override IEnumerator OnKill ( ) {
@@ -96,4 +97,100 @@ public class Robot : Entity {
 	public override IEnumerator OnCreate ( ) {
 		yield return null;
 	}
+
+	/// <summary>
+	/// Play an animation of this robot walking towards the specified tile
+	/// </summary>
+	/// <param name="toTile">The tile to walk towards</param>
+	private IEnumerator WalkToTileAnimation (Tile toTile) {
+		// Get the direction on the board that the robot will literally move in
+		// Since the board is isometric, up is diagonal right instead
+		Vector3 boardDirection = BoardManager.Instance.BoardToWorldPosition(Direction);
+
+		// Get a vector for the movement each frame that the robot steps
+		Vector3 movement = new Vector3(boardDirection.x, boardDirection.y, 0) * 0.25f;
+
+		// Each frame that the robot is falling, it will be moved by this amount
+		Vector3 fallMovement = new Vector3(0, -0.25f, 0);
+
+		// If the robot is facing down, set the tile before walking
+		if (!isFacingUp) {
+			// Set the new tile
+			Tile.Entity = null;
+			Tile = toTile;
+
+			// If the tile is equal to null, set the board position manually
+			// This is mainly used to update the sprite renderer sorting order
+			if (toTile == null) {
+				BoardPosition += Direction;
+			} else {
+				// Set the transform to be back where the robot was just standing before the tile was set
+				transform.localPosition = new Vector3(-boardDirection.x, -boardDirection.y, transform.localPosition.z);
+			}
+		}
+
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_1 : RobotSpriteType.DOWN_1);
+		transform.localPosition += movement;
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_2 : RobotSpriteType.DOWN_2);
+		transform.localPosition += movement;
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_3 : RobotSpriteType.DOWN_3);
+		transform.localPosition += movement;
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
+		transform.localPosition += movement;
+
+		// If the robot is facing up, set the tile after walking
+		if (isFacingUp) {
+			// Set the new tile
+			Tile.Entity = null;
+			Tile = toTile;
+
+			// If the tile is equal to null, set the board position manually
+			// This is mainly used to update the sprite renderer sorting order
+			if (toTile == null) {
+				BoardPosition += Direction;
+			}
+		}
+
+		// If the tile was equal to null, then have the robot fall down and be killed
+		if (toTile == null) {
+			// Disable arrow sprite renderer
+			arrowSpriteRenderer.enabled = false;
+
+			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_1 : RobotSpriteType.DOWN_1);
+			transform.localPosition += fallMovement;
+			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_2 : RobotSpriteType.DOWN_2);
+			transform.localPosition += fallMovement;
+			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_3 : RobotSpriteType.DOWN_3);
+			transform.localPosition += fallMovement;
+			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+			SetRobotSpriteType(isFacingUp ? RobotSpriteType.UP_4 : RobotSpriteType.DOWN_4);
+			transform.localPosition += fallMovement;
+
+			yield return OnKill( );
+		}
+	}
+
+	/// <summary>
+	/// Set the sprite type of this robot entity
+	/// </summary>
+	/// <param name="robotSpriteType">The robot sprite to set</param>
+	private void SetRobotSpriteType (RobotSpriteType robotSpriteType) {
+		// Do not update the sprite if it is being set to the same value
+		if (this.robotSpriteType == robotSpriteType) {
+			return;
+		}
+
+		this.robotSpriteType = robotSpriteType;
+
+		// Set the sprite of the robot
+		entitySpriteRenderer.sprite = robotSprites[(int) this.robotSpriteType];
+	}
 }
+

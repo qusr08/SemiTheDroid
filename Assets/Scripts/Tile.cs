@@ -99,11 +99,6 @@ public class Tile : MonoBehaviour {
 	public Vector2Int BoardPosition {
 		get => _boardPosition;
 		set {
-			// If the board position is being set to the same position, then return and do nothing
-			/*if (_boardPosition == value) {
-				return;
-			}*/
-
 			_boardPosition = value;
 
 			// Make sure tiles always align to the isometric grid
@@ -337,17 +332,17 @@ public class Tile : MonoBehaviour {
 	/// <summary>
 	/// The type of sprite that is showing on this tile
 	/// </summary>
-	private void SetTileSpriteType (TileSpriteType value) {
+	private void SetTileSpriteType (TileSpriteType tileSpriteType) {
 		// Do not update the sprite if it is being set to the same value
-		if (tileSpriteType == value) {
+		if (this.tileSpriteType == tileSpriteType) {
 			return;
 		}
 
-		tileSpriteType = value;
+		this.tileSpriteType = tileSpriteType;
 
 		// Set the sprite of this tile
-		if (tileSpriteType != TileSpriteType.NONE) {
-			tileSpriteRenderer.sprite = sprites[(int) tileSpriteType];
+		if (this.tileSpriteType != TileSpriteType.NONE) {
+			tileSpriteRenderer.sprite = sprites[(int) this.tileSpriteType];
 		} else {
 			tileSpriteRenderer.sprite = null;
 		}
@@ -356,13 +351,13 @@ public class Tile : MonoBehaviour {
 	/// <summary>
 	/// The type of sprite that is showing on the hovered tile
 	/// </summary>
-	private void SetDetailTileSpriteType (TileSpriteType value) {
+	private void SetDetailTileSpriteType (TileSpriteType tileSpriteType) {
 		// Do not update the sprite if it is being set to the same value
-		if (detailTileSpriteType == value) {
+		if (detailTileSpriteType == tileSpriteType) {
 			return;
 		}
 
-		detailTileSpriteType = value;
+		detailTileSpriteType = tileSpriteType;
 
 		// Set the sprite of the detail tile
 		if (detailTileSpriteType != TileSpriteType.NONE) {
@@ -375,13 +370,13 @@ public class Tile : MonoBehaviour {
 	/// <summary>
 	/// The type of sprite that is showing on the overlay tile
 	/// </summary>
-	private void SetOverlayTileSpriteType (TileSpriteType value) {
+	private void SetOverlayTileSpriteType (TileSpriteType tileSpriteType) {
 		// Do not update the sprite if it is being set to the same value
-		if (overlayTileSpriteType == value) {
+		if (overlayTileSpriteType == tileSpriteType) {
 			return;
 		}
 
-		overlayTileSpriteType = value;
+		overlayTileSpriteType = tileSpriteType;
 
 		// Set the sprite of the overlay tile
 		if (overlayTileSpriteType != TileSpriteType.NONE) {

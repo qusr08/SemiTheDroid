@@ -186,7 +186,10 @@ public class EntityManager : Singleton<EntityManager> {
 
 				// Make sure the robot does not face towards a gap at the start of the game
 				// In this case it could be impossible for the player to do something to save the robot
-				List<Tile> cardinalTiles = BoardManager.Instance.SearchForTilesAt(BoardManager.Instance.GetCardinalPositions(tile.BoardPosition));
+				List<Tile> cardinalTiles = BoardManager.Instance.SearchForTilesAt(
+					BoardManager.Instance.GetCardinalPositions(tile.BoardPosition),
+					exclusiveTileGroups: new List<TileGroup>( ) { tile.TileGroup }
+				);
 				newEntity.Direction = cardinalTiles[Random.Range(0, cardinalTiles.Count)].BoardPosition - tile.BoardPosition;
 
 				Robot = (Robot) newEntity;
