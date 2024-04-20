@@ -150,7 +150,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entitySpriteRenderer: {fileID: 3359246730242321523}
-  entitySprites: []
+  entitySprites:
+  - {fileID: 509043868, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -607084520, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -2042391852, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -1705109912, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
   _turnsUntilAction: 0
   _turnOrder: 0
   _entityType: 3
@@ -163,6 +167,7 @@ MonoBehaviour:
   isKilled: 0
   isFacingUp: 0
   isFacingLeft: 0
+  entitySpriteType: -1
   bombSprites:
   - {fileID: 2141705554, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}
   - {fileID: -1930496404, guid: 1231b0ff1cdca5e4cb131f38fef51f30, type: 3}

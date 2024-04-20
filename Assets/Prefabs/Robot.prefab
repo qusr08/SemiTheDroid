@@ -153,7 +153,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entitySpriteRenderer: {fileID: 529739085103534810}
-  entitySprites: []
+  entitySprites:
+  - {fileID: 509043868, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -607084520, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -2042391852, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -1705109912, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
   _turnsUntilAction: -1
   _turnOrder: 0
   _entityType: 1
@@ -166,6 +170,7 @@ MonoBehaviour:
   isKilled: 0
   isFacingUp: 0
   isFacingLeft: 0
+  entitySpriteType: -1
   arrowSpriteRenderer: {fileID: 5364368060632552187}
   arrowTransform: {fileID: 7937696862510689260}
   arrowSprites:

@@ -69,6 +69,8 @@ public class Robot : Entity {
 
 			// If the entity is a spike or a bomb, then the robot dies
 			if (toTile.Entity.EntityType == EntityType.SPIKE || toTile.Entity.EntityType == EntityType.BOMB) {
+				// Do an animation for walking forward
+				yield return WalkToTileAnimation(toTile);
 				yield return OnKill( );
 				yield break;
 			}
@@ -83,9 +85,7 @@ public class Robot : Entity {
 		EntityManager.Instance.EntityTurnQueue.Remove(this);
 		EntityManager.Instance.Entities.Remove(this);
 
-		/// TODO: Play animation of robot exploding
-
-		Destroy(gameObject);
+		yield return ExplodeAnimation( );
 
 		yield return GameManager.Instance.SetGameState(GameState.GAME_OVER);
 	}

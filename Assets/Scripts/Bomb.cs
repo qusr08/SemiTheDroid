@@ -66,7 +66,7 @@ public class Bomb : Entity {
 			EntityManager.Instance.EntityTurnQueue.Remove(this);
 			EntityManager.Instance.Entities.Remove(this);
 
-			Destroy(gameObject);
+			StartCoroutine(ExplodeAnimation( ));
 		}
 	}
 

@@ -150,6 +150,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entitySpriteRenderer: {fileID: 2387595290614349622}
+  entitySprites:
+  - {fileID: 509043868, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -607084520, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -2042391852, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
+  - {fileID: -1705109912, guid: 19ce009bf55955a4ebfe08a6a1088806, type: 3}
   _turnsUntilAction: -1
   _turnOrder: 0
   _entityType: 0
@@ -160,3 +165,6 @@ MonoBehaviour:
   _boardPosition: {x: 0, y: 0}
   _hazardPositions: []
   isKilled: 0
+  isFacingUp: 0
+  isFacingLeft: 0
+  entitySpriteType: -1

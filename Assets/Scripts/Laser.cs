@@ -82,7 +82,7 @@ public class Laser : Entity {
 		// Update the laser destroyed stat
 		GameManager.Instance.LasersDestroyed++;
 
-		Destroy(gameObject);
+		StartCoroutine(ExplodeAnimation( ));
 
 		yield return null;
 	}

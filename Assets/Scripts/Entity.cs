@@ -6,6 +6,11 @@ public enum EntityType {
 	SPIKE, ROBOT, LASER, BOMB
 }
 
+public enum EntitySpriteType {
+	NONE = -1, 
+	EXPL_1, EXPL_2, EXPL_3, EXPL_4
+}
+
 public abstract class Entity : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] protected SpriteRenderer entitySpriteRenderer;
@@ -24,7 +29,8 @@ public abstract class Entity : MonoBehaviour {
 	[SerializeField] protected bool isKilled;
 	[SerializeField] protected bool isFacingUp;
 	[SerializeField] protected bool isFacingLeft;
-	
+	[SerializeField] private EntitySpriteType entitySpriteType;
+
 	/// <summary>
 	/// The name of this entity
 	/// </summary>
@@ -159,6 +165,47 @@ public abstract class Entity : MonoBehaviour {
 	/// Update all of the hazard positions of this entity. Make sure to call EntityManager.Instance.UpdateHazardPositions() at the end of the method.
 	/// </summary>
 	protected abstract void UpdateHazardPositions ( );
+
+	/// <summary>
+	/// Set the sprite type of this entity
+	/// </summary>
+	/// <param name="entitySpriteType">The entity sprite to set</param>
+	private void SetEntitySpriteType (EntitySpriteType entitySpriteType) {
+		// Do not update the sprite if it is being set to the same value
+		if (this.entitySpriteType == entitySpriteType) {
+			return;
+		}
+
+		this.entitySpriteType = entitySpriteType;
+
+		// Set the sprite of the entity
+		if (this.entitySpriteType != EntitySpriteType.NONE) {
+			entitySpriteRenderer.sprite = entitySprites[(int) this.entitySpriteType];
+		} else {
+			entitySpriteRenderer.sprite = null;
+		}
+	}
+
+	protected IEnumerator ExplodeAnimation ( ) {
+		// Make sure the explosion goes over all surrounding tiles and entities
+		entitySpriteRenderer.sortingOrder = 999;
+
+		// Go through all the sprites in the animation
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetEntitySpriteType(EntitySpriteType.EXPL_1);
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetEntitySpriteType(EntitySpriteType.EXPL_2);
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetEntitySpriteType(EntitySpriteType.EXPL_3);
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetEntitySpriteType(EntitySpriteType.EXPL_4);
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		SetEntitySpriteType(EntitySpriteType.NONE);
+		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+
+		// Destroy the game object
+		Destroy(gameObject);
+	}
 
 	/// <summary>
 	/// A custom action that this entity performs when it is its turn
