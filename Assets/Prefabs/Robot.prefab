@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entitySpriteRenderer: {fileID: 529739085103534810}
+  entitySprites: []
   _turnsUntilAction: -1
   _turnOrder: 0
   _entityType: 1
@@ -163,14 +164,22 @@ MonoBehaviour:
   _boardPosition: {x: 0, y: 0}
   _hazardPositions: []
   isKilled: 0
+  isFacingUp: 0
+  isFacingLeft: 0
   arrowSpriteRenderer: {fileID: 5364368060632552187}
   arrowTransform: {fileID: 7937696862510689260}
   arrowSprites:
   - {fileID: -1820476730, guid: bcd484b62054bb34692e52de6e88e3de, type: 3}
   - {fileID: -688486828, guid: bcd484b62054bb34692e52de6e88e3de, type: 3}
   robotSprites:
-  - {fileID: 2119139419, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
   - {fileID: 336213288, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: -604085242, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: -2108350682, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: 2119139419, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: -1432799965, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: -1271361329, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: -863465590, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
+  - {fileID: -117275815, guid: a433673b56ebb234b84296c2466e7dbf, type: 3}
 --- !u!1 &4385113057701653025
 GameObject:
   m_ObjectHideFlags: 0

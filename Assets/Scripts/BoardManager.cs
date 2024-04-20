@@ -52,7 +52,7 @@ public class BoardManager : Singleton<BoardManager> {
 	/// <summary>
 	/// Generate all of the tiles and tile groups that will be on the board
 	/// </summary>
-	public void Generate ( ) {
+	public IEnumerator Generate ( ) {
 		// All available tiles across the entire board, regardless of what tile group it is next to
 		List<Vector2Int> globalAvailableTiles = new List<Vector2Int>( ) { Vector2Int.zero };
 
@@ -87,7 +87,7 @@ public class BoardManager : Singleton<BoardManager> {
 
 			// If there are no valid tile group sizes, then stop generating the board to avoid any errors
 			if (validTileGroupSizes.Count == 0) {
-				return;
+				yield break;
 			}
 
 			// Find a random group size from the valid group size list
@@ -163,17 +163,14 @@ public class BoardManager : Singleton<BoardManager> {
 
 		// Generate spikes onto the tiles
 		for (int i = 0; i < totalSpikes; i++) {
-			EntityManager.Instance.SpawnEntity(EntityType.SPIKE, GetRandomTile(ignoreEntityTiles: true, excludedTileGroups: new List<TileGroup> { TileGroups[0] }));
+			yield return EntityManager.Instance.SpawnEntity(EntityType.SPIKE, GetRandomTile(ignoreEntityTiles: true, excludedTileGroups: new List<TileGroup> { TileGroups[0] }));
 		}
 
-		// Spawn other entities
-		EntityManager.Instance.SpawnRandomEntities(excludedTileGroups: new List<TileGroup> { TileGroups[0] });
-
 		// Spawn the robot somewhere
-		EntityManager.Instance.SpawnEntity(EntityType.ROBOT, GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: new List<TileGroup> { TileGroups[0] }));
+		yield return EntityManager.Instance.SpawnEntity(EntityType.ROBOT, GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: new List<TileGroup> { TileGroups[0] }));
 
 		// The player gets to move first
-		GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
+		yield return GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
 	}
 
 	/// <summary>

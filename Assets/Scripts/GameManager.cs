@@ -81,7 +81,8 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	private void Start ( ) {
-		SetGameState(GameState.GENERATE);
+		StartCoroutine(SetGameState(GameState.GENERATE));
+		// StartCoroutine(Test1( ));
 	}
 
 	private void Update ( ) {
@@ -125,7 +126,7 @@ public class GameManager : Singleton<GameManager> {
 				SelectTileGroup(null);
 
 				// Now that the player has successfully moved, have the entities do their turn
-				SetGameState(GameState.ENTITY_TURN);
+				StartCoroutine(SetGameState(GameState.ENTITY_TURN));
 			}
 
 			// If the right mouse button is pressed, deselect the tile group and reset its position
@@ -227,10 +228,10 @@ public class GameManager : Singleton<GameManager> {
 	/// Set the current game state of the game
 	/// </summary>
 	/// <param name="gameState">The new game state to set the game to</param>
-	public void SetGameState (GameState gameState) {
+	public IEnumerator SetGameState (GameState gameState) {
 		// If the game state is being set to the same value, return and do nothing
 		if (GameState == gameState) {
-			return;
+			yield break;
 		}
 
 		// Save the old gamestate as there are certain things that we might want to do based on it
@@ -240,7 +241,7 @@ public class GameManager : Singleton<GameManager> {
 		// Do specific things based on the new game state
 		switch (GameState) {
 			case GameState.GENERATE:
-				BoardManager.Instance.Generate( );
+				yield return BoardManager.Instance.Generate( );
 
 				break;
 			case GameState.PLAYER_TURN:
@@ -248,6 +249,10 @@ public class GameManager : Singleton<GameManager> {
 
 				// Since the player has survived the entity turn or the board has just been generated, increment the number of survived rounds
 				if (oldGameState == GameState.ENTITY_TURN || oldGameState == GameState.GENERATE) {
+					// Spawn new random entities in
+					// Make sure entities are never spawned on the same tile group has the robot
+					yield return EntityManager.Instance.SpawnRandomEntities(excludedTileGroups: new List<TileGroup>( ) { EntityManager.Instance.Robot.Tile.TileGroup });
+					
 					TurnCount++;
 				}
 
@@ -256,11 +261,7 @@ public class GameManager : Singleton<GameManager> {
 				/// TODO: Display entity turn text
 
 				// Update all the turns of every entity on the board
-				EntityManager.Instance.UpdateEntityTurns( );
-
-				// Spawn new random entities in
-				// Make sure entities are never spawned on the same tile group has the robot
-				EntityManager.Instance.SpawnRandomEntities(excludedTileGroups: new List<TileGroup>( ) { EntityManager.Instance.Robot.Tile.TileGroup });
+				yield return EntityManager.Instance.UpdateEntityTurns( );
 
 				break;
 			case GameState.GAME_OVER:
@@ -271,6 +272,10 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
+	/// <summary>
+	/// Set the paused state of the game
+	/// </summary>
+	/// <param name="isPaused">Whether or not the game should be paused</param>
 	public void SetPauseState (bool isPaused) {
 		this.isPaused = isPaused;
 

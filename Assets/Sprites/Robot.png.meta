@@ -155,8 +155,8 @@ TextureImporter:
       name: Robot_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 54
+        y: 72
         width: 54
         height: 72
       alignment: 9
@@ -184,7 +184,7 @@ TextureImporter:
       name: Robot_2
       rect:
         serializedVersion: 2
-        x: 54
+        x: 108
         y: 72
         width: 54
         height: 72
@@ -205,7 +205,7 @@ TextureImporter:
       name: Robot_3
       rect:
         serializedVersion: 2
-        x: 108
+        x: 162
         y: 72
         width: 54
         height: 72
@@ -226,7 +226,7 @@ TextureImporter:
       name: Robot_4
       rect:
         serializedVersion: 2
-        x: 54
+        x: 0
         y: 0
         width: 54
         height: 72
@@ -247,7 +247,7 @@ TextureImporter:
       name: Robot_5
       rect:
         serializedVersion: 2
-        x: 108
+        x: 54
         y: 0
         width: 54
         height: 72
@@ -260,6 +260,48 @@ TextureImporter:
       bones: []
       spriteID: 713ae5085a0449947aea575ae7aef62b
       internalID: -1432799965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Robot_6
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abefa6998a5ec7344b6ce3541a40fceb
+      internalID: -1271361329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Robot_7
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 0
+        width: 54
+        height: 72
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a3f82468bdf367c4fb5777f78a790173
+      internalID: -863465590
       vertices: []
       indices: 
       edges: []
@@ -281,6 +323,8 @@ TextureImporter:
       Robot_3: -2108350682
       Robot_4: -117275815
       Robot_5: -1432799965
+      Robot_6: -1271361329
+      Robot_7: -863465590
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

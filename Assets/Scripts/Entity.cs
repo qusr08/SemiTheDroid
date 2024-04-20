@@ -9,6 +9,7 @@ public enum EntityType {
 public abstract class Entity : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] protected SpriteRenderer entitySpriteRenderer;
+	[SerializeField] private Sprite[ ] entitySprites;
 	[Header("Properties")]
 	[SerializeField] private int _turnsUntilAction;
 	[SerializeField] private int _turnOrder;
@@ -21,10 +22,9 @@ public abstract class Entity : MonoBehaviour {
 	[SerializeField] private Vector2Int _boardPosition;
 	[SerializeField] private List<Vector2Int> _hazardPositions;
 	[SerializeField] protected bool isKilled;
-
-	protected bool isFacingUp;
-	protected bool isFacingLeft;
-
+	[SerializeField] protected bool isFacingUp;
+	[SerializeField] protected bool isFacingLeft;
+	
 	/// <summary>
 	/// The name of this entity
 	/// </summary>
@@ -90,6 +90,8 @@ public abstract class Entity : MonoBehaviour {
 	private void Awake ( ) {
 		HazardPositions = new List<Vector2Int>( );
 		isKilled = false;
+		isFacingUp = false;
+		isFacingLeft = false;
 	}
 
 	protected void OnMouseEnter ( ) {
@@ -166,10 +168,15 @@ public abstract class Entity : MonoBehaviour {
 	/// <summary>
 	/// A custom action that this entity performs when it is its turn
 	/// </summary>
-	public abstract void PerformTurn ( );
+	public abstract IEnumerator PerformTurn ( );
 
 	/// <summary>
 	/// A function called whenever this entity is killed on the board
 	/// </summary>
-	public abstract void Kill ( );
+	public abstract IEnumerator OnKill ( );
+
+	/// <summary>
+	/// Called whenever this entity is created
+	/// </summary>
+	public abstract IEnumerator OnCreate ( );
 }

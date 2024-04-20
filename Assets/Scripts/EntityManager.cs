@@ -88,87 +88,6 @@ public class EntityManager : Singleton<EntityManager> {
 	}
 
 	/// <summary>
-	/// Spawn an entity onto a tile
-	/// </summary>
-	/// <param name="entityType">The type of entity to spawn</param>
-	/// <param name="tile">The tile to spawn the entity on</param>
-	public void SpawnEntity (EntityType entityType, Tile tile) {
-		// If the tile is equal to null, then do not try and spawn an entity
-		if (tile == null) {
-			return;
-		}
-
-		Entity newEntity = null;
-
-		switch (entityType) {
-			case EntityType.SPIKE:
-				newEntity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
-				newEntity.TurnsUntilAction = -1;
-
-				break;
-			case EntityType.ROBOT:
-				// If a robot has already been spawned, do not spawn another one
-				if (Robot != null) {
-					return;
-				}
-
-				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
-				newEntity.TurnsUntilAction = 1;
-
-				// Make sure the robot does not face towards a gap at the start of the game
-				// In this case it could be impossible for the player to do something to save the robot
-				List<Tile> cardinalTiles = BoardManager.Instance.SearchForTilesAt(BoardManager.Instance.GetCardinalPositions(tile.BoardPosition));
-				newEntity.Direction = cardinalTiles[Random.Range(0, cardinalTiles.Count)].BoardPosition - tile.BoardPosition;
-
-				Robot = (Robot) newEntity;
-
-				break;
-			case EntityType.LASER:
-				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Laser>( );
-				newEntity.Direction = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.left }[Random.Range(0, 2)];
-				newEntity.TurnsUntilAction = GetRandomTurnCount( );
-
-				break;
-			case EntityType.BOMB:
-				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Bomb>( );
-				newEntity.TurnsUntilAction = GetRandomTurnCount( );
-
-				break;
-		}
-
-		// Set entity variables that are the same for every entity
-		newEntity.Tile = tile;
-		newEntity.TurnOrder = 1;
-
-		// If there are no entities spawned yet, just add the new entity to the list, there is no need to sort it
-		if (Entities.Count == 0) {
-			Entities.Add(newEntity);
-			return;
-		}
-
-		// Loop through all of the entities on the board to sort the new entity by its turn count and turn order
-		// Lower turn counts are closer towards the start of the array and within that turn the lowest turn order is closer to the start as well
-		// So, the entity closest to the start of the array is the next entity to perform their action
-		for (int i = 0; i <= Entities.Count; i++) {
-			// If the current entity's turn count is higher than the new entities turn count, then insert the new entity at the current index
-			if (i == Entities.Count) {
-				// If the end of the entity array has been reached, just add the new entity to the end
-				Entities.Add(newEntity);
-
-				break;
-			} else if (Entities[i].TurnsUntilAction > newEntity.TurnsUntilAction) {
-				// If the entity needs to be added to the middle of the array, insert it
-				Entities.Insert(i, newEntity);
-
-				break;
-			}
-		}
-
-		// Since a new entity was added, update the turn orders for all the entities
-		UpdateEntityTurnOrders( );
-	}
-
-	/// <summary>
 	/// Update all of the tiles on the board that need to show a hazard based on the currently hovered entity
 	/// </summary>
 	public void UpdateShownHazardPositions ( ) {
@@ -224,9 +143,107 @@ public class EntityManager : Singleton<EntityManager> {
 	}
 
 	/// <summary>
+	/// Get a random turn count for an entity that is scaled to the board difficulty
+	/// </summary>
+	/// <returns>A random integer that is the turn count</returns>
+	public int GetRandomTurnCount ( ) {
+		// Get a range value to scale the difficulty of the board based on the survived turn count
+		float rangeValue = maxStartingTurnCount * Mathf.Exp(-GameManager.Instance.TurnCount * GameManager.Instance.DifficultyValue);
+
+		// Get a random number between the range of +-1 of the range value
+		// Round that number up to the nearest int
+		// Clamp the value between the min and max turn count
+		return Mathf.Clamp(Mathf.CeilToInt(Random.Range(rangeValue - 1f, rangeValue + 1f)), minStartingTurnCount, maxStartingTurnCount);
+	}
+	
+	/// <summary>
+	/// Spawn an entity onto a tile
+	/// </summary>
+	/// <param name="entityType">The type of entity to spawn</param>
+	/// <param name="tile">The tile to spawn the entity on</param>
+	public IEnumerator SpawnEntity (EntityType entityType, Tile tile) {
+		// If the tile is equal to null, then do not try and spawn an entity
+		if (tile == null) {
+			yield break;
+		}
+
+		Entity newEntity = null;
+
+		switch (entityType) {
+			case EntityType.SPIKE:
+				newEntity = Instantiate(spikePrefab, Vector3.zero, Quaternion.identity).GetComponent<Spike>( );
+				newEntity.TurnsUntilAction = -1;
+
+				break;
+			case EntityType.ROBOT:
+				// If a robot has already been spawned, do not spawn another one
+				if (Robot != null) {
+					yield break;
+				}
+
+				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
+				newEntity.TurnsUntilAction = 1;
+
+				// Make sure the robot does not face towards a gap at the start of the game
+				// In this case it could be impossible for the player to do something to save the robot
+				List<Tile> cardinalTiles = BoardManager.Instance.SearchForTilesAt(BoardManager.Instance.GetCardinalPositions(tile.BoardPosition));
+				newEntity.Direction = cardinalTiles[Random.Range(0, cardinalTiles.Count)].BoardPosition - tile.BoardPosition;
+
+				Robot = (Robot) newEntity;
+
+				break;
+			case EntityType.LASER:
+				newEntity = Instantiate(laserPrefab, Vector3.zero, Quaternion.identity).GetComponent<Laser>( );
+				newEntity.Direction = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.left }[Random.Range(0, 2)];
+				newEntity.TurnsUntilAction = GetRandomTurnCount( );
+
+				break;
+			case EntityType.BOMB:
+				newEntity = Instantiate(bombPrefab, Vector3.zero, Quaternion.identity).GetComponent<Bomb>( );
+				newEntity.TurnsUntilAction = GetRandomTurnCount( );
+
+				break;
+		}
+
+		// Wait until the on create coroutine is finished
+		yield return newEntity.OnCreate( );
+
+		// Set entity variables that are the same for every entity
+		newEntity.Tile = tile;
+		newEntity.TurnOrder = 1;
+
+		// If there are no entities spawned yet, just add the new entity to the list, there is no need to sort it
+		if (Entities.Count == 0) {
+			Entities.Add(newEntity);
+			yield break;
+		}
+
+		// Loop through all of the entities on the board to sort the new entity by its turn count and turn order
+		// Lower turn counts are closer towards the start of the array and within that turn the lowest turn order is closer to the start as well
+		// So, the entity closest to the start of the array is the next entity to perform their action
+		for (int i = 0; i <= Entities.Count; i++) {
+			// If the current entity's turn count is higher than the new entities turn count, then insert the new entity at the current index
+			if (i == Entities.Count) {
+				// If the end of the entity array has been reached, just add the new entity to the end
+				Entities.Add(newEntity);
+
+				break;
+			} else if (Entities[i].TurnsUntilAction > newEntity.TurnsUntilAction) {
+				// If the entity needs to be added to the middle of the array, insert it
+				Entities.Insert(i, newEntity);
+
+				break;
+			}
+		}
+
+		// Since a new entity was added, update the turn orders for all the entities
+		UpdateEntityTurnOrders( );
+	}
+
+	/// <summary>
 	/// Perform all entity turns based on their turn order and turn count
 	/// </summary>
-	public void UpdateEntityTurns ( ) {
+	public IEnumerator UpdateEntityTurns ( ) {
 		// Because some variables are updating as a result of the entity turn, just disable the info box
 		entityInfoBox.SetActive(false);
 
@@ -241,31 +258,18 @@ public class EntityManager : Singleton<EntityManager> {
 			EntityTurnQueue.RemoveAt(0);
 
 			// Perform that entities action
-			nextEntity.PerformTurn( );
+			yield return nextEntity.PerformTurn( );
 		}
 
-		// Update all of the entity turn counts
-		int turnOrderCounter = 1;
-		foreach (Entity entity in Entities) {
-			// Set the turn order of the current entity
-			entity.TurnOrder = turnOrderCounter;
-
-			// If the current entity has a turn order greater than 0, increase the turn order counter
-			if (entity.TurnsUntilAction > 0) {
-				turnOrderCounter++;
-			}
-		}
-
-		// Since the entities were updated, update the shown hazard tiles
+		// Since the entities were updated, update the shown hazard tiles and turn order
 		UpdateShownHazardPositions( );
-
 		UpdateEntityTurnOrders( );
 
 		// Once the entity turn is finished, switch the turn back to the player
 		// If the robot was destroyed, then the game state should not be the entities turn anymore and should be in the game over state
 		// Only switch the state if that did not happen
 		if (GameManager.Instance.GameState == GameState.ENTITY_TURN) {
-			GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
+			yield return GameManager.Instance.SetGameState(GameState.PLAYER_TURN);
 		}
 	}
 
@@ -274,38 +278,24 @@ public class EntityManager : Singleton<EntityManager> {
 	/// </summary>
 	/// <param name="exclusiveTileGroups">The tile groups in this list are the only ones that should be searched in</param>
 	/// <param name="excludedTileGroups">The tile groups in this list are never searched in</param>
-	public void SpawnRandomEntities (List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
+	public IEnumerator SpawnRandomEntities (List<TileGroup> exclusiveTileGroups = null, List<TileGroup> excludedTileGroups = null) {
 		// Get the distance between entity spawns
 		int spawnCounter = Mathf.CeilToInt((-3f * GameManager.Instance.TurnCount * GameManager.Instance.DifficultyValue) + maxStartingTurnCount + minStartingTurnCount);
 
 		// If the current survived turn count is not a multiple of the spawn counter, then do not spawn entities
 		// This means that entities will spawn slower in the beginning and faster in later turns
 		if (GameManager.Instance.TurnCount % spawnCounter != 0) {
-			return;
+			yield break;
 		}
 
 		// Spawn between 1 and 3 entities 
 		int entitySpawnCount = Random.Range(1, 4);
 		for (int i = 0; i < entitySpawnCount; i++) {
 			if (Random.Range(0f, 1f) < 0.5f) {
-				SpawnEntity(EntityType.LASER, BoardManager.Instance.GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
+				yield return SpawnEntity(EntityType.LASER, BoardManager.Instance.GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
 			} else {
-				SpawnEntity(EntityType.BOMB, BoardManager.Instance.GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
+				yield return SpawnEntity(EntityType.BOMB, BoardManager.Instance.GetRandomTile(ignoreEntityTiles: true, exclusiveTileGroups: exclusiveTileGroups, excludedTileGroups: excludedTileGroups));
 			}
 		}
-	}
-
-	/// <summary>
-	/// Get a random turn count for an entity that is scaled to the board difficulty
-	/// </summary>
-	/// <returns>A random integer that is the turn count</returns>
-	public int GetRandomTurnCount ( ) {
-		// Get a range value to scale the difficulty of the board based on the survived turn count
-		float rangeValue = maxStartingTurnCount * Mathf.Exp(-GameManager.Instance.TurnCount * GameManager.Instance.DifficultyValue);
-
-		// Get a random number between the range of +-1 of the range value
-		// Round that number up to the nearest int
-		// Clamp the value between the min and max turn count
-		return Mathf.Clamp(Mathf.CeilToInt(Random.Range(rangeValue - 1f, rangeValue + 1f)), minStartingTurnCount, maxStartingTurnCount);
 	}
 }
