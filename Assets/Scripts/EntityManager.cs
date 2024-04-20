@@ -53,10 +53,10 @@ public class EntityManager : Singleton<EntityManager> {
 				if (_hoveredEntity.EntityType != EntityType.SPIKE) {
 					string s = _hoveredEntity.TurnsUntilAction == 1 ? "" : "s";
 					entityTurnText.text = $"Will act in {_hoveredEntity.TurnsUntilAction} turn{s}";
-					entityTurnOrderText.text = $"Order in turn: {_hoveredEntity.TurnOrder}";
+					entityTurnOrderText.text = $"Turn Order: {_hoveredEntity.TurnOrder}";
 				} else {
-					entityTurnText.text = "";
-					entityTurnOrderText.text = "";
+					entityTurnText.text = "\n";
+					entityTurnOrderText.text = "\n";
 				}
 			}
 
@@ -113,8 +113,12 @@ public class EntityManager : Singleton<EntityManager> {
 				}
 
 				newEntity = Instantiate(robotPrefab, Vector3.zero, Quaternion.identity).GetComponent<Robot>( );
-				newEntity.Direction = new List<Vector2Int>( ) { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left }[Random.Range(0, 4)];
 				newEntity.TurnsUntilAction = 1;
+
+				// Make sure the robot does not face towards a gap at the start of the game
+				// In this case it could be impossible for the player to do something to save the robot
+				List<Tile> cardinalTiles = BoardManager.Instance.SearchForTilesAt(BoardManager.Instance.GetCardinalPositions(tile.BoardPosition));
+				newEntity.Direction = cardinalTiles[Random.Range(0, cardinalTiles.Count)].BoardPosition - tile.BoardPosition;
 
 				Robot = (Robot) newEntity;
 
@@ -150,17 +154,18 @@ public class EntityManager : Singleton<EntityManager> {
 			if (i == Entities.Count) {
 				// If the end of the entity array has been reached, just add the new entity to the end
 				Entities.Add(newEntity);
+
 				break;
 			} else if (Entities[i].TurnsUntilAction > newEntity.TurnsUntilAction) {
 				// If the entity needs to be added to the middle of the array, insert it
 				Entities.Insert(i, newEntity);
+
 				break;
-			} else if (Entities[i].TurnsUntilAction == newEntity.TurnsUntilAction) {
-				// If the current entity has the same turn count as the new entity, then increment the turn order of the new entity
-				// This will make the new entity go after all previously spawned entities with the same remaining turn count
-				newEntity.TurnOrder++;
 			}
 		}
+
+		// Since a new entity was added, update the turn orders for all the entities
+		UpdateEntityTurnOrders( );
 	}
 
 	/// <summary>
@@ -201,6 +206,24 @@ public class EntityManager : Singleton<EntityManager> {
 	}
 
 	/// <summary>
+	/// Update all of the turn orders for the entities on the board
+	/// </summary>
+	private void UpdateEntityTurnOrders ( ) {
+		int turnOrderCounter = 1;
+
+		// Loop through all the entities on the board
+		foreach (Entity entity in Entities) {
+			// Set the turn order of the current entity
+			entity.TurnOrder = turnOrderCounter;
+
+			// If the current entity has a turn order greater than 0, increase the turn order counter
+			if (entity.TurnsUntilAction > 0) {
+				turnOrderCounter++;
+			}
+		}
+	}
+
+	/// <summary>
 	/// Perform all entity turns based on their turn order and turn count
 	/// </summary>
 	public void UpdateEntityTurns ( ) {
@@ -221,8 +244,22 @@ public class EntityManager : Singleton<EntityManager> {
 			nextEntity.PerformTurn( );
 		}
 
+		// Update all of the entity turn counts
+		int turnOrderCounter = 1;
+		foreach (Entity entity in Entities) {
+			// Set the turn order of the current entity
+			entity.TurnOrder = turnOrderCounter;
+
+			// If the current entity has a turn order greater than 0, increase the turn order counter
+			if (entity.TurnsUntilAction > 0) {
+				turnOrderCounter++;
+			}
+		}
+
 		// Since the entities were updated, update the shown hazard tiles
 		UpdateShownHazardPositions( );
+
+		UpdateEntityTurnOrders( );
 
 		// Once the entity turn is finished, switch the turn back to the player
 		// If the robot was destroyed, then the game state should not be the entities turn anymore and should be in the game over state

@@ -19,13 +19,15 @@ public class Robot : Entity {
 		arrowSpriteRenderer.flipX = entitySpriteRenderer.flipX = isFacingLeft;
 		arrowSpriteRenderer.sprite = arrowSprites[isFacingUp ? 0 : 1];
 		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 0 : 1];
+
+		// Set the sorting order of the arrow, making sure that it appears above the tile it is on
+		// This makes the arrow show up above the entity that is on the tile it is placed on
+		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 	}
 
 	protected override void SetBoardPosition (Vector2Int boardPosition) {
 		base.SetBoardPosition(boardPosition);
 
-		// Set the sorting order of the arrow, making sure that it appears above the tile it is on
-		// This makes the arrow show up above the entity that is on the tile it is placed on
 		arrowSpriteRenderer.sortingOrder = entitySpriteRenderer.sortingOrder + (isFacingUp ? -4 : 6);
 	}
 
