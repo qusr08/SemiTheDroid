@@ -47,7 +47,7 @@ public class Laser : Entity {
 	protected override void SetDirection (Vector2Int facingDirection) {
 		base.SetDirection(facingDirection);
 
-		beamSpriteRenderer.flipX = entitySpriteRenderer.flipX = isFacingLeft;
+		beamSpriteRenderer.flipX = entitySpriteRenderer.flipX = (isFacingLeft && isFacingUp) || (!isFacingLeft && !isFacingUp);
 	}
 
 	public override IEnumerator PerformTurn ( ) {
@@ -65,6 +65,7 @@ public class Laser : Entity {
 		}
 
 		// Enable the laser beam
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.LASER);
 		beamSpriteRenderer.enabled = true;
 
 		// Loop through all tiles that are effected by the hazard positions of this laser
@@ -98,6 +99,8 @@ public class Laser : Entity {
 	}
 
 	public override IEnumerator OnCreate ( ) {
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.SPAWN);
+
 		entitySpriteRenderer.sprite = laserSprites[0];
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		entitySpriteRenderer.sprite = laserSprites[1];

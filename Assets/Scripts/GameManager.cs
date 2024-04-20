@@ -12,6 +12,10 @@ public enum MenuState {
 	MAIN, PAUSE, GAME_OVER, CREDITS, HOW_TO_PLAY, PLAY
 }
 
+public enum SoundEffectType {
+	EXPLOSION, LASER, PLACE_TILES, PLAYER_TURN, ROTATE, SELECT_TILES, SPAWN, STEP, CANCEL
+}
+
 public class GameManager : Singleton<GameManager> {
 	[Header("References")]
 	[SerializeField] private TextMeshProUGUI turnCountText;
@@ -22,6 +26,9 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private GameObject creditsMenu;
 	[SerializeField] private GameObject howToPlayMenu;
 	[SerializeField] private GameObject mainMenu;
+	[Space]
+	[SerializeField] private AudioSource audioSource;
+	[SerializeField] private AudioClip[ ] soundEffects;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float _animationSpeed;
 	[SerializeField] private GameState _gameState;
@@ -144,6 +151,8 @@ public class GameManager : Singleton<GameManager> {
 				// Update the center of the board because tiles were moved
 				BoardManager.Instance.RecalculateCenter( );
 
+				PlaySoundEffect(SoundEffectType.PLACE_TILES);
+
 				SelectTileGroup(null);
 
 				// Now that the player has successfully moved, have the entities do their turn
@@ -153,6 +162,8 @@ public class GameManager : Singleton<GameManager> {
 			// If the right mouse button is pressed, deselect the tile group and reset its position
 			if (Input.GetMouseButtonDown(1)) {
 				selectedTileGroup.ResetTileStates( );
+
+				PlaySoundEffect(SoundEffectType.CANCEL);
 
 				SelectTileGroup(null);
 			}
@@ -254,6 +265,8 @@ public class GameManager : Singleton<GameManager> {
 		if (selectedTileGroup != null) {
 			selectedTileGroup.TileGroupState = TileState.SELECTED;
 
+			PlaySoundEffect(SoundEffectType.SELECT_TILES);
+
 			// Select the origin tile
 			selectedTileGroup.OriginTile = originTile;
 			lastSelectedPosition = originTile.BoardPosition;
@@ -309,6 +322,8 @@ public class GameManager : Singleton<GameManager> {
 					TurnCount++;
 				}
 
+				PlaySoundEffect(SoundEffectType.PLAYER_TURN);
+
 				break;
 			case GameState.ENTITY_TURN:
 				turnIndicatorText.text = "Entities' Turn";
@@ -323,7 +338,7 @@ public class GameManager : Singleton<GameManager> {
 
 				// Update the stats text
 				statsText.text = $"Turns survived: {TurnCount}\nLasers destroyed: {LasersDestroyed}\nTotal run time: {(int) (Time.time - startTime)} seconds";
-				
+
 				SetMenuState(MenuState.GAME_OVER);
 
 				break;
@@ -369,17 +384,38 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	/// <summary>
+	/// Function called to unpause the game
+	/// </summary>
+	public void UnPauseGame ( ) {
+		SetMenuState(MenuState.PLAY);
+	}
+
+	/// <summary>
 	/// Function that navigates the player back to the main menu
 	/// </summary>
 	public void GoToMainMenu ( ) {
 		SetMenuState(MenuState.MAIN);
 	}
 
-	public void GoToCreditsMenu () {
+	/// <summary>
+	/// Function that navigates to the credits menu
+	/// </summary>
+	public void GoToCreditsMenu ( ) {
 		SetMenuState(MenuState.CREDITS);
 	}
 
-	public void GoToHowToPlayMenu () {
+	/// <summary>
+	/// Function that navigates to the how to play menu
+	/// </summary>
+	public void GoToHowToPlayMenu ( ) {
 		SetMenuState(MenuState.HOW_TO_PLAY);
+	}
+
+	/// <summary>
+	/// Plays the specified sound effect
+	/// </summary>
+	/// <param name="soundEffectType">The sound effect type to play</param>
+	public void PlaySoundEffect (SoundEffectType soundEffectType) {
+		audioSource.PlayOneShot(soundEffects[(int) soundEffectType]);
 	}
 }

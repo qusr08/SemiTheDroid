@@ -188,10 +188,11 @@ public abstract class Entity : MonoBehaviour {
 
 	protected IEnumerator ExplodeAnimation ( ) {
 		// Make sure the explosion goes over all surrounding tiles and entities
-		entitySpriteRenderer.sortingOrder += 10;
+		entitySpriteRenderer.sortingOrder += 14;
 
 		// Go through all the sprites in the animation
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.EXPLOSION);
 		SetEntitySpriteType(EntitySpriteType.EXPL_1);
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		SetEntitySpriteType(EntitySpriteType.EXPL_2);

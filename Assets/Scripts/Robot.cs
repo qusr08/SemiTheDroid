@@ -69,6 +69,13 @@ public class Robot : Entity {
 				yield return OnKill( );
 				yield break;
 			}
+
+			// If the entity is a bomb, then the robot dies and the bomb dies
+			if (toTile.Entity.EntityType == EntityType.BOMB) {
+				yield return WalkToTileAnimation(toTile);
+				yield return OnKill( );
+				yield break;
+			}
 		}
 
 		// Do an animation for walking forward
@@ -126,15 +133,19 @@ public class Robot : Entity {
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 0 : 4];
 		transform.localPosition += movement;
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 1 : 5];
 		transform.localPosition += movement;
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 2 : 6];
 		transform.localPosition += movement;
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 3 : 7];
 		transform.localPosition += movement;
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 
 		// If the robot is facing up, set the tile after walking
 		if (isFacingUp) {
@@ -157,15 +168,19 @@ public class Robot : Entity {
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 0 : 4];
 			transform.localPosition += fallMovement;
+			GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 1 : 5];
 			transform.localPosition += fallMovement;
+			GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 2 : 6];
 			transform.localPosition += fallMovement;
+			GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 			yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 			entitySpriteRenderer.sprite = robotSprites[isFacingUp ? 3 : 7];
 			transform.localPosition += fallMovement;
+			GameManager.Instance.PlaySoundEffect(SoundEffectType.STEP);
 
 			yield return OnKill( );
 		}

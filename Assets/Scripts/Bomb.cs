@@ -62,6 +62,8 @@ public class Bomb : Entity {
 	}
 
 	public override IEnumerator OnCreate ( ) {
+		GameManager.Instance.PlaySoundEffect(SoundEffectType.SPAWN);
+
 		entitySpriteRenderer.sprite = bombSprites[0];
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		entitySpriteRenderer.sprite = bombSprites[1];

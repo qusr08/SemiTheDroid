@@ -161,6 +161,7 @@ public class TileGroup {
 				// Update the tile sprites if the tiles were rotated
 				// If the tiles were just translated, then there is no need to update
 				if (rotationDirection != 0) {
+					GameManager.Instance.PlaySoundEffect(SoundEffectType.ROTATE);
 					RecalculateTileSprites( );
 				}
 
