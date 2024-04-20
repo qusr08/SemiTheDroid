@@ -8,16 +8,24 @@ public enum GameState {
 	GENERATE, PLAYER_TURN, ENTITY_TURN, GAME_OVER
 }
 
+public enum MenuState {
+	MAIN, PAUSE, GAME_OVER, CREDITS, HOW_TO_PLAY, PLAY
+}
+
 public class GameManager : Singleton<GameManager> {
 	[Header("References")]
 	[SerializeField] private TextMeshProUGUI turnCountText;
 	[SerializeField] private TextMeshProUGUI turnIndicatorText;
+	[SerializeField] private TextMeshProUGUI statsText;
 	[SerializeField] private GameObject pauseMenu;
 	[SerializeField] private GameObject gameOverMenu;
-	[SerializeField] private TextMeshProUGUI statsText;
+	[SerializeField] private GameObject creditsMenu;
+	[SerializeField] private GameObject howToPlayMenu;
+	[SerializeField] private GameObject mainMenu;
 	[Header("Properties")]
 	[SerializeField, Min(0.01f)] private float _animationSpeed;
 	[SerializeField] private GameState _gameState;
+	[SerializeField] private MenuState menuState;
 	[SerializeField, Range(0f, 0.1f)] private float _difficultyValue;
 	[Header("Information")]
 	[SerializeField] private float animationTimer;
@@ -25,7 +33,6 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private Vector2Int lastSelectedPosition;
 	[SerializeField] private int _turnCount;
 	[SerializeField] private int _lasersDestroyed;
-	[SerializeField] private bool isPaused;
 	[SerializeField] private float startTime;
 
 	private TileGroup selectedTileGroup;
@@ -83,13 +90,29 @@ public class GameManager : Singleton<GameManager> {
 		CurrentAnimationFrame = 0;
 	}
 
+	private void Start ( ) {
+		SetMenuState(MenuState.MAIN);
+	}
+
 	private void Update ( ) {
 		// Have the escape be to toggle the paused state
 		if (Input.GetKeyDown(KeyCode.Escape)) {
-			SetPauseState(!isPaused);
+			if (menuState == MenuState.PLAY) {
+				SetMenuState(MenuState.PAUSE);
+			} else if (menuState == MenuState.PAUSE) {
+				SetMenuState(MenuState.PLAY);
+			}
+		}
+
+		if (menuState != MenuState.PLAY) {
+			return;
 		}
 
 		UpdateAnimationFrame( );
+
+		if (GameState != GameState.PLAYER_TURN) {
+			return;
+		}
 
 		// Update the selected tile group's position if there is one selected
 		if (IsTileGroupSelected) {
@@ -137,6 +160,29 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	/// <summary>
+	/// Update the current animation frame
+	/// </summary>
+	private void UpdateAnimationFrame ( ) {
+		// Increment the animation timer by the time that has passed since the last update call
+		// Once the timer has reached the animation speed, update the sprites
+		animationTimer += Time.deltaTime;
+		if (animationTimer >= AnimationSpeed) {
+			// Subtract the animation time from the animation timer
+			// This makes it slightly more exact in when the animation changes sprites
+			animationTimer -= AnimationSpeed;
+
+			// Increment the current animation frame
+			// All animations should use this so they are all synced
+			// All animations will be 4 looped frames
+			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
+
+			// Update all of the tiles if they need to be animated
+			// If there are no subscribed events, this throws an error
+			OnAnimationFrame?.Invoke( );
+		}
+	}
+
+	/// <summary>
 	/// Select a tile group on the board so it can be repositioned
 	/// </summary>
 	/// <param name="tileGroup">The tile group to select</param>
@@ -153,7 +199,7 @@ public class GameManager : Singleton<GameManager> {
 		}
 
 		// Do not do anything while the game is paused
-		if (isPaused) {
+		if (menuState == MenuState.PAUSE) {
 			return;
 		}
 
@@ -236,17 +282,17 @@ public class GameManager : Singleton<GameManager> {
 		GameState oldGameState = GameState;
 		GameState = gameState;
 
+		// No matter the game state, set the selected tile group to null
+		SelectTileGroup(null);
+
 		// Do specific things based on the new game state
 		switch (GameState) {
 			case GameState.GENERATE:
 				// Set default values
 				TurnCount = 0;
-				isPaused = false;
 				startTime = Time.time;
 
-				// Set menus to not be active anymore
-				pauseMenu.SetActive(false);
-				gameOverMenu.SetActive(false);
+				SetMenuState(MenuState.PLAY);
 
 				yield return BoardManager.Instance.Generate( );
 
@@ -259,7 +305,7 @@ public class GameManager : Singleton<GameManager> {
 					// Spawn new random entities in
 					// Make sure entities are never spawned on the same tile group has the robot
 					yield return EntityManager.Instance.SpawnRandomEntities(excludedTileGroups: new List<TileGroup>( ) { EntityManager.Instance.Robot.Tile.TileGroup });
-					
+
 					TurnCount++;
 				}
 
@@ -272,44 +318,68 @@ public class GameManager : Singleton<GameManager> {
 
 				break;
 			case GameState.GAME_OVER:
+				// Wait for the robot to be destroyed
+				yield return new WaitForSeconds(AnimationSpeed * 6f);
+
+				// Update the stats text
 				statsText.text = $"Turns survived: {TurnCount}\nLasers destroyed: {LasersDestroyed}\nTotal run time: {(int) (Time.time - startTime)} seconds";
-				gameOverMenu.SetActive(true);
+				
+				SetMenuState(MenuState.GAME_OVER);
 
 				break;
 		}
 	}
 
 	/// <summary>
-	/// Set the paused state of the game
+	/// Set the menu state of the game
 	/// </summary>
-	/// <param name="isPaused">Whether or not the game should be paused</param>
-	public void SetPauseState (bool isPaused) {
-		this.isPaused = isPaused;
+	/// <param name="menuState">The menu state to set the game to</param>
+	public void SetMenuState (MenuState menuState) {
+		// No matter the menu state, set the selected tile group to null
+		SelectTileGroup(null);
 
-		// Set the pause menu visibility based on the pause state
-		pauseMenu.SetActive(isPaused);
+		this.menuState = menuState;
+
+		pauseMenu.SetActive(menuState == MenuState.PAUSE);
+		gameOverMenu.SetActive(menuState == MenuState.GAME_OVER);
+		mainMenu.SetActive(menuState == MenuState.MAIN);
+		creditsMenu.SetActive(menuState == MenuState.CREDITS);
+		howToPlayMenu.SetActive(menuState == MenuState.HOW_TO_PLAY);
 	}
 
 	/// <summary>
-	/// Update the current animation frame
+	/// Function that is called to start the game
 	/// </summary>
-	private void UpdateAnimationFrame ( ) {
-		// Increment the animation timer by the time that has passed since the last update call
-		// Once the timer has reached the animation speed, update the sprites
-		animationTimer += Time.deltaTime;
-		if (animationTimer >= AnimationSpeed) {
-			// Subtract the animation time from the animation timer
-			// This makes it slightly more exact in when the animation changes sprites
-			animationTimer -= AnimationSpeed;
+	public void PlayGame ( ) {
+		StartCoroutine(SetGameState(GameState.GENERATE));
+	}
 
-			// Increment the current animation frame
-			// All animations should use this so they are all synced
-			// All animations will be 4 looped frames
-			CurrentAnimationFrame = (CurrentAnimationFrame + 1) % 4;
+	/// <summary>
+	/// Function that is called to quit the game :(
+	/// </summary>
+	public void Quit ( ) {
+		Application.Quit( );
+	}
 
-			// Update all of the tiles if they need to be animated
-			// If there are no subscribed events, this throws an error
-			OnAnimationFrame?.Invoke( );
-		}
+	/// <summary>
+	/// Function that is called to pause the game
+	/// </summary>
+	public void PauseGame ( ) {
+		SetMenuState(MenuState.PAUSE);
+	}
+
+	/// <summary>
+	/// Function that navigates the player back to the main menu
+	/// </summary>
+	public void GoToMainMenu ( ) {
+		SetMenuState(MenuState.MAIN);
+	}
+
+	public void GoToCreditsMenu () {
+		SetMenuState(MenuState.CREDITS);
+	}
+
+	public void GoToHowToPlayMenu () {
+		SetMenuState(MenuState.HOW_TO_PLAY);
 	}
 }

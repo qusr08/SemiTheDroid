@@ -188,7 +188,7 @@ public abstract class Entity : MonoBehaviour {
 
 	protected IEnumerator ExplodeAnimation ( ) {
 		// Make sure the explosion goes over all surrounding tiles and entities
-		entitySpriteRenderer.sortingOrder = 999;
+		entitySpriteRenderer.sortingOrder += 10;
 
 		// Go through all the sprites in the animation
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
@@ -202,11 +202,6 @@ public abstract class Entity : MonoBehaviour {
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
 		SetEntitySpriteType(EntitySpriteType.NONE);
 		yield return new WaitForSeconds(GameManager.Instance.AnimationSpeed);
-
-		// If the type of this entity is a robot, then set the game state to game over
-		if (EntityType == EntityType.ROBOT) {
-			yield return GameManager.Instance.SetGameState(GameState.GAME_OVER);
-		}
 
 		// Destroy the game object
 		Destroy(gameObject);

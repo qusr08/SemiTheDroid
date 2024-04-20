@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Robot : Entity {
@@ -68,13 +69,6 @@ public class Robot : Entity {
 				yield return OnKill( );
 				yield break;
 			}
-
-			// If the entity is a bomb, then the robot dies and the bomb dies
-			if (toTile.Entity.EntityType == EntityType.BOMB) {
-				yield return WalkToTileAnimation(toTile);
-				yield return toTile.Entity.PerformTurn( );
-				yield break;
-			}
 		}
 
 		// Do an animation for walking forward
@@ -91,7 +85,7 @@ public class Robot : Entity {
 
 		StartCoroutine(ExplodeAnimation( ));
 
-		yield return null;
+		yield return GameManager.Instance.SetGameState(GameState.GAME_OVER);
 	}
 
 	public override IEnumerator OnCreate ( ) {
@@ -111,7 +105,7 @@ public class Robot : Entity {
 		Vector3 movement = new Vector3(boardDirection.x, boardDirection.y, 0) * 0.25f;
 
 		// Each frame that the robot is falling, it will be moved by this amount
-		Vector3 fallMovement = new Vector3(0, -0.25f, 0);
+		Vector3 fallMovement = new Vector3(0, -1f, 0);
 
 		// If the robot is facing down, set the tile before walking
 		if (!isFacingUp) {
