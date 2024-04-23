@@ -279,9 +279,19 @@ public class EntityManager : Singleton<EntityManager> {
 		// Get the distance between entity spawns
 		int spawnCounter = Mathf.CeilToInt((-3f * GameManager.Instance.TurnCount * GameManager.Instance.DifficultyValue) + maxStartingTurnCount + minStartingTurnCount);
 
+		// Loop through all the entities on the board and check to see if there are any hazards
+		bool hazardsOnBoard = false;
+		foreach (Entity entity in Entities) {
+			if (entity.EntityType == EntityType.LASER || entity.EntityType == EntityType.BOMB) {
+				hazardsOnBoard = true;
+				break;
+			}
+		}
+
 		// If the current survived turn count is not a multiple of the spawn counter, then do not spawn entities
 		// This means that entities will spawn slower in the beginning and faster in later turns
-		if (GameManager.Instance.TurnCount % spawnCounter != 0) {
+		// However, if there are no hazards on the board, spawn in some more
+		if (hazardsOnBoard && GameManager.Instance.TurnCount % Mathf.Max(1f, spawnCounter) != 0) {
 			yield break;
 		}
 
